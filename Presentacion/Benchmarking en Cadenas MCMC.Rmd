@@ -1,0 +1,1673 @@
+---
+title: "Benchmarking en Cadenas MCMC"
+subtitle: "Aplicación al Ingreso Medio e Indicadores del Mercado Laboral"
+author: "Andrés Gutierrez y Stalyn Guerrero"
+date: "`r Sys.Date()`"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+library(rstan)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+```
+
+
+
+## Introducción (I)
+
+* En la inferencia Bayesiana para estimación de áreas pequeñas (SAE), los métodos de Monte Carlo por Cadenas de Markov (MCMC) permiten aproximar distribuciones posteriores complejas.  
+
+* Estos métodos se emplean para modelos con:
+  - Estructura jerárquica.  
+  - Supuestos de distribución no estándar.  
+
+* La validez de los estimadores depende de la convergencia y eficiencia de las cadenas.
+
+
+## Introducción (II)
+
+* El proceso de benchmarking de cadenas MCMC es crucial en SAE, porque:
+
+  - Garantiza que las estimaciones desagregadas (ej. tasas de ocupación, participación o desempleo por área pequeña) sean coherentes con los niveles de agregación donde la encuesta es representativa, por ejemplo, divisiones administrativas mayores o nivel nacional.  
+
+  - Debe tenerse presente que el benchmarking es un procedimiento de ajuste estético: no mejora la calidad intrínseca del estimador, pero sí asegura consistencia y comparabilidad.  
+
+* Como ejemplo, se usarán:  
+  - El ingreso medio 
+  - Los indicadores del mercado laboral (TO, TP y TD).  
+
+Donde la calidad de las cadenas impacta directamente la precisión y coherencia de los estimadores por dominio.
+
+
+
+# Modelo de unidad
+
+## Modelo de unidad para la estimación del ingreso medio
+
+Uno de los primeros problemas a los que debemos enfrentarnos es la estimación del ingreso medio, la cual en una variable no simétrica que toma valores en los positivos. Sin embargo, empleando los métodos Bayesiano es posible obtener estimaciones de esta sin realizar una transformación 
+
+
+## Obejtivo
+
+- Estimar el **ingreso medio** de las personas en cada dominio $d$:
+
+$$
+\bar{Y}_d = \frac{\sum_{U_d}y_{di}}{N_d}
+$$
+- Donde $y_{di}$ es el ingreso de cada persona $i$ en el dominio $d$ y $U_d$ es la población del dominio.
+
+## Descomposición muestral
+
+- Separando la población en la **muestra** $s_d$ y el **complemento fuera de muestra** $s_d^c$:
+
+
+$$
+\begin{equation*}
+\bar{Y}_d =  \frac{\sum_{s_d}y_{di} + \sum_{s^c_d}y_{di}}{N_d} 
+\end{equation*}
+$$
+
+- Esto muestra que el ingreso medio del dominio depende tanto de los datos observados como de los no observados.
+
+## Estimador bajo modelo de unidad (I)
+
+- Sustituimos los valores fuera de muestra por predicciones del modelo:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{s_d}y_{di} + \sum_{s^c_d}\hat{y}_{di}}{N_d}
+$$
+
+- Donde
+
+$$
+\hat{y}_{di} = E_{\mathscr{M}}\left(y_{di} \mid \mathbf{x}_d, \boldsymbol{\beta}\right)
+$$
+
+y $\mathscr{M}$ es la medida de probabilidad inducida por el modelamiento.
+
+## Estimador bajo modelo de unidad (II)
+
+- De esta forma:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{i \in U_d} \hat{y}_{di}}{N_d}
+$$
+
+- Es decir, el estimador combina la información muestral con las predicciones del modelo para toda la población.
+
+## Modelo Bayesiano (I)
+
+- Para predecir el ingreso medio en personas no observadas, se asume el siguiente modelo jerárquico:
+
+$$
+\begin{eqnarray*}
+Y_{di} &\sim & N\left(\mu_{di},\sigma_e^{2}\right)\\
+\mu_{di}&=&\boldsymbol{x}_{di}^{T}\boldsymbol{\beta}+u_{d}+e_{di} 
+\end{eqnarray*}
+$$
+
+- Donde:  
+  - $Y_{di}$ = ingreso de la $i$-ésima persona en el dominio $d$  
+  - $\mathbf{x}_{di}$ = covariables observadas  
+  - $\boldsymbol{\beta}$ = vector de coeficientes fijos  
+  - $u_d$ = efecto aleatorio del dominio $d$  
+  - $e_{di}$ = error individual
+
+
+## Modelo Bayesiano (II)
+
+- Supuestos de los componentes aleatorios:
+
+$$
+u_d \sim N(0, \sigma_u^2), \quad
+e_{di} \sim N(0, \sigma_e^2)
+$$
+
+- Los efectos aleatorios permiten capturar la **heterogeneidad entre dominios** y la variabilidad individual dentro de cada dominio.  
+
+- Esto convierte el modelo en un **modelo lineal jerárquico normal** aplicado a unidades.
+
+## Modelo Bayesiano (III)
+
+- Priors **no informativos** usados para la inferencia Bayesiana:
+
+$$
+\beta_k \sim N(0, 1000), \quad
+\sigma_e^2 \sim IG(0.0001, 0.0001)
+$$
+
+- El proceso de predicción del ingreso medio en dominios no observados se realiza mediante **MCMC**, combinando la información muestral y la estructura del modelo jerárquico.  
+- Esta aproximación permite:  
+  - Propagar la incertidumbre de los parámetros.  
+  - Obtener predicciones consistentes a nivel de unidad y dominio.
+
+
+## Proceso de estimación en `R` (I)
+
+::: {.callout-tip}
+### Librerías principales utilizadas:
+```{r}
+# Interprete de STAN en R
+library(rstan)
+library(rstanarm)
+# Manejo de bases de datos.
+library(tidyverse)
+# Gráficas de los modelos. 
+library(bayesplot)
+library(patchwork)
+# Organizar la presentación de las tablas
+library(kableExtra)
+library(printr)
+```
+:::
+
+## Proceso de estimación en `R` (II) {.scroll-container}
+
+- Funciones desarrolladas para simplificar la metodología (archivo `funciones_mrp.R`):
+
+1. **plot_interaction**:  
+   - Crea diagramas de líneas para estudiar la interacción entre variables.
+   - Útil para detectar solapamientos y decidir si incluir interacción en el modelo.
+
+2. **Plot_Compare**:  
+   - Valida la homologación entre censo y encuesta.
+   - Compara proporciones de variables homogéneas entre ambos conjuntos de datos.
+
+3. **Aux_Agregado**:  
+   - Genera estimaciones a diferentes niveles de agregación.
+   - Especialmente útil en procesos repetitivos o cuando se requiere análisis por dominios.
+
+**Las funciones están diseñada específicamente  para este  proceso**
+
+
+## Encuesta de hogares
+
+Los datos empleados en esta ocasión corresponden a la ultima encuesta de hogares, la cual ha sido estandarizada por *CEPAL* y se encuentra disponible en *BADEHOG*
+
+
+```{r, echo = FALSE, eval=FALSE}
+encuesta <- readRDS("Recursos/encuesta2017CHL.Rds")
+
+encuesta_mrp <- encuesta %>% 
+  transmute(
+    dam =  haven::as_factor(dam_ee ,levels = "values"),
+    dam2 =  haven::as_factor(comuna,levels = "values"),
+    dam = str_pad(dam, width = 2, pad = "0"),
+    dam2 = str_pad(dam2, width = 5, pad = "0"), 
+    upm = `_upm`,
+    estrato = `_estrato`,
+  ingreso = ingcorte,lp,li,
+    logingreso = log(ingcorte + 1),
+  area = case_when(area_ee == 1 ~ "1", TRUE ~ "0"),
+  sexo = as.character(sexo),
+
+  anoest = case_when(
+    edad < 6 | is.na(anoest)   ~ "98"  , #No aplica
+    anoest == 99 ~ "99", #NS/NR
+    anoest == 0  ~ "1", # Sin educacion
+    anoest %in% c(1:6) ~ "2",       # 1 - 6
+    anoest %in% c(7:12) ~ "3",      # 7 - 12
+    anoest > 12 ~ "4",      # mas de 12
+    TRUE ~ "Error"  ),
+
+  edad = case_when(
+    edad < 15 ~ "1",
+    edad < 30 ~ "2",
+    edad < 45 ~ "3",
+    edad < 65 ~ "4",
+    TRUE ~ "5"),
+
+  etnia = case_when(
+    etnia_ee == 1 ~ "1", # Indigena
+    etnia_ee == 2 ~ "2",
+     TRUE ~ "3"), # Otro
+ fep = `_feh`
+) 
+
+saveRDS(encuesta_mrp, "Recursos/encuesta_mrp.rds")
+```
+
+
+```{r, echo=FALSE}
+encuesta_mrp <- readRDS("Recursos/encuesta_mrp.rds")
+tba(encuesta_mrp %>% head(10)) 
+```
+
+
+## Variables de la encuesta
+
+-   *dam*: Corresponde al código asignado a la división administrativa mayor del país.
+
+-   *dam2*: Corresponde al código asignado a la segunda división administrativa del país.
+
+-   *lp* y *li* lineas de pobreza y pobreza extrema definidas por CEPAL. 
+
+-   *área* división geográfica (Urbano y Rural). 
+
+-   *sexo* Hombre y Mujer. 
+
+-   *etnia* En estas variable se definen tres grupos:  afrodescendientes, indígenas y Otros. 
+
+-   *anoest* Años de escolaridad  
+
+-   *edad* Rangos de edad 
+
+-   *fep* Factor de expansión por persona
+
+
+## Validación de encuesta frente al censo.
+
+```{r, eval=FALSE, echo=FALSE}
+library(survey)
+library(srvyr)
+library(patchwork)
+censo_dam2 <- readRDS("Recursos/censo_dam2.rds")
+
+p1_dam <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "dam")
+p1_anotes <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "anoest")
+p1_edad <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "edad")
+p1 <- (p1_dam$gg_plot )/(p1_anotes$gg_plot + p1_edad$gg_plot)
+
+ggsave(plot = p1 + theme_light(),
+       filename = "Recursos/plot_comp.png",
+       scale = 3)
+
+```
+
+```{r echo=FALSE, out.width = "1000px", out.height="650px",fig.align='center'}
+knitr::include_graphics("Recursos/plot_comp.png")
+```
+
+## Información Auxiliar (I)
+
+- La información auxiliar proviene de:
+  - **Censo de población**
+  - **Imágenes satelitales**
+
+- Variables estandarizadas (ejemplo):
+  - Luces nocturnas  
+  - Cobertura de cultivos y urbano  
+  - Modificación humana  
+  - Accesibilidad a hospitales  
+
+## Información Auxiliar (II)
+
+```{r, echo=FALSE}
+statelevel_predictors_df <-
+  readRDS("Recursos/statelevel_predictors_df_dam2.rds") %>% 
+    mutate_at(.vars = c("luces_nocturnas",
+                      "cubrimiento_cultivo",
+                      "cubrimiento_urbano",
+                      "modificacion_humana",
+                      "accesibilidad_hospitales",
+                      "accesibilidad_hosp_caminado"),
+            function(x) as.numeric(scale(x)))
+tba(statelevel_predictors_df  %>%  head(5))
+```
+
+
+## Niveles de Agregación
+
+- De la literatura y simulaciones se concluye que:  
+  - Las predicciones con muestra sin agregar y agregada convergen a la media del dominio.  
+  - Usar muestra agregada reduce el tiempo computacional para la convergencia MCMC.  
+
+- Variables de agregación seleccionadas: dam2 (división administrativa menor),  área, sexo,   anoest (años de estudio), edad y etnia
+
+
+## Encuesta Agregada
+
+- Construcción de la base de datos agregada:
+
+```{r, echo=FALSE}
+byAgrega <- c("dam2",  "area", "sexo",   "anoest", "edad",   "etnia")
+
+encuesta_df_agg <-
+  encuesta_mrp %>%                    # Encuesta  
+  group_by_at(all_of(byAgrega)) %>%   # Agrupar por el listado de variables
+  summarise(n = n(),                  # Número de observaciones
+  # Ingreso medio de las personas con características similares.           
+             logingreso = mean(logingreso), 
+            .groups = "drop") %>%     
+  arrange(desc(n))                    # Ordenar la base.
+
+tba(encuesta_df_agg %>% head(8))
+```
+
+- Finalmente, se unifica con la información auxiliar:
+
+::: {.callout-tip}
+### Código de R
+```{r}
+encuesta_df_agg <- inner_join(encuesta_df_agg, statelevel_predictors_df)
+```
+:::
+
+
+## Definición del Modelo Multinivel
+
+- Se utiliza un **modelo jerárquico bayesiano** para el ingreso medio:
+$$
+\begin{align*}
+\log(Y_{di}) &\sim (1 \mid dam2) + (1 \mid edad) + (1 \mid etnia) \\ 
+& + \beta_0 + \beta_1\times edad + \beta_2\times sexo + \beta_3\times tasa\_desocupacion \\
+             &+ \beta_4\times luces\_nocturnas + \beta_5\times cubrimiento\_cultivo \\
+             &+ \beta_6\times cubrimiento\_urbano + \beta_7\times modificacion\_humana
+\end{align*}
+$$
+
+- Estimado con `stan_lmer` (`rstanarm`).  
+- Efecto aleatorio: $u_d$ por dominio (`dam2`).  
+- Covariables: demográficas y satelitales.  
+
+
+
+## Proceso de estimación en `R` (I)
+
+::: {.callout-tip}
+### Código de R 
+```{r, eval = FALSE}
+options(MC.cores=parallel::detectCores()) # Permite procesar en paralelo. 
+fit <- stan_lmer(
+  logingreso ~                               # Ingreso medio (Y)
+    (1 | dam2) +                          # Efecto aleatorio (ud)
+    (1 | edad) +
+    (1 | etnia) +
+    sexo  +                               # Efecto fijo (Variables X)
+    tasa_desocupacion + luces_nocturnas + cubrimiento_cultivo +
+    cubrimiento_urbano +  modificacion_humana  ,
+    weights = n,            # Número de observaciones. 
+    data = encuesta_df_agg, # Encuesta agregada 
+    verbose = TRUE,         # Muestre el avance del proceso
+    chains = 4,             # Número de cadenas.
+    iter = 2000              # Número de realizaciones de la cadena
+                )
+saveRDS(fit, file = "Recursos/Día3/Sesion1/Data/fit_ingresos.rds")
+```
+:::
+
+
+## Proceso de estimación en `R` (II)
+::: {.callout-tip}
+### Código de R 
+```{r, eval=FALSE}
+fit <- readRDS("Recursos/fit_ingresos.rds")
+```
+:::
+
+```{r, echo=FALSE}
+#saveRDS(coef(fit)$dam2, "recursos/01_tab_coef_dam2.rds")
+tab_coef_dam2 <- readRDS("recursos/01_tab_coef_dam2.rds")
+tba(tab_coef_dam2 %>% head(5))
+```
+
+
+## Validación del Modelo (I)
+
+- Comparación de densidades observadas vs predichas:
+
+::: {.callout-tip}
+### Código de R 
+```{r,eval=FALSE}
+library(posterior)
+library(bayesplot)
+encuesta_mrp2 <- inner_join(encuesta_mrp, statelevel_predictors_df)
+y_pred_B <- posterior_epred(fit, newdata = encuesta_mrp2)
+rowsrandom <- sample(nrow(y_pred_B), 100)
+y_pred2 <- y_pred_B[rowsrandom, ]
+
+p1 <-  ppc_dens_overlay(y = as.numeric(encuesta_mrp2$logingreso),
+                 y_pred2)/
+ppc_dens_overlay(y = exp(as.numeric(encuesta_mrp2$logingreso))-1,
+                 (exp(y_pred2)-1)) + xlim(0, 1500000) 
+
+ggsave(filename = "Recursos/Ingreso.PNG", plot = p1)
+```
+:::
+
+
+## Validación del Modelo (II)
+
+
+```{r echo=FALSE, out.width = "900px", fig.align="center"}
+knitr::include_graphics("Recursos/Ingreso.PNG")
+```
+
+
+## Validación del Modelo (III)
+
+
+```{r, eval=FALSE, echo = FALSE}
+p1 <- (mcmc_dens_chains(fit,pars = "sigma") +
+    mcmc_areas(fit,pars = "sigma"))/
+  mcmc_trace(fit,pars = "sigma")
+
+ggsave(filename = "Recursos/Ingreso1.PNG", plot = p1)
+```
+
+
+- Convergencia de parámetros:  
+  - Gráficos de densidad, áreas posteriores y trazas MCMC.  
+
+```{r echo=FALSE, out.width = "900px", fig.align="center"}
+knitr::include_graphics("Recursos/Ingreso1.PNG")
+```
+
+## Efectos de Covariables
+
+```{r, eval=FALSE, echo = FALSE}
+var_names <- c(
+  "edad2",
+  "edad3",
+  "edad4",
+  "edad5",
+  "sexo2",
+  "luces_nocturnas",
+  "cubrimiento_urbano",
+  "cubrimiento_cultivo",
+  "modificacion_humana"
+)
+p1 <- mcmc_areas(fit, pars = var_names)
+
+ggsave(filename = "Recursos/Ingreso2.PNG", plot = p1)
+```
+- Distribución posterior de parámetros seleccionados:  
+  - Edad, sexo, luces nocturnas, cobertura y modificación humana.  
+
+```{r echo=FALSE, out.width = "900px", out.height="500px",fig.align='center'}
+knitr::include_graphics("Recursos/Ingreso2.PNG")
+```
+
+## MCMC 
+
+```{r, eval=FALSE, echo=FALSE}
+p1 <- mcmc_trace(fit,pars = var_names)
+
+ggsave(filename = "Recursos/Ingreso3.PNG", plot = p1)
+```
+
+```{r echo=FALSE, out.width = "900px", out.height="600px",fig.align='center'}
+knitr::include_graphics("Recursos/Ingreso3.PNG")
+```
+
+<!-- ## Benchmarking: Definición -->
+
+<!-- - Objetivo: ajustar factores de calibración $g_k$ para que las estimaciones a nivel desagregado respeten los **totales de la encuesta**. -->
+
+<!-- - Condición de calibración: -->
+
+<!-- $$ -->
+<!-- \sum_{k} g_k n_k \mathbf{X}_k = T -->
+<!-- $$ -->
+
+<!-- donde   -->
+<!-- - $n_k$: tamaño del post-estrato $k$,   -->
+<!-- - $\mathbf{X}_k$: covariables expandidas,   -->
+<!-- - $T$: totales poblacionales conocidos. -->
+
+
+<!-- ## Paso 1: Totales de la Encuesta -->
+
+<!-- $$ -->
+<!-- \mathbf{t}_X = \sum_{i \in s} y_i f_{ep,i} \, \mathbf{x}_i -->
+<!-- $$ -->
+
+<!-- - $y_i$: variable de interés en la encuesta.   -->
+<!-- - $f_{ep,i}$: factor de expansión del individuo $i$.   -->
+<!-- - $\mathbf{x}_i$: dummies de las covariables de calibración. -->
+
+
+<!-- ## Paso 2: Totales del Modelo -->
+
+<!-- $$ -->
+<!-- \hat{\mathbf{t}}_X = \sum_{k} n_k \, y_k \, \mathbf{x}_k -->
+<!-- $$ -->
+
+<!-- - $y_k$: variable de interés en el post-estrato.   -->
+<!-- - $n_k$: tamaño del post-estrato $k$.   -->
+<!-- - $\mathbf{x}_k$: covariables expandidas del post-estrato. -->
+
+
+<!-- ## Paso 3: Factores de Calibración -->
+
+<!-- Resolver: -->
+
+<!-- $$ -->
+<!-- g_k = h(\lambda^\top \mathbf{x}_k) -->
+<!-- $$ -->
+
+<!-- según el método:   -->
+<!-- - **Lineal:** $g_k = 1 + \lambda^\top \mathbf{x}_k$   -->
+<!-- - **Logit:** $g_k = \frac{\exp(\lambda^\top \mathbf{x}_k)}{1 + \exp(\lambda^\top \mathbf{x}_k)}$ -->
+
+<!-- ## Paso 4: Totales Calibrados -->
+
+<!-- $$ -->
+<!-- \mathbf{t}_X^{(1)} = \sum_k g_k n_k \mathbf{x}_k -->
+<!-- $$ -->
+
+<!-- Condición de parada: -->
+
+<!-- $$ -->
+<!-- \mathbf{t}_X^{(1)} \approx \mathbf{t}_X -->
+<!-- $$ -->
+
+<!-- Repetir el proceso para la l-esima iteración $l = 1, 2, ..., L$, el objetivo es ajustar $g_k^l$ de tal manera que los totales estimados con el modelo igualen (o se acerquen) a los totales observados de la encuesta. -->
+
+## Benchmarking por iteración de la cadena MCMC
+
+Para estimar correctamente la incertidumbre posterior y garantizar coherencia con los totales observados, el cálculo de los factores de calibración se repite para **cada realización** $l$ de la cadena MCMC. Así obtenemos una familia de factores $\{g_k^{(l)}\}_{l=1}^L$ y, a partir de ellos, una familia de estimadores calibrados $\{\widehat{\bar{Y}}_d^{(l),\text{cal}}\}_{l=1}^L$.
+
+
+## Notación
+
+- $l = 1,\ldots,L$: índice de la iteración de la cadena MCMC.  
+
+- $\boldsymbol{\theta}^{(l)}$: vector de parámetros muestreados en la iteración $l$ 
+
+- $\hat{y}_k^{(l)}$: predicción del modelo para el post-estrato $k$ usando $\boldsymbol{\theta}^{(l)}$.
+
+- $n_k$: tamaño del post-estrato $k$.  
+
+- $\mathbf{x}_k$: vector de calibración (dummies) del post-estrato $k$.  
+
+- $\mathbf{t}_X$: totales de encuesta conocidos (objetivo de calibración).
+
+
+
+## Proceso para cada iteración $l$ (I)
+
+1. **Predicción condicional (con parámetros de la iteración):**
+$$
+\hat{y}_k^{(l)} \;=\; E\big(y_k \mid \boldsymbol{\theta}^{(l)}, \mathbf{x}_k\big).
+$$
+
+2. **Totales del modelo en la iteración $l$:**
+$$
+\widehat{\mathbf{t}}_X^{(l)} \;=\; \sum_{k} n_k\,\hat{y}_k^{(l)}\,\mathbf{x}_k .
+$$
+
+## Proceso para cada iteración $l$ (II)
+
+3. **Calibración — resolver para $g_k^{(l)}$:**  
+
+Encontrar $g_k^{(l)}>0$ tales que
+
+$$
+\sum_{k} g_k^{(l)} \, n_k \, \mathbf{x}_k \;=\; \mathbf{t}_X .
+$$
+En la práctica se obtiene $g_k^{(l)} = h(\lambda^{(l)\top}\mathbf{x}_k)$, donde $\lambda^{(l)}$ es el vector de Lagrange o parámetros de calibración de la iteración y $h(\cdot)$ depende del método (`linear`, `logit`).
+
+## Proceso para cada iteración $l$ (III)
+
+4. **Estimador calibrado del ingreso medio por dominio $d$ en la iteración $l$:**
+$$
+\widehat{\bar{Y}}_d^{(l),\text{cal}} \;=\; \frac{1}{N_d}\sum_{k\in d} g_k^{(l)}\, n_k\, \hat{y}_k^{(l)}
+$$
+
+## Proceso para cada iteración $l$ (IV)
+
+5. **Repetir para $l=1,\dots,L$.**  
+Obtener la muestra posterior calibrada:
+$$
+\{\widehat{\bar{Y}}_d^{(l),\text{cal}}\}_{l=1}^L .
+$$
+
+6. **Resumen posterior calibrado (estimador final y credibilidad):**
+$$
+\widehat{\bar{Y}}_d^{\text{cal}} \;=\; \frac{1}{L}\sum_{l=1}^L \widehat{\bar{Y}}_d^{(l),\text{cal}}, \qquad
+\text{IC}_{1-\alpha}:\ \text{quantiles}\big(\{\widehat{\bar{Y}}_d^{(l),\text{cal}}\}\big).
+$$
+
+
+
+
+## Observaciones prácticas y requisitos (I)
+
+- **Positividad:** exigir $g_k^{(l)}>0$. Si el método produce valores no positivos, rechazarlos o cambiar el enlace (p.ej. usar `logit`).  
+
+- **Propagación de incertidumbre:** este esquema incorpora la variabilidad debida tanto al modelo (a través de $\boldsymbol{\theta}^{(l)}$) como al proceso de calibración (a través de $\lambda^{(l)}$ y $g_k^{(l)}$).  
+
+## Observaciones prácticas y requisitos (II)
+
+- **Costo computacional:** la calibración por iteración incrementa el tiempo; por eso es habitual usar post-estratos agregados (reducir número de $k$) 
+
+- **Diagnósticos:** revisar la distribución de $\{g_k^{(l)}\}$ (por ejemplo histogramas y percentiles) y comprobar que las sumas calibradas coincidan con $\mathbf{t}_X$ dentro de tolerancia numérica en cada $l$.
+
+
+
+## Proceso de estimación y predicción
+
+Obtener el modelo es solo un paso más, ahora se debe realizar la predicción en el censo, el cual a sido previamente estandarizado y homologado con la encuesta. 
+
+```{r, }
+poststrat_df <- readRDS("Recursos/censo_dam2.rds") %>% 
+     inner_join(statelevel_predictors_df) 
+tba( poststrat_df %>% arrange(desc(n)) %>% head(5))
+```
+Note que la información del censo esta agregada.
+
+## Distribución posterior.
+
+Para obtener una distribución posterior de cada observación se hace uso de la función *posterior_epred* de la siguiente forma.
+
+```{r, eval=FALSE}
+epred_mat <- posterior_epred(fit, newdata = poststrat_df,  type = "response")
+saveRDS(epred_mat, "recursos/epred_mat.rds")
+```
+
+
+## Proceso de estimación en `R` (I)
+
+En cada iteración $l$ de la cadena MCMC:
+
+1. Sustituir $\hat{y}_k^{(l)}$ en la tabla de post-estratificación.  
+2. Construir la matriz de calibración $\mathbf{X}_k$.  
+
+\small
+```{r, eval=TRUE}
+library(sampling)
+epred_mat <- readRDS("recursos/epred_mat.rds")
+
+iter <- 1 
+names_cov <- "dam"
+metodo <- "linear"
+
+# 1. Predicciones en el post-estrato
+temp_post <- poststrat_df %>%
+  mutate(yk = epred_mat[iter,]) %>% 
+  select(dam:n, yk)
+
+# 2. Matriz de calibración
+Xk <- temp_post %>% 
+  select(all_of(names_cov)) %>%
+  fastDummies::dummy_cols(select_columns = names_cov,
+                          remove_selected_columns = TRUE) %>%
+  mutate_at(vars(matches("\\d$")), ~ . * temp_post$yk)
+
+```
+
+
+## Proceso de estimación en `R` (II)
+
+3. Calcular los totales de la encuesta $\mathbf{t}_X$.  
+\small
+
+```{r, eval=TRUE}
+# 3. Totales de la encuesta
+encuesta_sta <- encuesta_mrp %>%
+  select(all_of(names_cov)) %>%
+  fastDummies::dummy_cols(select_columns = names_cov,
+                          remove_selected_columns = TRUE)
+
+Total_Xk <- encuesta_sta %>%
+  mutate_at(vars(matches("\\d$")), 
+            ~ . * encuesta_mrp$logingreso * encuesta_mrp$fep) %>%
+  colSums()
+Total_Xk
+```
+
+## Proceso de estimación en `R` (III)
+
+4. Resolver el sistema de calibración para obtener $g_k^{(l)}$.  
+
+```{r, eval=TRUE}
+# 4. Resolver calibración
+gk_calib <- calib(
+  Xs = Xk,
+  d = temp_post$n,
+  total = Total_Xk,
+  method = metodo
+)
+summary(gk_calib)
+
+# Diagnóstico
+check_calib <- checkcalibration(
+  Xs = Xk, d = temp_post$n,
+  total = Total_Xk, g = gk_calib
+)
+```
+## Proceso de estimación en `R` (IV)
+
+```{r, eval=TRUE}
+# Totales ajustados
+hat_tx <- Xk %>%
+  mutate_at(vars(matches("\\d$")), ~ . * temp_post$n * gk_calib) %>% 
+  colSums()
+
+round(Total_Xk - hat_tx, 4)
+```
+
+## Proceso de estimación en `R` (Función benchmarking)
+
+```{r}
+source("recursos/benchmarking_ingreso.r")
+
+poststrat_df_iter <- benchmarking(
+  poststrat_df = temp_post %>% data.frame(),
+  encuesta_sta = encuesta_mrp %>% mutate(yk = logingreso),
+  names_cov = "dam",
+  metodo = "linear", 
+  show_plot = FALSE
+)
+
+tba(poststrat_df_iter %>% head(5))
+```
+
+## Proceso de estimación en `R` para la MCMC
+
+```{r, eval=FALSE}
+poststrat_df_iter2 <- map(1:nrow(epred_mat),
+  ~{
+temp_post <- poststrat_df %>%
+  mutate(yk = epred_mat[.x,]) %>% 
+  select(dam:n, yk)
+
+poststrat_df_iter <- benchmarking(
+  poststrat_df = temp_post %>% data.frame(),
+  encuesta_sta = encuesta_mrp %>% mutate(yk = logingreso),
+  names_cov = "dam",
+  metodo = "logit", 
+  show_plot = FALSE
+)
+poststrat_df_iter
+  }
+)
+saveRDS(poststrat_df_iter2, "recursos/poststrat_df_iter_ingreso.rds")
+
+```
+
+```{r, echo=FALSE, eval=FALSE}
+safe_benchmarking2 <- possibly(function(i) {
+  temp_post <- poststrat_df %>%
+    mutate(yk = epred_mat[i, ]) %>% 
+    select(dam:n, yk)
+
+  benchmarking(
+    poststrat_df = temp_post %>% data.frame(),
+    encuesta_sta = encuesta_mrp %>% mutate(yk = logingreso),
+    names_cov = "dam",
+    metodo = "logit", 
+    show_plot = FALSE
+  )
+}, otherwise = NULL)
+
+poststrat_df_iter3 <- map(1:nrow(epred_mat), safe_benchmarking2)
+saveRDS(poststrat_df_iter3, "recursos/poststrat_df_iter_ingreso_logit.rds")
+```
+
+
+## Proceso de estimación en `R` para la MCMC **sin benchmarking**
+
+```{r, eval=FALSE}
+theta_iter <-  map(poststrat_df_iter3, ~{
+    .x %>% 
+    group_by(dam) %>% 
+    summarise(theta = sum(yk*n))  
+}, .progress = TRUE)
+
+theta_modelo <-  theta_iter %>% bind_rows() %>%
+  group_by(dam) %>%
+  summarise(
+        estimate = mean(theta),
+        sd = sd(theta),
+        lci = quantile(theta, probs = (1 - 0.95)/2),
+        uci = quantile(theta, probs = 1 - (1 - 0.95)/2))
+
+saveRDS(theta_modelo, "recursos/02.theta_modelo_ingreso.rds")
+```
+
+## Proceso de estimación en `R` para la MCMC **con benchmarking**
+
+```{r, eval=FALSE}
+theta_iter2 <-  map(poststrat_df_iter2, ~ {
+  .x %>%
+    group_by(dam) %>%
+    summarise(theta = sum(yk*n2))
+}, .progress = TRUE)
+
+theta_bench <- theta_iter2 %>% bind_rows() %>%
+  group_by(dam) %>%
+  summarise(
+    estimate = mean(theta),
+    sd = sd(theta),
+    lci = quantile(theta, probs = (1 - 0.95) / 2),
+    uci = quantile(theta, probs = 1 - (1 - 0.95) / 2)
+  )
+saveRDS(theta_bench, "recursos/03.theta_bench_ingreso.rds")
+```
+
+## Comparando estimaciones muestra, modelo y modelo con benchmarking
+
+```{r, echo=FALSE}
+theta_bench <- readRDS("recursos/03.theta_bench_ingreso.rds") %>%
+  select(dam, bench = estimate)
+theta_modelo <- readRDS("recursos/02.theta_modelo_ingreso.rds") %>%
+  select(dam, modelo = estimate)
+theta_muestra <-
+  data.frame(muestra = Total_Xk) %>% tibble::rownames_to_column("dam")
+
+inner_join(theta_modelo, theta_bench, by = "dam") %>%
+  mutate(dam = paste0("dam_", dam)) %>%
+  inner_join(theta_muestra, ,  by = "dam") %>%
+  mutate(diff_bench = round(bench - muestra, 5))
+```
+
+
+## Estimaciones desagregadas por Nacional
+
+```{r}
+source("recursos/calc_theta.R")
+poststrat_df_iter2  <- readRDS("recursos/poststrat_df_iter_ingreso.rds")[1:10]
+calc_theta(result_list = poststrat_df_iter2, 
+           levels = NULL, ci_level = 0.95)
+```
+
+
+## Estimaciones desagregadas por DAM - área 
+
+```{r}
+calc_theta(
+  result_list = poststrat_df_iter2,
+  levels = c("dam", "area"),
+  ci_level = 0.95
+)$estimates %>%
+  head(8) %>% tba()
+```
+
+## Estimaciones desagregadas por DAM - área - sexo 
+
+```{r}
+calc_theta(result_list = poststrat_df_iter2[1:10], 
+           levels = c("dam", "area", "sexo"), ci_level = 0.95)$estimates %>% 
+  head(8) %>% tba()
+```
+
+## Estimaciones desagregadas por DAM - área - etnia 
+
+```{r}
+calc_theta(result_list = poststrat_df_iter2[1:10], 
+           levels = c("dam", "area", "etnia"),
+           ci_level = 0.95)$estimates %>% 
+  head(8) %>% tba()
+```
+
+# Mercado Laboral
+
+## Indicadores del Mercado Laboral
+
+* Punto de partida: caracterizar la dinámica del mercado laboral.
+* Se emplean tres indicadores fundamentales:
+
+  1. Tasa de Ocupación (TO)
+  2. Tasa de Participación (TP)
+  3. Tasa de Desempleo (TD)
+
+
+
+## 1. Tasa de Ocupación (TO)
+
+$$
+TO = \frac{\text{Ocupados}}{\text{Población en Edad de Trabajar}} \times 100
+$$
+
+* Numerador: personas ocupadas (empleadas o ausentes temporalmente de un empleo).
+* Denominador: población en edad de trabajar (PET, usualmente ≥ 15 años).
+
+Interpretación: mide la capacidad de absorción del empleo en la población disponible.
+
+
+
+## 2. Tasa de Participación (TP)
+
+$$
+TP = \frac{\text{Fuerza de Trabajo}}{\text{Población en Edad de Trabajar}} \times 100
+$$
+
+* **Numerador**: fuerza de trabajo = ocupados + desocupados.
+* **Denominador**: población en edad de trabajar.
+
+
+
+## 3. Tasa de Desempleo (TD)
+
+$$
+TD = \frac{\text{Desocupados}}{\text{Fuerza de Trabajo}} \times 100
+$$
+
+* **Numerador**: desocupados (personas sin empleo, disponibles y en búsqueda activa).
+* **Denominador**: fuerza de trabajo.
+
+
+## Realción entre las tasas
+
+Note que 
+
+$$
+  TP = \frac{TO}{1 - TD},
+$$
+
+Sea:
+
+* $PET$ = Población en Edad de Trabajar (denominador común).
+* $O$ = Ocupados.
+* $D$ = Desocupados.
+* Fuerza de Trabajo: $F = O + D$.
+
+## Indicadores:
+
+$$
+TO = \frac{O}{PET}, \\
+$$
+
+$$
+TP = \frac{F}{PET} = \frac{O + D}{PET}, \\
+$$
+
+$$
+TD = \frac{D}{F} = \frac{D}{O + D}.
+$$
+
+**Condiciones**: $PET>0,\; F>0$ (por tanto $0 \le TD < 1$).
+
+
+## Demostración (I)
+
+1. Partir de definiciones:
+
+$$
+TP = \frac{O + D}{PET} = \frac{O}{PET} + \frac{D}{PET} = TO + \frac{D}{PET}.
+$$
+
+2. Relacione $\dfrac{D}{PET}$ con $TD$ y $TP$:
+
+$$
+\frac{D}{PET} = \frac{D}{O + D}\cdot\frac{O + D}{PET} = TD \cdot TP.
+$$
+
+## Demostración (II)
+
+3. Sustituya en la expresión de $TP$:
+
+$$
+TP = TO + TD\cdot TP \quad\Rightarrow\quad TP - TD\cdot TP = TO
+$$
+
+$$
+TP(1 - TD) = TO \quad\Rightarrow\quad TP = \frac{TO}{1 - TD}.
+$$
+
+
+## Observaciones (I)
+
+* Es necesario $TD<1$ (caso trivial: si $TD=1$ entonces $O=0$ y la TO = 0; la fórmula tiene sentido por continuidad).
+
+* En SAE: al usar estimadores para $TO$ y $TD$ (con varianza asociada), la relación implica que la varianza estimada de $TP$ debe considerar la covarianza entre estimadores de $TO$ y $TD$.
+
+* Si $\widehat{TP} = \widehat{TO}/(1-\widehat{TD})$, simulación posterior (MCMC) para obtener varianza/intervalos fiables.
+  
+* Para benchmarking y consistencia entre niveles, la relación algebraica permite reexpresar totales y verificar coherencia entre estimaciones por dominio y agregadas.
+
+## Definición: variable multinomial
+
+- Sea $K$ el número de categorías de la variable de interés.  
+  $$
+  Y_d \sim \text{Multinomial}\big(N_d,\; \boldsymbol{p}_d\big),\qquad
+  \boldsymbol{p}_d=(p_{d1},\dots,p_{dK}),\quad \sum_{k=1}^K p_{dk}=1.
+  $$
+
+- En el dominio $d$: $N_d$ es el total de elementos y $N_{dk}$ los elementos en la categoría $k$.  
+  $$
+  p_{dk} = \frac{N_{dk}}{N_d},\qquad \hat p_{dk}=\text{estimador directo de }p_{dk}.
+  $$
+
+- Notación de varianzas directas:
+  $$
+  v_{dk} = \operatorname{Var}(\hat p_{dk}),\qquad \widehat v_{dk} = \widehat{\operatorname{Var}}(\hat p_{dk}).
+  $$
+
+## Tamaño de muestra efectivo por categoría (design effect)
+
+- Debido al diseño muestral, la varianza observada de $\hat p_{dk}$ contiene efecto de diseño. Se define un **tamaño efectivo** aproximado $\tilde n_{dk}$ como
+
+$$
+\tilde n_{dk} \;=\; \frac{\tilde p_{dk}(1-\tilde p_{dk})}{\widehat v_{dk}},
+$$
+
+donde $\tilde p_{dk}$ es un estimador estable de la proporción (por ejemplo $\hat p_{dk}$ o una versión suavizada).
+
+- A partir de $\tilde n_{dk}$ definimos el conteo pseudo-observado
+
+$$
+\tilde y_{dk} = \tilde n_{dk}\times \hat p_{dk}.
+$$
+
+- Luego se define el total efectivo por dominio
+
+$$
+\hat n_d = \sum_{k=1}^K \tilde y_{dk},
+$$
+
+y la reconstrucción de conteos coherentes:
+
+$$
+\hat y_{dk} = \hat n_d \times \hat p_{dk}.
+$$
+
+
+## Modelo multinomial-logit jerárquico (formulación)
+
+- Para cada dominio $d$ trabajamos con los conteos pseudo-observados
+  $(\tilde y_{d1},\dots,\tilde y_{dK})$ condicionados a $\hat n_d$:
+
+$$
+(\tilde y_{d1},\dots,\tilde y_{dK}) \mid \hat n_d, \boldsymbol{p}_d
+\sim \text{Multinomial}(\hat n_d,\; \boldsymbol{p}_d).
+$$
+
+- Modelo lineal para los logits (categoría 1 como referencia): para $k=2,\dots,K$,
+
+$$
+\log\frac{p_{dk}}{p_{d1}} \;=\; \mathbf{X}_d^\top \boldsymbol{\beta}_k + u_{dk},
+$$
+
+donde
+- $\mathbf{X}_d\in\mathbb{R}^p$: vector de $p$ covariables del dominio $d$,
+- $\boldsymbol{\beta}_k\in\mathbb{R}^p$: coeficientes fijos de la categoría $k$,
+- $u_{dk}$: efecto aleatorio del dominio $d$ en la categoría $k$.
+
+
+## Transformación a probabilidades (softmax con baseline)
+
+- Para $k=2,\dots,K$ los predictores lineales son
+
+$$
+\eta_{dk} = \mathbf{X}_d^\top \boldsymbol{\beta}_k + u_{dk}.
+$$
+
+- Las probabilidades se obtienen con softmax respecto a la categoría base (1):
+
+$$
+p_{d1} = \frac{1}{1 + \sum_{m=2}^K e^{\eta_{dm}}},\qquad
+p_{dk} = \frac{e^{\eta_{dk}}}{1 + \sum_{m=2}^K e^{\eta_{dm}}},\; k\ge2.
+$$
+
+
+## Modelo Bayesiano — Verosimilitud y priors
+
+- Verosimilitud (independencia entre dominios):
+
+$$
+\tilde{\mathbf{y}}_d \mid \hat n_d, \boldsymbol{p}_d
+\sim \text{Multinomial}(\hat n_d,\boldsymbol{p}_d),\quad d=1,\dots,D.
+$$
+
+- Distribución previa:
+
+$$
+\boldsymbol{\beta}_k \sim \mathcal{N}(0,\,\sigma_\beta^2 I_p),\quad
+\sigma_\beta=100.
+$$
+
+$$
+u_d = (u_{d2},\dots,u_{dK})^\top \text{ con estructura: }
+u = \operatorname{diag}(\sigma_u)\,L_u\,z_u,
+$$
+$$
+z_u \sim \mathcal{N}(0,I),\quad L_u\sim \text{LKJ Cholesky}(1),\quad
+\sigma_{u,j}\sim \text{Inv-Gamma}(\epsilon,\epsilon).
+$$
+
+
+## Cantidades generadas y tasas (predicción por dominio)
+
+- Para dominios de predicción $d'$ con covariables $X_{d'}',Z_{d'}'$ se calculan
+
+$$
+\hat\eta_{d'k} = X_{d'}'^\top \boldsymbol{\beta}_k + Z_{d'}' u_{d'k},\qquad k\ge2,
+$$
+
+y las probabilidades $\hat p_{d'k}$.
+
+- Tasas de interés:
+
+$$
+\text{TD}_{d'} = \frac{\hat p_{d'1}}{\hat p_{d'1} + \hat p_{d'2}},\quad
+\text{TO}_{d'} = \hat p_{d'2},\quad
+\text{TP}_{d'} = \frac{\text{TO}_{d'}}{1-\text{TD}_{d'}}.
+$$
+
+## Modelo en Stan  multinomia  
+
+```
+functions {
+  matrix pred_theta(matrix Xp, matrix Zp, int p, matrix beta, matrix u){
+  int D1 = rows(Xp);
+  real num1[D1, p];
+  real den1[D1];
+  matrix[D1,p] theta_p;
+  matrix[D1,p] tasa_pred;
+  
+  for(d in 1:D1){
+    num1[d, 1] = 1;
+    num1[d, 2] = exp(Xp[d, ] * beta[1, ]' + Zp[d, ] * u[1, ]') ;
+    num1[d, 3] = exp(Xp[d, ] * beta[2, ]' + Zp[d, ] * u[2, ]') ;
+    
+    den1[d] = sum(num1[d, ]);
+  }
+  
+  for(d in 1:D1){
+    for(i in 2:p){
+    theta_p[d, i] = num1[d, i]/den1[d];
+    }
+    theta_p[d, 1] = 1/den1[d];
+   }
+
+
+for(d in 1:D1){
+    tasa_pred[d, 1] = theta_p[d,1]/(theta_p[d,1] + theta_p[d,2]);// TD
+    tasa_pred[d, 2] = theta_p[d,2];                              // TO
+    tasa_pred[d, 3] = tasa_pred[d, 2]/(1- tasa_pred[d, 1]);               // TP
+    }
+
+  return tasa_pred  ;
+  }
+  
+}
+
+data {
+  int<lower=1> D;    // número de postestrto 
+  int<lower=1> D1;   // número de dominios por predesir 
+  int<lower=1> P;    // categorías
+  int<lower=1> K;  // cantidad de regresores
+  int<lower=1> Kz; // cantidad de regresores en Z
+  int y[D, P];       // matriz de datos
+  matrix[D, K] X; // matriz de covariables
+  matrix[D, Kz] Z; // matriz de covariables
+  matrix[D1, K] Xp; // matriz de covariables
+  matrix[D1, Kz] Zp; // matriz de covariables
+}
+  
+
+parameters {
+  matrix[P-1, K] beta;// matriz de parámetros 
+  vector<lower=0>[P-1] sigma_u;       // random effects standard deviations
+  // declare L_u to be the Choleski factor of a 2x2 correlation matrix
+  cholesky_factor_corr[P-1] L_u;
+  matrix[P-1, Kz] z_u;                  
+}
+
+transformed parameters {
+  simplex[P] theta[D];// vector de parámetros;
+  real num[D, P];
+  real den[D];
+  // this transform random effects so that they have the correlation
+  // matrix specified by the correlation matrix above
+  matrix[P-1, Kz] u; // random effect matrix
+  u = diag_pre_multiply(sigma_u, L_u) * z_u;
+  
+  for(d in 1:D){
+    num[d, 1] = 1;
+    num[d, 2] = exp(X[d, ] * beta[1, ]' + Z[d, ] * u[1, ]') ;
+    num[d, 3] = exp(X[d, ] * beta[2, ]' + Z[d, ] * u[2, ]') ;
+    
+    den[d] = sum(num[d, ]);
+
+  }
+  for(d in 1:D){
+    for(p in 2:P){
+    theta[d, p] = num[d, p]/den[d];
+    }
+    theta[d, 1] = 1/den[d];
+  }
+}
+
+model {
+  L_u ~ lkj_corr_cholesky(1); // LKJ prior for the correlation matrix
+  to_vector(z_u) ~ normal(0, 1);
+  sigma_u ~ inv_gamma(0.0001, 0.0001);
+  to_vector(beta) ~ normal(0, 100);
+ 
+  for(d in 1:D){
+    target += multinomial_lpmf(y[d, ] | theta[d, ]); 
+  }
+}
+
+  
+generated quantities {
+  // predict 
+  matrix[D1,P] tasa_pred;// vector de parámetros;
+  matrix[2, 2] Omega;
+  Omega = L_u * L_u'; // so that it return the correlation matrix
+// predicción 
+
+tasa_pred = pred_theta(Xp,Zp,P, beta, u) ; 
+
+}
+
+```
+
+
+## Lectura bases de datos (Censo).   
+
+
+```{r, eval=TRUE, echo=FALSE}
+censo_mrp <- readRDS("recursos/censo_dam.rds")
+tba(censo_mrp %>% head(5))
+
+```
+
+## Lectura bases de datos (Encuesta).   
+
+```{r, eval=TRUE, echo=FALSE}
+encuesta_sta_MT <- readRDS('Recursos/encuesta_sta_MT.rds')
+encuesta_sta_MT <- encuesta_sta_MT %>% 
+  filter(edad>1, anoest %in% c("1","2","3","4"))
+
+tba(encuesta_sta_MT %>% head(5))
+```
+
+
+## Lectura de datos (Covariables)
+
+
+```{r, echo=FALSE}
+statelevel_predictors <- readRDS("recursos/statelevel_predictors_df.rds") %>% 
+  mutate_if(is.numeric, ~{as.numeric(scale(.x))})
+tba(statelevel_predictors %>% head(5))
+```
+
+## Compilar modelo de `Stan` en `R`
+
+```{r, eval=FALSE}
+source("recursos/modelo_empleo.R")
+library(magrittr)
+library(fastDummies)
+encuesta_sta_MT %<>% dummy_cols(select_columns = "empleo")
+multi_fit <- modelo_empleo(encuesta_sta = encuesta_sta_MT,
+              censo_sta = censo_mrp,
+              predictors = statelevel_predictors, 
+              X_fijo = "luces_nocturnas + cubrimiento_rural + cubrimiento_urbano + modificacion_humana + material_paredes + material_techo + rezago_escolar + alfabeta +tasa_desocupacion",
+              Z_aleatorio = "dam + etnia + edad + area + anoest + sexo", 
+              fit_STAN = "recursos/Multinivel_multinomial_no_cor.stan",
+              path_model = "recursos/Multinivel_multinomial_model_no_cor.rds")
+```
+
+
+## Compilar modelo de `Stan` en `R`
+
+```{r, eval=FALSE}
+source("recursos/validar_modelo_bayes.R")
+source("recursos/Plot_dens_draws.R")
+multi_fit <- readRDS("recursos/Multinivel_multinomial_model_no_cor.rds")
+resul_validar_modelo <-
+  validar_modelo_bayes(model_bayes = multi_fit$model_bayes, 
+                       encuesta_sta = encuesta_sta_MT)
+
+saveRDS(resul_validar_modelo, file = "recursos/resul_validar_modelo_no_cor2.rds")
+```
+
+## Resultados del modelo, r-hat
+
+```{r, echo=FALSE, eval=FALSE}
+resul_validar_modelo <- readRDS("recursos/resul_validar_modelo_no_cor.rds")
+saveRDS(resul_validar_modelo$tbla_rhat, file = "recursos/tbla_rhat.rds")
+```
+
+
+```{r, echo=FALSE}
+
+tbla_rhat <- readRDS("recursos/tbla_rhat.rds")
+tbla_rhat %>% tba()
+```
+
+## Resultados del modelo, efectos fijos. 
+
+```{r, echo=FALSE, eval=FALSE}
+ggsave(plot = resul_validar_modelo$plot_E_fijo, filename = "recursos/plot_E_fijo.png", scale = 3)
+```
+
+
+```{r echo=FALSE, out.width = "900px", out.height="600px",fig.align='center'}
+knitr::include_graphics("Recursos/plot_E_fijo.png")
+```
+
+
+## Resultados del modelo, efectos aleatorios 
+
+```{r, echo=FALSE, eval=FALSE}
+ggsave(plot = resul_validar_modelo$plot_E_Aleatorio, filename = "recursos/plot_E_Aleatorio.png", scale = 3)
+```
+
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/plot_E_Aleatorio.png")
+```
+
+
+
+## Resultados del modelo, PPC  
+
+```{r, echo=FALSE, eval=FALSE}
+ggsave(plot = resul_validar_modelo$plot_ppc, filename = "recursos/plot_ppc_empelo.png", scale = 3)
+```
+
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/plot_ppc_empelo.png")
+```
+
+# Benchmarking
+
+## Planteamiento general
+
+Sea $U = \{1, \dots, N\}$ la población y $S \subset U$ la muestra.
+
+* $d_i$: peso de diseño asociado a la unidad $i \in S$.  
+
+* $x_i$: vector de covariables de calibración.  
+
+* $y_i$: variable de interés (ocupación, desocupación, participación).  
+
+El objetivo es ajustar los pesos mediante factores de calibración $g_i$.  
+
+$$
+w_i = d_i g_i
+$$
+
+## Restricciones de calibración
+
+Los pesos calibrados deben respetar los totales poblacionales:
+
+$$
+\sum_{i \in S} w_i x_i = X,
+$$
+
+donde $X$ proviene de **totales estimados en la encuesta**.  
+
+
+
+## Estimadores calibrados
+
+- **Tasa de Ocupación (TO):**
+
+$$
+\widehat{TO} = 
+\frac{\sum_{i \in S} w_i \cdot \mathbb{1}(empleo_i = \text{Ocupado})}
+     {\sum_{i \in S} w_i}
+$$
+
+- **Tasa de Participación (TP):**
+
+$$
+\widehat{TP} = 
+\frac{\sum_{i \in S} w_i \cdot \mathbb{1}(empleo_i \in \{\text{Ocupado}, \text{Desocupado}\})}
+     {\sum_{i \in S} w_i}
+$$
+
+- **Tasa de Desocupación (TD):**
+
+$$
+\widehat{TD} =
+\frac{\sum_{i \in S} w_i \cdot \mathbb{1}(empleo_i = \text{Desocupado})}
+     {\sum_{i \in S} w_i \cdot \mathbb{1}(empleo_i \in \{\text{Ocupado}, \text{Desocupado}\})}
+$$
+
+
+## Métodos de calibración
+
+El algoritmo `calib()` resuelve:
+
+$$
+\min_{g} \sum_{i \in S} d_i G(g_i) \quad \text{s.a.} \quad \sum_{i \in S} d_i g_i x_i = X.
+$$
+
+- **Lineal:**
+$$
+g_i = 1 + \lambda^\top x_i
+$$
+
+- **Logit:**
+$$
+g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
+$$
+
+
+## Validación de la calibración
+
+- Comparar **totales estimados vs. totales conocidos**:  
+$$
+\sum_{i \in S} w_i x_i \approx X
+$$
+
+- Analizar la distribución de $g_i$:  
+  - Todos $g_i > 0$.  
+  - Evitar valores extremos.  
+  - Revisar proporción de $g_i$ cercanos a 0.  
+
+
+
+## Benchmarking 
+
+```{r, eval=FALSE}
+source("recursos/benchmarking_empleo.R")
+list_bench <-
+  benchmarking_empleo(
+    encuesta_sta = encuesta_sta_MT,
+    poststrat_df = multi_fit$censo_pred,
+    names_cov =  "dam",
+    metodo = "linear"
+  )
+
+saveRDS(list_bench, file = "recursos/list_bench_empleo.rds")
+
+```
+
+## Validacion del Benchmarking 
+
+
+```{r, echo=FALSE, eval=FALSE}
+list_bench <-  readRDS("recursos/list_bench_empleo.rds")
+ggsave(plot = list_bench$plot_bench, 
+       filename = "recursos/plot_bench_empleo.png", scale = 3)
+```
+
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/plot_bench_empleo.png")
+```
+
+## Plot de validación de estimaciones (I)
+
+```{r, eval=FALSE}
+subgrupo <- c("dam","sexo", "area", "etnia", "edad", "anoest")
+
+poststrat_df <- multi_fit$censo_pred %>% data.frame() %>%  
+  mutate( gk_TO =list_bench$gk_bench$TO,
+          gk_TP = list_bench$gk_bench$TP,
+          gk_TD = list_bench$gk_bench$TD )
+
+plot_subgrupo <- map(
+  .x = setNames(subgrupo, subgrupo),
+  ~ plot_compare_Ind(
+    sample = encuesta_sta_MT,
+    poststrat = poststrat_df,
+    by1 = .x
+  )
+)
+```
+
+## Plot de validación de estimaciones (II)
+
+```{r, eval=FALSE}
+temp_dir_plot_uni <- map(
+  names(plot_subgrupo),
+  ~ ggsave(
+    plot = plot_subgrupo[[.x]]$Plot,
+    filename =    paste0("recursos/empleo_plot_uni_",  .x, ".png"),
+    scale = 2
+  )
+)
+
+```
+
+## Plot de validación por dam
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/empleo_plot_uni_dam.png")
+```
+
+
+## Plot de validación por años de estudio
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/empleo_plot_uni_anoest.png")
+```
+
+
+## Plot de validación por edad
+
+```{r echo=FALSE, out.width = "1000px", out.height="800px",fig.align='center'}
+knitr::include_graphics("Recursos/empleo_plot_uni_edad.png")
+```
+
+
+## Benchmarking para la iteración $i$ 
+
+```{r, eval=FALSE}
+ii = 19 
+paramtros_chain <- as.array(multi_fit$model_bayes,
+                            pars = "tasa_pred") %>%
+  as_draws_matrix()
+
+censo_pred_temp <-
+  multi_fit$censo_pred %>% select(-c("TD", "TO", "TP"))
+
+dat_tasa <- matrix(
+  paramtros_chain[ii,],
+  nrow = nrow(censo_pred_temp),
+  ncol = 3,
+  byrow = TRUE,
+  dimnames = list(1:nrow(censo_pred_temp), c("TD", "TO", "TP"))
+) %>% data.frame()
+```
+
+## Benchmarking para la iteración $i$ 
+
+```{r, eval=FALSE}
+censo_pred_temp <- cbind(censo_pred_temp, dat_tasa)
+
+benchmarking_empleo_iter(
+  poststrat_df = censo_pred_temp,
+  Total_Xk = list_bench$Total,
+  names_cov = list_bench$var_bench,
+  metodo_calib = list_bench$metodo_bench
+)
+```
+
+## Benchmarking para todas las iteraciones 
+
+```{r, eval=FALSE}
+result_iter_calib <- benchmarking_empleo_all(
+  multi_fit = multi_fit,
+  list_bench = list_bench,
+  pars = "tasa_pred",
+  n_iter = 100
+)
+
+saveRDS(result_iter_calib, "recursos/result_iter_calib.rds")  
+```
+
+# Estimaciones 
+
+## Estimación nacional usando las cadenas 
+
+```{r, eval=TRUE}
+source("recursos/Funciones_empleo.R")
+result_iter_calib <- readRDS("recursos/result_iter_calib.rds") 
+map_df(
+  result_iter_calib,
+  ~ Indicadores_censo(.x) %>%
+    mutate(value = value * 100) %>%
+    pivot_wider(names_from = Metodo ,
+                values_from = value)
+) %>% group_by(variable) %>%
+  summarise(estimado = mean(Bench),
+            estimado_se = sd(Bench))
+
+
+```
+
+## Estimación dam usando las cadenas 
+
+```{r, eval=TRUE}
+tab_dam <-  map_df(
+  result_iter_calib,
+  ~ Indicadores_censo(.x, var_by = "dam") %>%
+    mutate(value = value * 100) %>%
+    pivot_wider(names_from = Metodo ,
+                values_from = value)
+) %>% group_by(variable, dam) %>%
+  summarise(estimado = mean(Bench),
+            estimado_se = sd(Bench))
+
+tba(tab_dam %>% head(5))
+
+```
+
+## Estimación sexo usando las cadenas 
+
+```{r, eval=TRUE}
+tab_sexo <-  map_df(
+  result_iter_calib,
+  ~ Indicadores_censo(.x, var_by = c("sexo")) %>%
+    mutate(value = value * 100) %>%
+    pivot_wider(names_from = Metodo ,
+                values_from = value)
+) %>% group_by(variable, sexo) %>%
+  summarise(estimado = mean(Bench),
+            estimado_se = sd(Bench))
+
+tba(tab_sexo %>% head(5))
+
+```
+
+
+# ¡Gracias! 
