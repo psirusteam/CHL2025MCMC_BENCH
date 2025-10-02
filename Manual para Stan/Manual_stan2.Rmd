@@ -1,0 +1,145 @@
+---
+title: "Instalación y Configuración Autónoma de RStan"
+author: "Capacitación"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introducción {-}
+
+Bienvenido a la guía de instalación. Este manual ha sido diseñado para simplificar el proceso de configuración de un entorno de trabajo completo para el taller de *Benchmarking de cadenas MCMC* para la estimación de indicadores del mercado laboral, específicamente en el contexto de la *Estimación de Áreas Pequeñas (SAE)*.
+
+La guía te llevará paso a paso a través de la instalación de los componentes esenciales, incluyendo:
+
+* **R y RStudio:** El lenguaje de programación y su entorno de desarrollo integrado (IDE).
+* **RTools:** Un conjunto de herramientas cruciales para la compilación de paquetes en Windows.
+* **Stan y RStan:** La plataforma de modelado probabilístico y su interfaz con R, herramientas poderosas para la inferencia bayesiana.
+
+
+# **Instalar R**
+
+Primero, debes instalar el lenguaje de programación R. Es la base sobre la cual funciona RStudio.
+
+  * Ve a la página de descarga oficial de **R** en [CRAN (Comprehensive R Archive Network)](https://cran.r-project.org/).
+  * Selecciona tu sistema operativo (Windows, macOS o Linux).
+  * Haz clic en **"base"** y luego descarga la versión más reciente del instalador.
+  * Ejecuta el archivo descargado y sigue las instrucciones del asistente de instalación. Puedes dejar la mayoría de las opciones por defecto.
+
+# **Instalar RStudio Desktop**
+
+Una vez que tengas R instalado, puedes instalar RStudio, el entorno de desarrollo recomendado para trabajar con R.
+
+  * Ve a la página de descarga de **RStudio** en [Posit](https://posit.co/download/rstudio-desktop/).
+  * Desplázate hacia abajo hasta la sección de descargas y elige la versión gratuita de **RStudio Desktop**.
+  * El sitio web detectará automáticamente tu sistema operativo y te recomendará el instalador correcto. Haz clic en el botón de descarga.
+  * Ejecuta el archivo descargado y sigue las instrucciones del asistente de instalación.
+
+# **Instalar RTools (Solo para Windows)**
+
+**RTools** es un conjunto de herramientas de desarrollo necesario en Windows para que R compile paquetes desde su código fuente. Esto es crucial para la instalación de librerías como **RStan**.
+
+  * Ve a la página de **RTools** en [CRAN](https://cran.r-project.org/bin/windows/Rtools/).
+  * Descarga la versión de RTools que corresponda a tu versión de R (por ejemplo, R 4.3 o superior).
+  * Ejecuta el instalador. Es muy importante que, durante el proceso, marques la opción **"Add Rtools to system PATH"** para que RStudio pueda encontrarlo automáticamente.
+  * Una vez que la instalación esté completa, puedes verificar que RTools está funcionando correctamente abriendo RStudio y ejecutando el siguiente comando en la consola:
+
+```{r, eval=FALSE}
+pkgbuild::has_build_tools(debug = TRUE)
+```
+    El resultado debería ser `TRUE`, indicando que las herramientas de compilación están listas.
+
+
+
+# Detección del sistema operativo
+
+```{r detect_os, eval=FALSE}
+os <- Sys.info()["sysname"]
+message("Sistema operativo detectado: ", os)
+```
+
+# Instalación de librerías necesarias
+
+```{r install_packages,  eval=TRUE}
+# Lista de paquetes requeridos
+paquetes <- c("bayesplot",   "fastDummies", "haven",   "kableExtra",
+  "knitr",  "magrittr", "parallel", "patchwork",  "posterior",   "printr",
+  "rstan",   "rstanarm",  "sampling",   "srvyr",  "survey", "tibble",
+  "tidyverse"
+)
+
+# Instalar paquetes faltantes automáticamente
+instalar <- paquetes[!paquetes %in% installed.packages()[,"Package"]]
+if(length(instalar) > 0){
+  install.packages(instalar, dependencies = TRUE)
+} else {
+  message("Todos los paquetes ya están instalados.")
+}
+```
+
+# Configuración de RStan
+
+## Windows: Verificación e instalación de RTools
+
+```{r windows_rtools,  eval=FALSE}
+if(!pkgbuild::has_build_tools(debug = TRUE)){
+  message("RTools no encontrado. Descárguelo desde: https://cran.r-project.org/bin/windows/Rtools/")
+} else {
+  message("RTools detectado correctamente.")
+}
+
+# Configuración del compilador C++ para RStan
+dotR <- file.path(Sys.getenv("HOME"), ".R")
+if(!dir.exists(dotR)) dir.create(dotR)
+makevars <- file.path(dotR, "Makevars.win")
+if(!file.exists(makevars)) file.create(makevars)
+cat("\nCXX14FLAGS=-O3 -march=native -mtune=native", 
+    file = makevars, sep = "\n", append = TRUE)
+message("Configuración de compilador completada.")
+```
+
+## macOS y Linux
+
+```{r unix_rstan, eval=TRUE}
+message("En macOS o Linux, asegúrese de tener un compilador C++ adecuado.")
+# macOS: Xcode Command Line Tools
+# Linux: build-essential (Ubuntu/Debian)
+```
+
+# Verificación de RStan
+
+```{r rstan_test, eval=FALSE, warning=FALSE, error=FALSE, message=FALSE}
+library(rstan)
+options(mc.cores = parallel::detectCores())
+
+stan_code <- '
+data {
+  int<lower=0> N;
+  int<lower=0,upper=1> y[N];
+}
+parameters {
+  real<lower=0,upper=1> theta;
+}
+model {
+  theta ~ beta(1,1);
+  y ~ bernoulli(theta);
+}
+'
+
+data <- list(N=10, y=c(0,1,0,1,0,1,0,1,0,1))
+fit <- stan(model_code=stan_code, data=data, iter=500, chains=2)
+saveRDS(fit, file = "fit.rds")
+```
+
+
+```{r rstan_test2, eval=TRUE, warning=FALSE, error=FALSE, message=FALSE}
+fit <- readRDS("fit.rds")
+print(fit)
+```
