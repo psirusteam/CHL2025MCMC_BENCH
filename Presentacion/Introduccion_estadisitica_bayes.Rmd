@@ -1,0 +1,1235 @@
+---
+title: "Inferencia Bayesiana"
+subtitle: "Estimación en Áreas Pequeñas (SAE)"
+author: "Andrés Gutierrez y Stalyn Guerrero"
+date: "`r Sys.Date()`"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+---
+
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = TRUE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+library(rstan)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+```
+
+
+# Introducción
+
+## Introducción
+
+* La **Estimación en Áreas Pequeñas (SAE)** se ha consolidado como una herramienta esencial para producir indicadores socioeconómicos y demográficos en dominios con muestras reducidas.
+
+* La **inferencia Bayesiana**, apoyada en métodos de **Monte Carlo mediante Cadenas de Markov (MCMC)**, permite aproximar distribuciones posteriores complejas en modelos jerárquicos.
+
+## Desafíos principales:
+
+* Convergencia y eficiencia de las cadenas MCMC.
+
+* Calidad de estimaciones en indicadores clave como pobreza, ingreso medio y desempleo.
+
+* Un aspecto crítico es el **benchmarking**, que asegura la coherencia entre estimaciones desagregadas (ej. municipios, etnias) y totales agregados (ej. departamentos, nivel nacional).
+
+* Aunque no mejora la precisión intrínseca, el benchmarking garantiza comparabilidad y consistencia con fuentes externas confiables.
+
+
+# Fundamentos de la inferencia Bayesiana en R y STAN
+
+
+## Regla de Bayes (I)
+
+* Objetivo: inferir el vector de parámetros $\boldsymbol{\theta}$ a partir de los datos $\mathbf{Y}$.
+
+$$
+p(\boldsymbol{\theta},\mathbf{Y})=p(\boldsymbol{\theta})p(\mathbf{Y} \mid \boldsymbol{\theta})
+$$
+
+-   La distribución $p(\boldsymbol{\theta})$ se le conoce con el nombre de distribución previa.
+
+-   El término $p(\mathbf{Y} \mid \boldsymbol{\theta})$ es la distribución de muestreo, verosimilitud o distribución de los datos.
+
+## Regla de Bayes (II)
+
+-   La distribución del vector de parámetros condicionada a los datos observados está dada por
+
+    $$
+    p(\boldsymbol{\theta} \mid \mathbf{Y})=\frac{p(\boldsymbol{\theta},\mathbf{Y})}{p(\mathbf{Y})}=\frac{p(\boldsymbol{\theta})p(\mathbf{Y} \mid \boldsymbol{\theta})}{p(\mathbf{Y})}
+    $$
+
+- Distribución posterior (actualización tras observar los datos):
+
+$$
+p(\boldsymbol{\theta} \mid \mathbf{Y}) \propto p(\mathbf{Y} \mid \boldsymbol{\theta})\, p(\boldsymbol{\theta})
+$$
+
+## Inferencia Bayesiana.
+
+En términos de estimación, inferencia y predicción, el enfoque Bayesiano supone dos momentos o etapas:
+1. **Antes de recolectar datos:** se propone una distribución previa según conocimiento o información externa.
+2. **Después de recolectar datos:** se actualiza el conocimiento mediante la distribución posterior.
+
+## Modelos uniparamétricos
+
+
+* Definición: modelos con un único parámetro $\theta \in \mathbb{R}$.
+
+### Modelo Bernoulli
+
+* Variable aleatoria: $Y \sim \text{Bernoulli}(\theta)$
+
+$$
+p(Y \mid \theta) = \theta^y (1-\theta)^{1-y},\quad y\in\{0,1\}
+$$
+
+* Distribución previa de $\theta$ (Beta o uniforme):
+
+$$
+p(\theta \mid \alpha, \beta) = \frac{1}{\text{Beta}(\alpha,\beta)} \theta^{\alpha-1} (1-\theta)^{\beta-1}, \quad \theta \in [0,1]
+$$
+
+## Modelos uniparamétricos
+
+* Distribución posterior con una observación $Y$:
+
+$$
+\theta \mid Y \sim \text{Beta}(y+\alpha, \beta - y + 1)
+$$
+
+* Distribución posterior con muestra de $n$ observaciones $Y_1,\dots,Y_n$:
+
+$$
+\theta \mid Y_1,\dots,Y_n \sim \text{Beta}\Big(\sum_{i=1}^n y_i + \alpha, \beta - \sum_{i=1}^n y_i + n\Big)
+$$
+
+
+
+## Ejemplo
+
+### Objetivo
+
+* Estimar la **proporción de personas bajo la línea de pobreza**:
+
+$$
+P_d = \frac{\sum_{U_d} y_{di}}{N_d}, \quad y_{di} =
+\begin{cases} 
+1 & \text{si ingreso} < \text{línea de pobreza} \\ 
+0 & \text{en otro caso} 
+\end{cases}
+$$
+
+## Descomposición
+
+* Promedio poblacional por dominio $d$:
+
+$$
+\bar{Y}_d = P_d = \frac{\sum_{s_d} y_{di} + \sum_{s^c_d} y_{di}}{N_d}
+$$
+
+* $s_d$: muestra observada
+* $s_d^c$: población no observada
+
+
+## Estimación mediante modelo
+
+* Estimador de $P_d$:
+
+$$
+\hat{P}_d = \frac{\sum_{s_d} y_{di} + \sum_{s^c_d} \hat{y}_{di}}{N_d}
+$$
+
+* Valores predichos para no observados:
+
+$$
+\hat{y}_{di} = E_{\mathscr{M}}(y_{di} \mid \mathbf{x}_d, \boldsymbol{\beta})
+$$
+
+* $\mathscr{M}$: distribución probabilística inducida por el modelo
+* $\mathbf{x}_d$: covariables del dominio $d$
+* $\boldsymbol{\beta}$: parámetros del modelo
+
+
+## Forma final del estimador
+
+$$
+\hat{P}_d = \frac{\sum_{U_d} \hat{y}_{di}}{N_d}
+$$
+
+* Integra **observados y predicciones modeladas** para estimar la proporción total.
+
+
+## Inferencia Bayesiana con Bernoulli
+
+
+::: {.callout-tip}
+### Datos
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+library(tidyverse)
+set_data <- readRDS("Recursos/encuesta2017CHL.Rds") %>% 
+  mutate(etnia_ee = haven::as_factor(etnia_ee,levels = "values"))
+n <- sum(set_data$etnia_ee == 1)
+```
+:::
+
+* Filtrado por etnia: `Indígena` ($n = `r n`$)
+
+
+* Variable: ingreso < línea de pobreza
+
+$$
+Y_i =
+\begin{cases}
+1 & \text{si ingreso < lp} \\
+0 & \text{si ingreso ≥ lp}
+\end{cases}
+$$
+
+```{r, message=FALSE, echo=TRUE, warning=FALSE}
+datay <- set_data %>% filter(etnia_ee == 1) %>% 
+  transmute(y = ifelse(ingcorte < lp, 1,0))
+n = length(datay$y)
+n1 = sum(datay$y)
+addmargins(table(datay$y))
+```
+
+
+
+## Distribuciones previa y posterior 
+
+### Distribución previa
+
+$$
+\theta \sim Beta(\alpha=1, \beta=1)
+$$
+
+### Distribución posterior
+
+$$
+\theta \mid Y \sim Beta(\alpha + n_1, \beta + n_0)
+$$
+
+
+
+```{r, BernoEj0, echo = FALSE, fig.cap="Distribución previa (línea roja) y distribución posterior (línea negra)", eval=FALSE}
+library(patchwork)
+previa1 <- function(x) dbeta(x, 1, 1)
+posterior1 <- function(x, y, a = 1, b = 1){
+  n = length(y)
+  n1 = sum(y)
+  dbeta(x, shape1 = a + n1, 
+           shape2 = b - n1 + n)
+}
+  
+
+p1 <- ggplot(data = data.frame(x = 0),
+             mapping = aes(x = x)) + ylab("f(x)") +
+  stat_function(fun = previa1, color = "red", linewidth = 1.5)+
+  stat_function(fun = posterior1,
+                linewidth = 1.5, args = list(y = datay$y)) +
+  theme(legend.position = "none") + 
+  xlim(0.1,.2) + theme_bw(20) + 
+  labs(x = latex2exp::TeX("\\theta"))
+
+ggsave(plot = p1, filename = "Recursos/Bernoulli/Bernoulli1.png")
+```
+
+
+```{r, BernoEj1, echo = FALSE, fig.cap="Distribución previa (línea roja) y distribución posterior (línea negra)", eval=TRUE}
+knitr::include_graphics("Recursos/Bernoulli/Bernoulli1.png")
+```
+
+## Estimación de $\theta$
+
+La estimación del parámetro estaría dado por:
+
+$$
+E(X) = \frac{\alpha}{\alpha + \beta} = \frac{`r n1+1`}{`r n1+1`+ `r 1 - n1+ n`} = `r (n1+1)/( (n1+1) + (1 - n1+ n))`
+$$
+
+* IC 95%: `r round(qbeta(c(0.025, 0.975),shape1 = 1 + n1, shape2 = 1 - n1 + n),3)`
+
+
+
+## Inferencia Bayesiana con STAN
+
+::: {.callout-important}
+### Modelo STAN (Bernoulli-Beta)
+
+```{r}
+Bernoulli_stan <- 
+"data {
+  int<lower=0> n;
+  int y[n];
+  real a; real b;
+}
+parameters { real<lower=0,upper=1> theta; }
+model {
+  y ~ bernoulli(theta);
+  theta ~ beta(a,b);
+}
+generated quantities {
+  real ypred[n];
+  for(ii in 1:n) ypred[ii] = bernoulli_rng(theta);
+}"
+```
+:::
+
+## Ejecutar en R:
+::: {.callout-note}
+### Código en R
+```{r, eval=FALSE}
+library(rstan)
+options(mc.cores = parallel::detectCores())
+rstan::rstan_options(auto_write = TRUE) # speed up running time 
+
+sample_data <- list(
+  n = nrow(datay), y = datay$y, a = 1, b = 1 )
+model_Bernoulli <-
+  stan( model_code = Bernoulli_stan, data = sample_data,
+    iter = 1000, warmup = 500,  chains = 4, cores = 4,
+     verbose = FALSE,
+  )
+saveRDS(model_Bernoulli, "recursos/Bernoulli/model_Bernoulli.rds")
+summary(model_Bernoulli, pars = "theta")$summary
+```
+::: 
+
+* Estimación: media posterior de $\theta$
+* IC 95%: intervalos de credibilidad de la posterior
+
+```{r, model_Bernoulli, eval=TRUE, echo=FALSE}
+model_Bernoulli <- readRDS("recursos/Bernoulli/model_Bernoulli.rds")
+summary(model_Bernoulli, pars = "theta")$summary %>% as.data.frame() %>% tba()
+```
+
+## Evaluación MCMC
+
+- Distribución por cadena (densidad y áreas).
+
+- Traceplot para verificar convergencia.
+
+```{r, eval=FALSE, echo=FALSE}
+library(bayesplot)
+library(patchwork)
+posterior_theta <- as.array(model_Bernoulli, pars = "theta")
+p1 <- (mcmc_dens_chains(posterior_theta) +
+    mcmc_areas(posterior_theta) ) / 
+traceplot(model_Bernoulli,pars = "theta", inc_warmup = TRUE) 
+
+ggsave(plot = p1,
+       filename = "Recursos/Bernoulli/Bernoulli3.png", scale = 2)
+p1  
+```
+
+
+```{r echo=FALSE, out.width="200%", fig.align='center'}
+knitr::include_graphics("Recursos/Bernoulli/Bernoulli3.png")
+```
+
+## Predicción de $Y$
+
+* Para cada iteración de la cadena se generan valores simulados $y^{pred}$.
+* Se comparan contra los observados para validar ajuste.
+
+```{r, eval=FALSE, echo=FALSE}
+y_pred_B <- as.array(model_Bernoulli, pars = "ypred") %>% 
+  as_draws_matrix()
+
+rowsrandom <- sample(nrow(y_pred_B), 100)
+y_pred2 <- y_pred_B[rowsrandom, 1:n]
+p1 <- ppc_dens_overlay(y = datay$y, y_pred2)
+ggsave(plot = p1,
+       filename = "Recursos/Bernoulli/Bernoulli4.png", scale = 2)
+p1 
+```
+
+```{r echo=FALSE, , out.width="200%", fig.align='center'}
+knitr::include_graphics("Recursos/Bernoulli/Bernoulli4.png")
+```
+
+## Modelo de área: Binomial
+
+Cuando se dispone de una muestra aleatoria de variables con distribución Bernoulli $Y_1,\ldots,Y_n$, la inferencia Bayesiana se puede llevar a cabo usando la distribución Binomial.  
+Es bien sabido que la suma de variables Bernoulli sigue una distribución Binomial:
+
+$$
+S=\sum_{i=1}^n Y_i \sim Binomial(n,\theta)
+$$
+
+La función de probabilidad es:
+
+$$
+p(S \mid \theta)=\binom{n}{s}\theta^s(1-\theta)^{n-s}I_{\{0,1,\ldots,n\}}(s)
+$$
+
+Cuando $n=1$, la Binomial se convierte en Bernoulli.  
+
+
+## Teoría
+
+
+Dado que $\theta$ es una proporción, la distribución natural es la **Beta**:
+
+$$
+p(\theta \mid \alpha,\beta)=
+\frac{1}{Beta(\alpha,\beta)}\theta^{\alpha-1}(1-\theta)^{\beta-1}I_{[0,1]}(\theta)
+$$
+
+La distribución posterior es:
+
+$$
+\theta \mid S \sim Beta(s+\alpha,\ \beta-s+n)
+$$
+
+
+
+## Extensión a múltiples dominios
+
+Para $S_1,\ldots,S_D \sim Binomial(n_d,\theta_d)$ independientes, se tiene:
+
+$$
+\theta_d \mid s_d \sim Beta\left(s_d+\alpha,\ \beta+n_d-s_d\right)
+$$
+
+### Objetivo {-}
+
+Estimar la proporción de personas que están por debajo de la línea de pobreza:
+
+$$
+P_{d}=\frac{\sum_{U}y_{di}}{N_{d}}
+$$
+
+Un estimador directo basado en el diseño muestral es:
+
+$$
+\hat{P}^{DIR}_{d} = \frac{\sum_{s_{d}}w_{di}y_{di}}{\sum_{s_{d}}w_{di}}
+$$
+
+donde $w_{di}$ es el factor de expansión del $i$-ésimo individuo en el dominio $d$.  
+
+## Extensión a múltiples dominios
+
+Asumimos entonces:
+
+$$
+P_{d}\mid \hat{P}^{DIR}_{d} \sim Beta(\alpha,\beta)
+$$
+
+El estimador Bayesiano es:
+
+$$
+\tilde{P}_{d} = E\!\left(P_{d}\mid \hat{P}^{DIR}_{d}\right)
+$$
+
+
+## Práctica en **R y STAN**
+
+::: {.callout-tip}
+### Código en R
+
+```{r, message=FALSE, warning=FALSE, eval=TRUE}
+dataS <- set_data %>% 
+  transmute(
+    dam = dam_ee,
+    y = ifelse(ingcorte < lp, 1,0)
+  ) %>% 
+  group_by(dam) %>% 
+  summarise(
+    nd = n(),   # Número de ensayos 
+    Sd = sum(y) # Número de éxitos
+  )
+
+```
+
+:::
+
+```{r, echo=FALSE}
+dataS %>% head() %>% tba()
+```
+
+
+
+## Código en STAN
+
+::: {.callout-Stan}
+
+### Modelo binomial 
+
+```{r, eval=FALSE}
+Binomial_stan <-
+"data {
+  int<lower=0> K;     // Número de provincias
+  int<lower=0> n[K];  // Número de ensayos 
+  int<lower=0> s[K];  // Número de éxitos
+  real a;
+  real b;
+}
+parameters {
+  real<lower=0, upper=1> theta[K]; 
+}
+model {
+  for (kk in 1:K) {
+    s[kk] ~ binomial(n[kk], theta[kk]);
+  }
+  to_vector(theta) ~ beta(a, b);
+}
+generated quantities {
+  real spred[K];
+  for (kk in 1:K){
+    spred[kk] = binomial_rng(n[kk], theta[kk]);
+  }
+}"
+
+```
+
+:::
+
+
+## Preparación de datos
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval=FALSE}
+sample_data <- list(
+  K = nrow(dataS),
+  s = dataS$Sd,
+  n = dataS$nd,
+  a = 1,
+  b = 1
+)
+```
+
+:::
+
+
+## Ejecución en R
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval=FALSE}
+options(mc.cores = parallel::detectCores())
+rstan::rstan_options(auto_write = TRUE)
+
+model_Binomial2 <- stan(
+  model_code = Binomial_stan,
+  data = sample_data,
+  warmup = 500,
+  iter = 1000,
+  chains = 4,
+  cores = 4
+)
+saveRDS(model_Binomial2, "recursos/Bernoulli/model_Binomial.rds")
+```
+
+:::
+
+## Resultados
+
+La estimación de $\theta$:
+
+::: {.callout-tip}
+
+### Código en R
+```{r, eval=TRUE}
+model_Binomial2 <- readRDS("recursos/Bernoulli/model_Binomial.rds")
+tabla_Bin1 <- summary(model_Binomial2, pars = "theta")$summary
+```
+:::
+
+```{r, eval=TRUE, echo=FALSE}
+tabla_Bin1 %>% as.data.frame() %>% slice(1:5) %>% tba()
+```
+
+
+
+## Validación de cadenas con `bayesplot`:
+
+```{r, eval=FALSE, echo=FALSE}
+p1 <- mcmc_areas(as.array(model_Binomial2, pars = "theta"))
+ggsave(plot = p1,
+       filename = "Recursos/Bernoulli/Binomial1.png", scale = 2)
+p1  
+```
+
+
+```{r echo=FALSE, out.width="150%", fig.align='center'}
+knitr::include_graphics("Recursos/Bernoulli/Binomial1.png")
+```
+
+
+
+## Predicción de $S$
+
+```{r, eval=FALSE, echo=FALSE}
+y_pred_B <- as.array(model_Binomial2, pars = "spred") %>% 
+  as_draws_matrix()
+
+rowsrandom <- sample(nrow(y_pred_B), 200)
+y_pred2 <- y_pred_B[rowsrandom, ]
+g2 <- ppc_dens_overlay(y = dataS$Sd, y_pred2) 
+p1 <- g2
+ggsave(plot = p1,
+       filename = "Recursos/Bernoulli/Binomial3.png",
+       scale = 2)
+```
+
+
+```{r echo=FALSE, out.width="150%" , fig.align='center'}
+knitr::include_graphics("Recursos/Bernoulli/Binomial3.png")
+```
+
+## Modelo de unidad: Normal con media desconocida
+
+
+Suponga que $Y_1,\cdots,Y_n \sim Normal(\theta,\sigma^2)$ con $\theta$ desconocido y $\sigma^2$ conocido.  
+La verosimilitud es:
+
+$$
+p(\mathbf{Y} \mid \theta)
+=(2\pi\sigma^2)^{-n/2}\exp\left\{-\tfrac{1}{2\sigma^2}\sum_{i=1}^n(y_i-\theta)^2\right\}
+$$
+
+Si $\theta \sim Normal(\mu,\tau^2)$, la distribución posterior es:
+
+$$
+\theta \mid \mathbf{Y} \sim Normal(\mu_n,\tau_n^2)
+$$
+
+con  
+
+$$
+\mu_n=\frac{\tfrac{n}{\sigma^2}\bar{Y}+\tfrac{1}{\tau^2}\mu}{\tfrac{n}{\sigma^2}+\tfrac{1}{\tau^2}},
+\qquad
+\tau_n^2=\left(\tfrac{n}{\sigma^2}+\tfrac{1}{\tau^2}\right)^{-1}
+$$
+
+## Objetivo {-}
+
+Estimar el ingreso medio de las personas:
+
+$$
+\bar{Y}_d = \frac{\sum_{U_d}y_{di}}{N_d}
+$$
+
+El estimador es:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{s_d}y_{di} + \sum_{s^c_d}\hat{y}_{di}}{N_d},
+\qquad
+\hat{y}_{di}=E_{\mathscr{M}}(y_{di}\mid \mathbf{x}_d,\boldsymbol{\beta})
+$$
+
+Finalmente:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{U_d}\hat{y}_{di}}{N_d}
+$$
+
+## Práctica en **R y STAN**
+
+```{r,,echo=FALSE,fig.cap="Resultado en la muestra (azul) y distribución teórica (negra)", eval=FALSE}
+dataNormal <- set_data %>%
+   filter(dam_ee == 1, ingcorte>0) %>% 
+   transmute(dam_ee, logIngreso = log(ingcorte+1)) 
+
+media <- mean(dataNormal$logIngreso)
+Sd <- sd(dataNormal$logIngreso)
+
+g1 <- ggplot(dataNormal,aes(x = logIngreso))+ 
+  geom_density(size=2, color="blue") +
+  stat_function(fun=dnorm, args=list(mean=media, sd=Sd), size=2) +
+  theme_bw(20) + labs(y="", x="Log(Ingreso)")
+
+g2 <- ggplot(dataNormal,aes(sample=logIngreso))+
+  stat_qq() + stat_qq_line() +
+  theme_bw(20) 
+
+p1 <- g1|g2
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal1.png",
+       scale = 2)
+p1
+```
+
+```{r, fig.cap="Resultado en la muestra (azul) y distribución teórica (negra)", eval=TRUE, echo=FALSE, out.width="150%" }
+knitr::include_graphics("Recursos/Normal/Normal1.png")
+```
+
+
+
+## Código en STAN
+
+::: {.callout-important}
+
+### Modelo Stan normal con media desconocida
+
+```{r}
+NormalMedia_stan <-
+"data {
+  int<lower=0> n;         // Número de observaciones
+  real y[n];              // LogIngreso 
+  real<lower=0> Sigma;    // Desviación estándar
+}
+parameters {
+  real theta;             // Media
+}
+model {
+  y ~ normal(theta, Sigma);
+  theta ~ normal(0, 1000);   // Prior
+}
+generated quantities {
+  real ypred[n];
+  for (kk in 1:n) {
+    ypred[kk] = normal_rng(theta, Sigma);
+  }
+}"
+```
+
+:::
+
+## Preparación y ejecución en R
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval=FALSE}
+sample_data <- list(
+  n = nrow(dataNormal),
+  Sigma = sd(dataNormal$logIngreso),
+  y = dataNormal$logIngreso
+)
+
+model_NormalMedia <- stan(
+  model_code = NormalMedia_stan,  data = sample_data,
+  warmup = 500, iter = 1000,  chains = 4,   cores = 4
+)
+saveRDS(model_NormalMedia, "Recursos/Normal/model_NormalMedia.rds")
+```
+
+```{r, eval=TRUE, echo=FALSE}
+model_NormalMedia <- 
+  readRDS("Recursos/Normal/model_NormalMedia.rds")
+```
+
+:::
+
+## Resultados
+
+Estimación de $\theta$:
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval=TRUE}
+tabla_Nor1 <- summary(model_NormalMedia, pars = "theta")$summary
+```
+:::
+
+```{r, eval=TRUE, echo=FALSE}
+tabla_Nor1 %>% tba()
+```
+
+
+## Evaluación MCMC
+
+```{r, eval=FALSE, echo=FALSE}
+posterior_theta <- as.array(model_NormalMedia, pars="theta")
+p1 <- (mcmc_dens_chains(posterior_theta) +
+       mcmc_areas(posterior_theta)) /
+       mcmc_trace(posterior_theta)
+
+ggsave(plot = p1,
+       filename ="Recursos/Normal/Normal2.png",
+       scale = 2)
+p1
+```
+
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_graphics("Recursos/Normal/Normal2.png")
+```
+
+
+
+## Chequeo predictivo posterior:
+
+
+```{r, eval=FALSE, echo=FALSE}
+y_pred_B <- as.array(model_NormalMedia, pars = "ypred") %>%
+  as_draws_matrix()
+rowsrandom <- sample(nrow(y_pred_B), 200)
+y_pred2 <- y_pred_B[rowsrandom,]
+y_obs <- as.numeric(dataNormal$logIngreso)
+
+p1 <- ppc_dens_overlay(y = y_obs, y_pred2) /
+  ppc_dens_overlay(y = exp(y_obs) - 1, exp(y_pred2) - 1) + xlim(0, 2000000)
+
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal3.png",
+       scale = 2)
+
+```
+
+```{r echo=FALSE, out.width="100%"}
+knitr::include_graphics("Recursos/Normal/Normal3.png")
+```
+
+
+
+## Modelos multiparamétricos
+
+Cuando se tienen variables $Y_1,\ldots,Y_n \sim N(\theta, \sigma^2)$ y se desconocen tanto la media como la varianza, es necesario definir distribuciones previas adecuadas. Las opciones principales son:
+
+* Asumir **independencia** entre $p(\theta)$ y $p(\sigma^2)$, ambas informativas.
+* Asumir **independencia** entre $p(\theta)$ y $p(\sigma^2)$, ambas no informativas.
+* Definir $p(\theta \mid \sigma^2)$ dependiente y $p(\sigma^2)$ independiente.
+
+
+
+## Normal con media y varianza desconocida
+
+Supongamos:  
+$$
+Y_i \sim N(\theta, \sigma^2), \quad i=1,\dots,n
+$$
+
+
+### Priors consideradas
+
+
+$$\theta \sim Normal(0,10000)$$  
+$$\sigma^2 \sim IG(0.0001,0.0001)$$  
+
+Posterior condicional:  
+$$
+\theta \mid \sigma^2,\mathbf{Y} \sim Normal(\mu_n, \tau_n^2)
+$$
+
+
+## Objetivo
+
+
+* **Meta:** Estimar el ingreso medio poblacional
+
+  $$
+  \bar{Y}_d = \frac{\sum_{U_d} y_{di}}{N_d}
+  $$
+
+* **Idea clave:** separar muestra $s_d$ y no muestra $s^c_d$
+
+* **Estimador:**
+
+  $$
+  \hat{\bar{Y}}_d = \frac{\sum_{s_d} y_{di} + \sum_{s^c_d} \hat{y}_{di}}{N_d}
+  $$
+
+* **Predicciones:**
+  $$\hat{y}_{di} = E_{\mathscr{M}}(y_{di} \mid \mathbf{x}_d, \boldsymbol{\beta})$$
+
+
+## Implementación en STAN
+
+::: {.callout-important}
+
+###  Modelo Stan multiparamétrico
+
+```{r}
+NormalMeanVar_stan <-
+"data {
+  int<lower=0> n;
+  real y[n];
+}
+parameters {
+  real theta;
+  real sigma;
+}
+transformed parameters {
+  real sigma2 = pow(sigma, 2);
+}
+model {
+  y ~ normal(theta, sigma);
+  theta ~ normal(0, 1000);
+  sigma2 ~ inv_gamma(0.001, 0.001);
+}
+generated quantities {
+  real ypred[n];
+  for (kk in 1:n) ypred[kk] = normal_rng(theta, sigma);
+}
+"
+```
+:::
+
+## Preparación y ejecución en R
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval = FALSE, message=FALSE}
+sample_data <- list(n = nrow(dataNormal),
+                    y = dataNormal$logIngreso)
+model_NormalMedia <- stan(
+  model_code = NormalMeanVar_stan,  
+  data = sample_data,   
+  verbose = FALSE,
+  warmup = 500,         
+  iter = 1000,            
+  cores = 4              
+)
+
+saveRDS(model_NormalMedia,"Recursos/Normal/model_NormalMedia2.rds")
+```
+
+
+```{r, eval = TRUE, echo=FALSE,message=FALSE}
+model_NormalMedia <- 
+  readRDS("Recursos/Normal/model_NormalMedia2.rds")
+```
+:::
+
+## Resultados: posterior de $\theta$,  $\sigma^2$ y $\sigma$
+
+::: {.callout-tip}
+
+### Código en R
+
+```{r, eval=TRUE}
+tabla_Nor2 <- summary(model_NormalMedia, 
+        pars = c("theta", "sigma2", "sigma"))$summary
+```
+:::
+
+```{r, eval=TRUE, echo=FALSE}
+tabla_Nor2 %>% tba()
+```
+
+
+## Resultados: posterior de $\theta$
+
+```{r,eval=FALSE, echo=FALSE}
+posterior_theta <- as.array(model_NormalMedia, pars = "theta")
+p1 <- (mcmc_dens_chains(posterior_theta) +
+    mcmc_areas(posterior_theta) ) / 
+  mcmc_trace(posterior_theta)
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal4.png",
+       scale = 2)
+p1 
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Normal/Normal4.png")
+```
+
+## Resultados: posterior de $\sigma^2$
+```{r,eval=FALSE, echo=FALSE}
+posterior_sigma2 <- as.array(model_NormalMedia, pars = "sigma2")
+p1 <- (mcmc_dens_chains(posterior_sigma2) +
+    mcmc_areas(posterior_sigma2) ) / 
+  mcmc_trace(posterior_sigma2)
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal5.png",
+       scale = 2)
+p1
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Normal/Normal5.png")
+```
+
+## Resultados: posterior de $\sigma$
+```{r,eval=FALSE, echo=FALSE}
+posterior_sigma <- as.array(model_NormalMedia, pars = "sigma")
+p1 <- (mcmc_dens_chains(posterior_sigma) +
+    mcmc_areas(posterior_sigma) ) / 
+  mcmc_trace(posterior_sigma)
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal6.png",
+       scale = 2)
+p1
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Normal/Normal6.png")
+```
+
+## Chequeo predictivo posterior:
+
+```{r,eval=FALSE, echo=FALSE}
+y_pred_B <- as.array(model_NormalMedia, pars = "ypred") %>% 
+  as_draws_matrix()
+rowsrandom <- sample(nrow(y_pred_B), 100)
+y_pred2 <- y_pred_B[rowsrandom, ]
+
+p1 <- ppc_dens_overlay(y = y_obs, y_pred2) /
+  ppc_dens_overlay(y = exp(y_obs) - 1, exp(y_pred2) - 1) + xlim(0, 2000000)
+
+ggsave(plot = p1,
+       filename = "Recursos/Normal/Normal7.png",
+       scale = 2)
+
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Normal/Normal7.png")
+```
+
+
+## Modelo de área: Multinomial
+
+* **Definición:**
+  $\mathbf{Y}=(Y_1,\ldots,Y_K)$ con
+
+  $$
+  p(\mathbf{Y}|\boldsymbol{\theta})=\binom{n}{y_1,\ldots,y_K}\prod_{k=1}^K \theta_k^{y_k}
+  $$
+
+  sujeto a $\sum y_k=n,\;\; \sum \theta_k=1$.
+
+* **Priors:**
+
+  $$\boldsymbol{\theta} \sim Dirichlet(\alpha_1,\ldots,\alpha_K)$$.
+
+* **Posterior:**
+
+  $$\boldsymbol{\theta}|\mathbf{Y} \sim Dirichlet(y_1+\alpha_1,\ldots,y_K+\alpha_K)$$.
+
+
+## Ejemplo aplicado
+
+* Variable: **condición de actividad laboral**
+
+  * 1 = Ocupado
+  * 2 = Desocupado
+  * 3 = Inactivo
+
+* Estimación de interés: **tasa de desocupación**
+
+  $$
+  \delta = \frac{\theta_2}{\theta_1 + \theta_2}
+  $$
+
+
+### Visualización de resultados
+
+* Estimaciones posteriores para:
+
+  * $\theta_1, \theta_2, \theta_3$
+  * $\delta$ (tasa de desocupación)
+
+
+
+## Preparación y ejecución en R
+
+Sea $Y$ condición de actividad laboral
+
+```{r, eval=TRUE, echo=FALSE}
+dataMult <- set_data %>%
+  transmute(
+   empleo = as.character(haven::as_factor(condact3))) %>% 
+   filter(empleo %in% c("Desocupado", "Inactivo", "Ocupado")) %>% 
+  group_by(empleo) %>%  tally() %>% 
+  mutate(theta = n/sum(n))
+
+dataMult %>% tba()
+
+```
+
+
+
+## Código en STAN
+
+::: {.callout-important}
+
+### Modelo multinomial en Stan
+
+```{r, eval=FALSE }
+Multinom_stan  <- 
+"data {
+  int<lower=0> k;  // Número de cátegoria 
+  int y[k];        // Número de exitos 
+  vector[k] alpha; // Parámetro de las distribción previa 
+}
+parameters {
+  simplex[k] theta;
+}
+transformed parameters {
+  real delta;                              // Tasa de desocupación
+  delta = theta[2]/ (theta[2] + theta[1]); // (Desocupado)/(Desocupado + Ocupado)
+}
+model {
+  y ~ multinomial(theta);
+  theta ~ dirichlet(alpha);
+}
+generated quantities {
+  int ypred[k];
+  ypred = multinomial_rng(theta, sum(y));
+}"
+
+```
+:::
+
+
+## Preparando el código de `STAN`
+
+::: {.callout-tip}
+
+### Código en R 
+
+```{r, eval=FALSE}
+sample_data <- list(k = nrow(dataMult),
+                    y = dataMult$n,
+                    alpha = c(0.5, 0.5, 0.5))
+
+model_Multinom <- stan(
+  model_code =  Multinom_stan,   data = sample_data,   
+  verbose = FALSE, warmup = 500, iter = 1000,            
+  cores = 4              
+)
+saveRDS(model_Multinom, "Recursos/Multinomial/model_Multinom.rds")
+```
+
+
+```{r, eval=TRUE, echo=FALSE}
+model_Multinom <- readRDS("Recursos/Multinomial/model_Multinom.rds")
+```
+:::
+
+
+## La estimación del parámetro $\theta$ y $\delta$ es:
+
+- **Desocupado** ($\theta_1$) , 
+- **Inactivo** ($\theta_2$) y 
+- **Ocupado** ($\theta_3$). 
+
+```{r, eval=TRUE, echo=FALSE}
+tabla_Mul1 <- summary(model_Multinom, pars = c("delta", "theta"))$summary %>% 
+  as.data.frame()
+tabla_Mul1 %>% tba()
+```
+
+
+## Resultados: posterior de $\theta_1$
+
+```{r, eval=FALSE, echo=FALSE}
+posterior_theta1 <- as.array(model_Multinom, pars = "theta[1]")
+p1 <- (mcmc_dens_chains(posterior_theta1) +
+    mcmc_areas(posterior_theta1) ) / 
+  mcmc_trace(posterior_theta1)
+
+ggsave(plot = p1,
+       filename = "Recursos/Multinomial/Multinomial1.png",
+       scale = 2)
+
+```
+
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Multinomial/Multinomial1.png")
+```
+
+## Resultados: posterior de $\theta_2$
+```{r, eval=FALSE, echo=FALSE}
+posterior_theta2 <- as.array(model_Multinom, pars = "theta[2]")
+p1 <- (mcmc_dens_chains(posterior_theta2) +
+    mcmc_areas(posterior_theta2) ) / 
+  mcmc_trace(posterior_theta2)
+ggsave(plot = p1,
+       filename = "Recursos/Multinomial/Multinomial2.png",
+       scale = 2)
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Multinomial/Multinomial2.png")
+```
+
+## Resultados: posterior de $\theta_3$
+
+```{r, eval=FALSE, echo=FALSE}
+posterior_theta3 <- as.array(model_Multinom, pars = "theta[3]")
+p1 <- (mcmc_dens_chains(posterior_theta3) +
+    mcmc_areas(posterior_theta3) ) / 
+  mcmc_trace(posterior_theta3)
+ggsave(plot = p1,
+       filename = "Recursos/Multinomial/Multinomial3.png",
+       scale = 2)
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Multinomial/Multinomial3.png")
+```
+
+## Resultados: posterior de $\delta$
+
+```{r, eval=FALSE, echo=FALSE}
+posterior_delta <- as.array(model_Multinom, pars = "delta")
+p1 <-(mcmc_dens_chains(posterior_delta) +
+    mcmc_areas(posterior_delta) ) / 
+  mcmc_trace(posterior_delta)
+
+ggsave(plot = p1,
+       filename = "Recursos/Multinomial/Multinomial4.png",
+       scale = 2)
+
+```
+
+```{r echo=FALSE, out.width="200%"}
+knitr::include_graphics("Recursos/Multinomial/Multinomial4.png")
+```
+
+## Chequeo predictivo posterior:
+
+```{r,out.width = "500px", out.height="250px",fig.align='center', eval=FALSE, echo=FALSE}
+n <- nrow(dataMult)
+y_pred_B <- as.array(model_Multinom, pars = "ypred") %>% 
+  as_draws_matrix()
+
+rowsrandom <- sample(nrow(y_pred_B), 100)
+y_pred2 <- y_pred_B[, 1:n]
+p1 <- ppc_dens_overlay(y = as.numeric(dataMult$n), y_pred2)
+ggsave(plot = p1,
+       filename = "Recursos/Multinomial/ppc_multinomial.PNG",
+       scale = 2)
+```
+
+```{r, echo = FALSE, fig.align='center', eval=TRUE}
+knitr::include_graphics("Recursos/Multinomial/ppc_multinomial.PNG")
+```
+
+
+
+# ¡Gracias! 

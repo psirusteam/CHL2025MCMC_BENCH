@@ -1,0 +1,25 @@
+/* styles.css
+   Estilos para presentaciones Quarto -> revealjs
+   Objetivo: compactar texto, mejorar legibilidad en slides técnicas,
+   controlar imágenes y contenedores con scroll.
+   Creado para la presentación: "Benchmarking en Cadenas MCMC".
+*/
+
+/* --- Base y tamaño global --- */
+.reveal { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; }
+.reveal .slides {
+  font-size: 0.85em;          /* compactar texto sin perder legibilidad */
+  line-height: 1.12;
+  padding: 12px 48px;        /* reducir márgenes laterales */
+  max-width: 1100px;
+}
+
+/* Encabezados más compactos y jerarquizados */
+.reveal h1 { font-size: 2.0em; margin-bottom: 0.2em; }
+.reveal h2 { font-size: 1.45em; margin-bottom: 0.15em; }
+.reveal h3 { font-size: 1.15em; margin-bottom: 0.1em; }
+
+.reveal pre code {
+  font-size: 26px;   /* ajusta según necesites */
+  line-height: 1.5;
+}
