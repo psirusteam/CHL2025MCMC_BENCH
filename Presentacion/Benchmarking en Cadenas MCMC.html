@@ -11,7 +11,7 @@
   <meta name="generator" content="quarto-1.3.353">
 
   <meta name="author" content="Andrés Gutierrez y Stalyn Guerrero">
-  <meta name="dcterms.date" content="2025-10-02">
+  <meta name="dcterms.date" content="2025-10-13">
   <title>Benchmarking en Cadenas MCMC</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -406,7 +406,7 @@ Andrés Gutierrez y Stalyn Guerrero
 </div>
 </div>
 
-  <p class="date">2025-10-02</p>
+  <p class="date">2025-10-13</p>
 </section>
 <section id="introducción-i" class="slide level2">
 <h2>Introducción (I)</h2>
@@ -1573,10 +1573,23 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 <section id="proceso-de-estimación-y-predicción" class="slide level2">
 <h2>Proceso de estimación y predicción</h2>
 <p>Obtener el modelo es solo un paso más, ahora se debe realizar la predicción en el censo, el cual a sido previamente estandarizado y homologado con la encuesta.</p>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-20_30fb6b60f0d81dd9ff6fc84cf1b5377d">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-20_afe56acbec586ae8a146751aed19da31">
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>poststrat_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"Recursos/censo_dam2.rds"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb6-2"><a href="#cb6-2"></a>     <span class="fu">inner_join</span>(statelevel_predictors_df) </span>
-<span id="cb6-3"><a href="#cb6-3"></a><span class="fu">tba</span>( poststrat_df <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(n)) <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb6-2"><a href="#cb6-2"></a>     <span class="fu">inner_join</span>(statelevel_predictors_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-21_f8805b90e2c094b93cbb0dd5eb766195">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -1851,9 +1864,21 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 <section id="distribución-posterior." class="slide level2">
 <h2>Distribución posterior.</h2>
 <p>Para obtener una distribución posterior de cada observación se hace uso de la función <em>posterior_epred</em> de la siguiente forma.</p>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-21_854c245df78d3f4e20e9e519963d8961">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-22_e173a57bb5b0580f5d5e10eadd0a9773">
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>epred_mat <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(fit, <span class="at">newdata =</span> poststrat_df,  <span class="at">type =</span> <span class="st">"response"</span>)</span>
 <span id="cb7-2"><a href="#cb7-2"></a><span class="fu">saveRDS</span>(epred_mat, <span class="st">"recursos/epred_mat.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="proceso-de-estimación-en-r-i-2" class="slide level2">
@@ -1864,7 +1889,16 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 </li>
 <li>Construir la matriz de calibración <span class="math inline">\(\mathbf{X}_k\)</span>.</li>
 </ol>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-22_72d60bae5deee2faed771afeaeb52b41">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-23_2d94175defcd3f62511f196ba9b74ff9">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a><span class="fu">library</span>(sampling)</span>
 <span id="cb8-2"><a href="#cb8-2"></a>epred_mat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/epred_mat.rds"</span>)</span>
 <span id="cb8-3"><a href="#cb8-3"></a></span>
@@ -1875,34 +1909,61 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 <span id="cb8-8"><a href="#cb8-8"></a><span class="co"># 1. Predicciones en el post-estrato</span></span>
 <span id="cb8-9"><a href="#cb8-9"></a>temp_post <span class="ot">&lt;-</span> poststrat_df <span class="sc">%&gt;%</span></span>
 <span id="cb8-10"><a href="#cb8-10"></a>  <span class="fu">mutate</span>(<span class="at">yk =</span> epred_mat[iter,]) <span class="sc">%&gt;%</span> </span>
-<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span>
-<span id="cb8-12"><a href="#cb8-12"></a></span>
-<span id="cb8-13"><a href="#cb8-13"></a><span class="co"># 2. Matriz de calibración</span></span>
-<span id="cb8-14"><a href="#cb8-14"></a>Xk <span class="ot">&lt;-</span> temp_post <span class="sc">%&gt;%</span> </span>
-<span id="cb8-15"><a href="#cb8-15"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span></span>
-<span id="cb8-16"><a href="#cb8-16"></a>  fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
-<span id="cb8-17"><a href="#cb8-17"></a>                          <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb8-18"><a href="#cb8-18"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), <span class="sc">~</span> . <span class="sc">*</span> temp_post<span class="sc">$</span>yk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb8-11"><a href="#cb8-11"></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="proceso-de-estimación-en-r-ii-2" class="slide level2">
 <h2>Proceso de estimación en <code>R</code> (II)</h2>
-<ol start="3" type="1">
-<li>Calcular los totales de la encuesta <span class="math inline">\(\mathbf{t}_X\)</span>.<br>
-</li>
-</ol>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-23_2f5f3e55a9481e4011ecbf6118126208">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># 3. Totales de la encuesta</span></span>
-<span id="cb9-2"><a href="#cb9-2"></a>encuesta_sta <span class="ot">&lt;-</span> encuesta_mrp <span class="sc">%&gt;%</span></span>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-24_ab72820722cfe6f8c896979bdf7e3730">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1"></a><span class="co"># 2. Matriz de calibración</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a>Xk <span class="ot">&lt;-</span> temp_post <span class="sc">%&gt;%</span> </span>
 <span id="cb9-3"><a href="#cb9-3"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span></span>
 <span id="cb9-4"><a href="#cb9-4"></a>  fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
-<span id="cb9-5"><a href="#cb9-5"></a>                          <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-6"><a href="#cb9-6"></a></span>
-<span id="cb9-7"><a href="#cb9-7"></a>Total_Xk <span class="ot">&lt;-</span> encuesta_sta <span class="sc">%&gt;%</span></span>
-<span id="cb9-8"><a href="#cb9-8"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), </span>
-<span id="cb9-9"><a href="#cb9-9"></a>            <span class="sc">~</span> . <span class="sc">*</span> encuesta_mrp<span class="sc">$</span>logingreso <span class="sc">*</span> encuesta_mrp<span class="sc">$</span>fep) <span class="sc">%&gt;%</span></span>
-<span id="cb9-10"><a href="#cb9-10"></a>  <span class="fu">colSums</span>()</span>
-<span id="cb9-11"><a href="#cb9-11"></a>Total_Xk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-5"><a href="#cb9-5"></a>                          <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), <span class="sc">~</span> . <span class="sc">*</span> temp_post<span class="sc">$</span>yk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-iii" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (III)</h2>
+<ol start="3" type="1">
+<li>Calcular los totales de la encuesta <span class="math inline">\(\mathbf{t}_X\)</span>.</li>
+</ol>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-25_2ca095a8cc155edcae823624b28c2702">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a><span class="co"># 3. Totales de la encuesta</span></span>
+<span id="cb10-2"><a href="#cb10-2"></a>encuesta_sta <span class="ot">&lt;-</span> encuesta_mrp <span class="sc">%&gt;%</span></span>
+<span id="cb10-3"><a href="#cb10-3"></a>  <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span></span>
+<span id="cb10-4"><a href="#cb10-4"></a>  fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
+<span id="cb10-5"><a href="#cb10-5"></a>                          <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-6"><a href="#cb10-6"></a></span>
+<span id="cb10-7"><a href="#cb10-7"></a>Total_Xk <span class="ot">&lt;-</span> encuesta_sta <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), </span>
+<span id="cb10-9"><a href="#cb10-9"></a>            <span class="sc">~</span> . <span class="sc">*</span> encuesta_mrp<span class="sc">$</span>logingreso <span class="sc">*</span> encuesta_mrp<span class="sc">$</span>fep) <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10"></a>  <span class="fu">colSums</span>()</span>
+<span id="cb10-11"><a href="#cb10-11"></a>Total_Xk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  dam_01   dam_02   dam_03   dam_04   dam_05   dam_06   dam_07   dam_08 
  4298101  7372483  3518321  9408211 23069944 11392730 12746027 19925849 
@@ -1910,21 +1971,33 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 12141267 10828235  1332260  1932517 91204327  4550614  1981897  5578108 </code></pre>
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
-<section id="proceso-de-estimación-en-r-iii" class="slide level2">
-<h2>Proceso de estimación en <code>R</code> (III)</h2>
+<section id="proceso-de-estimación-en-r-iv" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (IV)</h2>
 <ol start="4" type="1">
 <li>Resolver el sistema de calibración para obtener <span class="math inline">\(g_k^{(l)}\)</span>.</li>
 </ol>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-24_3aa751cd5c826e7fe528dcf6a0451ebe">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a><span class="co"># 4. Resolver calibración</span></span>
-<span id="cb11-2"><a href="#cb11-2"></a>gk_calib <span class="ot">&lt;-</span> <span class="fu">calib</span>(</span>
-<span id="cb11-3"><a href="#cb11-3"></a>  <span class="at">Xs =</span> Xk,</span>
-<span id="cb11-4"><a href="#cb11-4"></a>  <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
-<span id="cb11-5"><a href="#cb11-5"></a>  <span class="at">total =</span> Total_Xk,</span>
-<span id="cb11-6"><a href="#cb11-6"></a>  <span class="at">method =</span> metodo</span>
-<span id="cb11-7"><a href="#cb11-7"></a>)</span>
-<span id="cb11-8"><a href="#cb11-8"></a><span class="fu">summary</span>(gk_calib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-26_6de6f6592cdb9b5dec63c1d5564e1b80">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># 4. Resolver calibración</span></span>
+<span id="cb12-2"><a href="#cb12-2"></a>gk_calib <span class="ot">&lt;-</span> <span class="fu">calib</span>(</span>
+<span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">Xs =</span> Xk,</span>
+<span id="cb12-4"><a href="#cb12-4"></a>  <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
+<span id="cb12-5"><a href="#cb12-5"></a>  <span class="at">total =</span> Total_Xk,</span>
+<span id="cb12-6"><a href="#cb12-6"></a>  <span class="at">method =</span> metodo</span>
+<span id="cb12-7"><a href="#cb12-7"></a>)</span>
+<span id="cb12-8"><a href="#cb12-8"></a><span class="fu">summary</span>(gk_calib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table>
 <thead>
@@ -1949,22 +2022,34 @@ Obtener la muestra posterior calibrada: <span class="math display">\[
 </tbody>
 </table>
 </div>
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1"></a><span class="co"># Diagnóstico</span></span>
-<span id="cb12-2"><a href="#cb12-2"></a>check_calib <span class="ot">&lt;-</span> <span class="fu">checkcalibration</span>(</span>
-<span id="cb12-3"><a href="#cb12-3"></a>  <span class="at">Xs =</span> Xk, <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
-<span id="cb12-4"><a href="#cb12-4"></a>  <span class="at">total =</span> Total_Xk, <span class="at">g =</span> gk_calib</span>
-<span id="cb12-5"><a href="#cb12-5"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Diagnóstico</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a>check_calib <span class="ot">&lt;-</span> <span class="fu">checkcalibration</span>(</span>
+<span id="cb13-3"><a href="#cb13-3"></a>  <span class="at">Xs =</span> Xk, <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
+<span id="cb13-4"><a href="#cb13-4"></a>  <span class="at">total =</span> Total_Xk, <span class="at">g =</span> gk_calib</span>
+<span id="cb13-5"><a href="#cb13-5"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
-<section id="proceso-de-estimación-en-r-iv" class="slide level2">
-<h2>Proceso de estimación en <code>R</code> (IV)</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-25_a768a6786b890aa6a780367927c0476d">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co"># Totales ajustados</span></span>
-<span id="cb13-2"><a href="#cb13-2"></a>hat_tx <span class="ot">&lt;-</span> Xk <span class="sc">%&gt;%</span></span>
-<span id="cb13-3"><a href="#cb13-3"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), <span class="sc">~</span> . <span class="sc">*</span> temp_post<span class="sc">$</span>n <span class="sc">*</span> gk_calib) <span class="sc">%&gt;%</span> </span>
-<span id="cb13-4"><a href="#cb13-4"></a>  <span class="fu">colSums</span>()</span>
-<span id="cb13-5"><a href="#cb13-5"></a></span>
-<span id="cb13-6"><a href="#cb13-6"></a><span class="fu">round</span>(Total_Xk <span class="sc">-</span> hat_tx, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="proceso-de-estimación-en-r-v" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (V)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-27_32ab81f111d4aca04272b59b1d475298">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a><span class="co"># Totales ajustados</span></span>
+<span id="cb14-2"><a href="#cb14-2"></a>hat_tx <span class="ot">&lt;-</span> Xk <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3"></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), <span class="sc">~</span> . <span class="sc">*</span> temp_post<span class="sc">$</span>n <span class="sc">*</span> gk_calib) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-4"><a href="#cb14-4"></a>  <span class="fu">colSums</span>()</span>
+<span id="cb14-5"><a href="#cb14-5"></a></span>
+<span id="cb14-6"><a href="#cb14-6"></a><span class="fu">round</span>(Total_Xk <span class="sc">-</span> hat_tx, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>dam_01 dam_02 dam_03 dam_04 dam_05 dam_06 dam_07 dam_08 dam_09 dam_10 dam_11 
      0      0      0      0      0      0      0      0      0      0      0 
@@ -1972,21 +2057,33 @@ dam_12 dam_13 dam_14 dam_15 dam_16
      0      0      0      0      0 </code></pre>
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
 <section id="proceso-de-estimación-en-r-función-benchmarking" class="slide level2">
 <h2>Proceso de estimación en <code>R</code> (Función benchmarking)</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-26_7a1afdad525d8615b2dec0e5114dc0d6">
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1"></a><span class="fu">source</span>(<span class="st">"recursos/benchmarking_ingreso.r"</span>)</span>
-<span id="cb15-2"><a href="#cb15-2"></a></span>
-<span id="cb15-3"><a href="#cb15-3"></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking</span>(</span>
-<span id="cb15-4"><a href="#cb15-4"></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
-<span id="cb15-5"><a href="#cb15-5"></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> logingreso),</span>
-<span id="cb15-6"><a href="#cb15-6"></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
-<span id="cb15-7"><a href="#cb15-7"></a>  <span class="at">metodo =</span> <span class="st">"linear"</span>, </span>
-<span id="cb15-8"><a href="#cb15-8"></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb15-9"><a href="#cb15-9"></a>)</span>
-<span id="cb15-10"><a href="#cb15-10"></a></span>
-<span id="cb15-11"><a href="#cb15-11"></a><span class="fu">tba</span>(poststrat_df_iter <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-28_544933128154af2c536d585ee4cf9a86">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="fu">source</span>(<span class="st">"recursos/benchmarking_ingreso.r"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2"></a></span>
+<span id="cb16-3"><a href="#cb16-3"></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking</span>(</span>
+<span id="cb16-4"><a href="#cb16-4"></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb16-5"><a href="#cb16-5"></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> logingreso),</span>
+<span id="cb16-6"><a href="#cb16-6"></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
+<span id="cb16-7"><a href="#cb16-7"></a>  <span class="at">metodo =</span> <span class="st">"linear"</span>, </span>
+<span id="cb16-8"><a href="#cb16-8"></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb16-9"><a href="#cb16-9"></a>)</span>
+<span id="cb16-10"><a href="#cb16-10"></a></span>
+<span id="cb16-11"><a href="#cb16-11"></a><span class="fu">tba</span>(poststrat_df_iter <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2070,81 +2167,116 @@ dam_12 dam_13 dam_14 dam_15 dam_16
 
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
 <section id="proceso-de-estimación-en-r-para-la-mcmc" class="slide level2">
 <h2>Proceso de estimación en <code>R</code> para la MCMC</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-27_3b18ba56caa1c8d744acc1d2f7b4d9b2">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a>poststrat_df_iter2 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(epred_mat),</span>
-<span id="cb16-2"><a href="#cb16-2"></a>  <span class="sc">~</span>{</span>
-<span id="cb16-3"><a href="#cb16-3"></a>temp_post <span class="ot">&lt;-</span> poststrat_df <span class="sc">%&gt;%</span></span>
-<span id="cb16-4"><a href="#cb16-4"></a>  <span class="fu">mutate</span>(<span class="at">yk =</span> epred_mat[.x,]) <span class="sc">%&gt;%</span> </span>
-<span id="cb16-5"><a href="#cb16-5"></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span>
-<span id="cb16-6"><a href="#cb16-6"></a></span>
-<span id="cb16-7"><a href="#cb16-7"></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking</span>(</span>
-<span id="cb16-8"><a href="#cb16-8"></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
-<span id="cb16-9"><a href="#cb16-9"></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> logingreso),</span>
-<span id="cb16-10"><a href="#cb16-10"></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
-<span id="cb16-11"><a href="#cb16-11"></a>  <span class="at">metodo =</span> <span class="st">"logit"</span>, </span>
-<span id="cb16-12"><a href="#cb16-12"></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
-<span id="cb16-13"><a href="#cb16-13"></a>)</span>
-<span id="cb16-14"><a href="#cb16-14"></a>poststrat_df_iter</span>
-<span id="cb16-15"><a href="#cb16-15"></a>  }</span>
-<span id="cb16-16"><a href="#cb16-16"></a>)</span>
-<span id="cb16-17"><a href="#cb16-17"></a><span class="fu">saveRDS</span>(poststrat_df_iter2, <span class="st">"recursos/poststrat_df_iter_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-29_6b4f35e4a34b35aa5c2eb7ee120f2818">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>poststrat_df_iter2 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(epred_mat),</span>
+<span id="cb17-2"><a href="#cb17-2"></a>  <span class="sc">~</span>{</span>
+<span id="cb17-3"><a href="#cb17-3"></a>temp_post <span class="ot">&lt;-</span> poststrat_df <span class="sc">%&gt;%</span></span>
+<span id="cb17-4"><a href="#cb17-4"></a>  <span class="fu">mutate</span>(<span class="at">yk =</span> epred_mat[.x,]) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-5"><a href="#cb17-5"></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span>
+<span id="cb17-6"><a href="#cb17-6"></a></span>
+<span id="cb17-7"><a href="#cb17-7"></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking</span>(</span>
+<span id="cb17-8"><a href="#cb17-8"></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb17-9"><a href="#cb17-9"></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> logingreso),</span>
+<span id="cb17-10"><a href="#cb17-10"></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
+<span id="cb17-11"><a href="#cb17-11"></a>  <span class="at">metodo =</span> <span class="st">"logit"</span>, </span>
+<span id="cb17-12"><a href="#cb17-12"></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb17-13"><a href="#cb17-13"></a>)</span>
+<span id="cb17-14"><a href="#cb17-14"></a>poststrat_df_iter</span>
+<span id="cb17-15"><a href="#cb17-15"></a>  }</span>
+<span id="cb17-16"><a href="#cb17-16"></a>)</span>
+<span id="cb17-17"><a href="#cb17-17"></a><span class="fu">saveRDS</span>(poststrat_df_iter2, <span class="st">"recursos/poststrat_df_iter_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="proceso-de-estimación-en-r-para-la-mcmc-sin-benchmarking" class="slide level2">
 <h2>Proceso de estimación en <code>R</code> para la MCMC <strong>sin benchmarking</strong></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-29_69f76b601428285284d16d12743dc699">
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1"></a>theta_iter <span class="ot">&lt;-</span>  <span class="fu">map</span>(poststrat_df_iter3, <span class="sc">~</span>{</span>
-<span id="cb17-2"><a href="#cb17-2"></a>    .x <span class="sc">%&gt;%</span> </span>
-<span id="cb17-3"><a href="#cb17-3"></a>    <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span> </span>
-<span id="cb17-4"><a href="#cb17-4"></a>    <span class="fu">summarise</span>(<span class="at">theta =</span> <span class="fu">sum</span>(yk<span class="sc">*</span>n))  </span>
-<span id="cb17-5"><a href="#cb17-5"></a>}, <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb17-6"><a href="#cb17-6"></a></span>
-<span id="cb17-7"><a href="#cb17-7"></a>theta_modelo <span class="ot">&lt;-</span>  theta_iter <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb17-8"><a href="#cb17-8"></a>  <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
-<span id="cb17-9"><a href="#cb17-9"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb17-10"><a href="#cb17-10"></a>        <span class="at">estimate =</span> <span class="fu">mean</span>(theta),</span>
-<span id="cb17-11"><a href="#cb17-11"></a>        <span class="at">sd =</span> <span class="fu">sd</span>(theta),</span>
-<span id="cb17-12"><a href="#cb17-12"></a>        <span class="at">lci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>)<span class="sc">/</span><span class="dv">2</span>),</span>
-<span id="cb17-13"><a href="#cb17-13"></a>        <span class="at">uci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>)<span class="sc">/</span><span class="dv">2</span>))</span>
-<span id="cb17-14"><a href="#cb17-14"></a></span>
-<span id="cb17-15"><a href="#cb17-15"></a><span class="fu">saveRDS</span>(theta_modelo, <span class="st">"recursos/02.theta_modelo_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-31_ab67e2dbf4ccb511dc34310304d9fd5d">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>theta_iter <span class="ot">&lt;-</span>  <span class="fu">map</span>(poststrat_df_iter3, <span class="sc">~</span>{</span>
+<span id="cb18-2"><a href="#cb18-2"></a>    .x <span class="sc">%&gt;%</span> </span>
+<span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span> </span>
+<span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">summarise</span>(<span class="at">theta =</span> <span class="fu">sum</span>(yk<span class="sc">*</span>n))  }, <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb18-5"><a href="#cb18-5"></a></span>
+<span id="cb18-6"><a href="#cb18-6"></a>theta_modelo <span class="ot">&lt;-</span>  theta_iter <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb18-7"><a href="#cb18-7"></a>  <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
+<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">summarise</span>(<span class="at">estimate =</span> <span class="fu">mean</span>(theta),</span>
+<span id="cb18-9"><a href="#cb18-9"></a>        <span class="at">sd =</span> <span class="fu">sd</span>(theta),</span>
+<span id="cb18-10"><a href="#cb18-10"></a>        <span class="at">lci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>)<span class="sc">/</span><span class="dv">2</span>),</span>
+<span id="cb18-11"><a href="#cb18-11"></a>        <span class="at">uci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>)<span class="sc">/</span><span class="dv">2</span>))</span>
+<span id="cb18-12"><a href="#cb18-12"></a></span>
+<span id="cb18-13"><a href="#cb18-13"></a><span class="fu">saveRDS</span>(theta_modelo, <span class="st">"recursos/02.theta_modelo_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="proceso-de-estimación-en-r-para-la-mcmc-con-benchmarking" class="slide level2">
 <h2>Proceso de estimación en <code>R</code> para la MCMC <strong>con benchmarking</strong></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-30_7eed7562c201c67f20b7e26ebfc9bc94">
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a>theta_iter2 <span class="ot">&lt;-</span>  <span class="fu">map</span>(poststrat_df_iter2, <span class="sc">~</span> {</span>
-<span id="cb18-2"><a href="#cb18-2"></a>  .x <span class="sc">%&gt;%</span></span>
-<span id="cb18-3"><a href="#cb18-3"></a>    <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
-<span id="cb18-4"><a href="#cb18-4"></a>    <span class="fu">summarise</span>(<span class="at">theta =</span> <span class="fu">sum</span>(yk<span class="sc">*</span>n2))</span>
-<span id="cb18-5"><a href="#cb18-5"></a>}, <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb18-6"><a href="#cb18-6"></a></span>
-<span id="cb18-7"><a href="#cb18-7"></a>theta_bench <span class="ot">&lt;-</span> theta_iter2 <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb18-8"><a href="#cb18-8"></a>  <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
-<span id="cb18-9"><a href="#cb18-9"></a>  <span class="fu">summarise</span>(</span>
-<span id="cb18-10"><a href="#cb18-10"></a>    <span class="at">estimate =</span> <span class="fu">mean</span>(theta),</span>
-<span id="cb18-11"><a href="#cb18-11"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(theta),</span>
-<span id="cb18-12"><a href="#cb18-12"></a>    <span class="at">lci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>) <span class="sc">/</span> <span class="dv">2</span>),</span>
-<span id="cb18-13"><a href="#cb18-13"></a>    <span class="at">uci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>) <span class="sc">/</span> <span class="dv">2</span>)</span>
-<span id="cb18-14"><a href="#cb18-14"></a>  )</span>
-<span id="cb18-15"><a href="#cb18-15"></a><span class="fu">saveRDS</span>(theta_bench, <span class="st">"recursos/03.theta_bench_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-32_61aac880a19d408b0bfef20169d18aa7">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a>theta_iter2 <span class="ot">&lt;-</span>  <span class="fu">map</span>(poststrat_df_iter2, <span class="sc">~</span> {</span>
+<span id="cb19-2"><a href="#cb19-2"></a>  .x <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3"></a>    <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4"></a>    <span class="fu">summarise</span>(<span class="at">theta =</span> <span class="fu">sum</span>(yk<span class="sc">*</span>n2))}, <span class="at">.progress =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb19-5"><a href="#cb19-5"></a></span>
+<span id="cb19-6"><a href="#cb19-6"></a>theta_bench <span class="ot">&lt;-</span> theta_iter2 <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb19-7"><a href="#cb19-7"></a>  <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span></span>
+<span id="cb19-8"><a href="#cb19-8"></a>  <span class="fu">summarise</span>( <span class="at">estimate =</span> <span class="fu">mean</span>(theta),</span>
+<span id="cb19-9"><a href="#cb19-9"></a>    <span class="at">sd =</span> <span class="fu">sd</span>(theta),</span>
+<span id="cb19-10"><a href="#cb19-10"></a>    <span class="at">lci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>) <span class="sc">/</span> <span class="dv">2</span>),</span>
+<span id="cb19-11"><a href="#cb19-11"></a>    <span class="at">uci =</span> <span class="fu">quantile</span>(theta, <span class="at">probs =</span> <span class="dv">1</span> <span class="sc">-</span> (<span class="dv">1</span> <span class="sc">-</span> <span class="fl">0.95</span>) <span class="sc">/</span> <span class="dv">2</span>)</span>
+<span id="cb19-12"><a href="#cb19-12"></a>  )</span>
+<span id="cb19-13"><a href="#cb19-13"></a><span class="fu">saveRDS</span>(theta_bench, <span class="st">"recursos/03.theta_bench_ingreso.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="comparando-estimaciones-muestra-modelo-y-modelo-con-benchmarking" class="slide level2">
 <h2>Comparando estimaciones muestra, modelo y modelo con benchmarking</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-31_f5b8b3c49576d1f5cd4d950b9d546323">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-33_8e1c0aab017fb8c41d5c87a14a5bfa01">
 <div class="cell-output-display">
-<table>
+<table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
 <tr class="header">
-<th style="text-align: left;">dam</th>
-<th style="text-align: right;">modelo</th>
-<th style="text-align: right;">bench</th>
-<th style="text-align: right;">muestra</th>
-<th style="text-align: right;">diff_bench</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">modelo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">bench</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">muestra</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">diff_bench</th>
 </tr>
 </thead>
 <tbody>
@@ -2218,89 +2350,81 @@ dam_12 dam_13 dam_14 dam_15 dam_16
 <td style="text-align: right;">10828235</td>
 <td style="text-align: right;">0</td>
 </tr>
-<tr class="odd">
-<td style="text-align: left;">dam_11</td>
-<td style="text-align: right;">1303588</td>
-<td style="text-align: right;">1332260</td>
-<td style="text-align: right;">1332260</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">dam_12</td>
-<td style="text-align: right;">2121779</td>
-<td style="text-align: right;">1932517</td>
-<td style="text-align: right;">1932517</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">dam_13</td>
-<td style="text-align: right;">89572086</td>
-<td style="text-align: right;">91204327</td>
-<td style="text-align: right;">91204327</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">dam_14</td>
-<td style="text-align: right;">4707971</td>
-<td style="text-align: right;">4550614</td>
-<td style="text-align: right;">4550614</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">dam_15</td>
-<td style="text-align: right;">2785376</td>
-<td style="text-align: right;">1981897</td>
-<td style="text-align: right;">1981897</td>
-<td style="text-align: right;">0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">dam_16</td>
-<td style="text-align: right;">5824338</td>
-<td style="text-align: right;">5578108</td>
-<td style="text-align: right;">5578108</td>
-<td style="text-align: right;">0</td>
-</tr>
 </tbody>
 </table>
+
+
 </div>
 </div>
 </section>
 <section id="estimaciones-desagregadas-por-nacional" class="slide level2">
 <h2>Estimaciones desagregadas por Nacional</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-32_d20ec94a2c71d1ec1f741e600a372397">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1"></a><span class="fu">source</span>(<span class="st">"recursos/calc_theta.R"</span>)</span>
-<span id="cb19-2"><a href="#cb19-2"></a>poststrat_df_iter2  <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/poststrat_df_iter_ingreso.rds"</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
-<span id="cb19-3"><a href="#cb19-3"></a><span class="fu">calc_theta</span>(<span class="at">result_list =</span> poststrat_df_iter2, </span>
-<span id="cb19-4"><a href="#cb19-4"></a>           <span class="at">levels =</span> <span class="cn">NULL</span>, <span class="at">ci_level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>$estimates
-  estimate          sd     lci     uci
-1 12.40798 0.001193038 12.4062 12.4094
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-34_f3abad1264b30867ae1ea1141dbca972">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a><span class="fu">source</span>(<span class="st">"recursos/calc_theta.R"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>poststrat_df_iter2  <span class="ot">&lt;-</span> </span>
+<span id="cb20-3"><a href="#cb20-3"></a>  <span class="fu">readRDS</span>(<span class="st">"recursos/poststrat_df_iter_ingreso.rds"</span>)[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>]</span>
+<span id="cb20-4"><a href="#cb20-4"></a>paso <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(<span class="at">result_list =</span> poststrat_df_iter2, </span>
+<span id="cb20-5"><a href="#cb20-5"></a>           <span class="at">levels =</span> <span class="cn">NULL</span>, <span class="at">ci_level =</span> <span class="fl">0.95</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-35_a77e40b49595324b4ca0166652be6da2">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">lci</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">uci</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">12.408</td>
+<td style="text-align: right;">0.0012</td>
+<td style="text-align: right;">12.4062</td>
+<td style="text-align: right;">12.4094</td>
+</tr>
+</tbody>
+</table>
 
-$draws
-      theta
-1  12.40932
-2  12.40799
-3  12.40704
-4  12.40898
-5  12.40942
-6  12.40761
-7  12.40602
-8  12.40738
-9  12.40682
-10 12.40917</code></pre>
+
 </div>
 </div>
 </section>
 <section id="estimaciones-desagregadas-por-dam---área" class="slide level2">
 <h2>Estimaciones desagregadas por DAM - área</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-33_35ee214f4219f46e3071e0cb3b3a13b7">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a><span class="fu">calc_theta</span>(</span>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-36_12cf2979dad31455083e97e10ee25bfc">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1"></a>paso <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
 <span id="cb21-2"><a href="#cb21-2"></a>  <span class="at">result_list =</span> poststrat_df_iter2,</span>
 <span id="cb21-3"><a href="#cb21-3"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>),</span>
 <span id="cb21-4"><a href="#cb21-4"></a>  <span class="at">ci_level =</span> <span class="fl">0.95</span></span>
-<span id="cb21-5"><a href="#cb21-5"></a>)<span class="sc">$</span>estimates <span class="sc">%&gt;%</span></span>
-<span id="cb21-6"><a href="#cb21-6"></a>  <span class="fu">head</span>(<span class="dv">8</span>) <span class="sc">%&gt;%</span> <span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb21-5"><a href="#cb21-5"></a>)<span class="sc">$</span>estimates</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-37_0d6a190b0f8167a6b962308dd0bf0899">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2387,10 +2511,24 @@ $draws
 </section>
 <section id="estimaciones-desagregadas-por-dam---área---sexo" class="slide level2">
 <h2>Estimaciones desagregadas por DAM - área - sexo</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-34_50ffd5103934fa4cc544b1635d8ed4a8">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a><span class="fu">calc_theta</span>(<span class="at">result_list =</span> poststrat_df_iter2[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], </span>
-<span id="cb22-2"><a href="#cb22-2"></a>           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>, <span class="st">"sexo"</span>), <span class="at">ci_level =</span> <span class="fl">0.95</span>)<span class="sc">$</span>estimates <span class="sc">%&gt;%</span> </span>
-<span id="cb22-3"><a href="#cb22-3"></a>  <span class="fu">head</span>(<span class="dv">8</span>) <span class="sc">%&gt;%</span> <span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-38_9f86a0e7f1c7902b30aa2bf750b4cf4c">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1"></a>paso <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(<span class="at">result_list =</span> poststrat_df_iter2[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], </span>
+<span id="cb22-2"><a href="#cb22-2"></a>           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>, <span class="st">"sexo"</span>), </span>
+<span id="cb22-3"><a href="#cb22-3"></a>           <span class="at">ci_level =</span> <span class="fl">0.95</span>)<span class="sc">$</span>estimates </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-39_d2d5224ea40ba7733a01e48d3f7822cf">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2486,11 +2624,26 @@ $draws
 </section>
 <section id="estimaciones-desagregadas-por-dam---área---etnia" class="slide level2">
 <h2>Estimaciones desagregadas por DAM - área - etnia</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-35_3723582fbbca68f03a36ee7394e26231">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a><span class="fu">calc_theta</span>(<span class="at">result_list =</span> poststrat_df_iter2[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>], </span>
-<span id="cb23-2"><a href="#cb23-2"></a>           <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>, <span class="st">"etnia"</span>),</span>
-<span id="cb23-3"><a href="#cb23-3"></a>           <span class="at">ci_level =</span> <span class="fl">0.95</span>)<span class="sc">$</span>estimates <span class="sc">%&gt;%</span> </span>
-<span id="cb23-4"><a href="#cb23-4"></a>  <span class="fu">head</span>(<span class="dv">8</span>) <span class="sc">%&gt;%</span> <span class="fu">tba</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-40_1dcb691e4670d983a375c3a2e0113638">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1"></a>paso <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb23-2"><a href="#cb23-2"></a>  <span class="at">result_list =</span> poststrat_df_iter2[<span class="dv">1</span><span class="sc">:</span><span class="dv">10</span>],</span>
+<span id="cb23-3"><a href="#cb23-3"></a>  <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>, <span class="st">"etnia"</span>),</span>
+<span id="cb23-4"><a href="#cb23-4"></a>  <span class="at">ci_level =</span> <span class="fl">0.95</span></span>
+<span id="cb23-5"><a href="#cb23-5"></a>)<span class="sc">$</span>estimates </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-41_da7958e35a09e7aa3f165f556592d59b">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2755,8 +2908,8 @@ v_{dk} = \operatorname{Var}(\hat p_{dk}),\qquad \widehat v_{dk} = \widehat{\oper
 \]</span></p>
 <p>donde - <span class="math inline">\(\mathbf{X}_d\in\mathbb{R}^p\)</span>: vector de <span class="math inline">\(p\)</span> covariables del dominio <span class="math inline">\(d\)</span>, - <span class="math inline">\(\boldsymbol{\beta}_k\in\mathbb{R}^p\)</span>: coeficientes fijos de la categoría <span class="math inline">\(k\)</span>, - <span class="math inline">\(u_{dk}\)</span>: efecto aleatorio del dominio <span class="math inline">\(d\)</span> en la categoría <span class="math inline">\(k\)</span>.</p>
 </section>
-<section id="transformación-a-probabilidades-softmax-con-baseline" class="slide level2">
-<h2>Transformación a probabilidades (softmax con baseline)</h2>
+<section id="transformación-a-probabilidades" class="slide level2">
+<h2>Transformación a probabilidades</h2>
 <ul>
 <li>Para <span class="math inline">\(k=2,\dots,K\)</span> los predictores lineales son</li>
 </ul>
@@ -2813,117 +2966,224 @@ z_u \sim \mathcal{N}(0,I),\quad L_u\sim \text{LKJ Cholesky}(1),\quad
 \text{TP}_{d'} = \frac{\text{TO}_{d'}}{1-\text{TD}_{d'}}.
 \]</span></p>
 </section>
-<section id="modelo-en-stan-multinomia" class="slide level2">
-<h2>Modelo en Stan multinomia</h2>
-<pre><code>functions {
-  matrix pred_theta(matrix Xp, matrix Zp, int p, matrix beta, matrix u){
-  int D1 = rows(Xp);
-  real num1[D1, p];
-  real den1[D1];
-  matrix[D1,p] theta_p;
-  matrix[D1,p] tasa_pred;
-  
-  for(d in 1:D1){
-    num1[d, 1] = 1;
-    num1[d, 2] = exp(Xp[d, ] * beta[1, ]' + Zp[d, ] * u[1, ]') ;
-    num1[d, 3] = exp(Xp[d, ] * beta[2, ]' + Zp[d, ] * u[2, ]') ;
-    
-    den1[d] = sum(num1[d, ]);
-  }
-  
-  for(d in 1:D1){
-    for(i in 2:p){
-    theta_p[d, i] = num1[d, i]/den1[d];
-    }
-    theta_p[d, 1] = 1/den1[d];
-   }
-
-
-for(d in 1:D1){
-    tasa_pred[d, 1] = theta_p[d,1]/(theta_p[d,1] + theta_p[d,2]);// TD
-    tasa_pred[d, 2] = theta_p[d,2];                              // TO
-    tasa_pred[d, 3] = tasa_pred[d, 2]/(1- tasa_pred[d, 1]);               // TP
-    }
-
-  return tasa_pred  ;
-  }
-  
-}
-
-data {
-  int&lt;lower=1&gt; D;    // número de postestrto 
-  int&lt;lower=1&gt; D1;   // número de dominios por predesir 
-  int&lt;lower=1&gt; P;    // categorías
-  int&lt;lower=1&gt; K;  // cantidad de regresores
-  int&lt;lower=1&gt; Kz; // cantidad de regresores en Z
-  int y[D, P];       // matriz de datos
-  matrix[D, K] X; // matriz de covariables
-  matrix[D, Kz] Z; // matriz de covariables
-  matrix[D1, K] Xp; // matriz de covariables
-  matrix[D1, Kz] Zp; // matriz de covariables
-}
-  
-
-parameters {
-  matrix[P-1, K] beta;// matriz de parámetros 
-  vector&lt;lower=0&gt;[P-1] sigma_u;       // random effects standard deviations
-  // declare L_u to be the Choleski factor of a 2x2 correlation matrix
-  cholesky_factor_corr[P-1] L_u;
-  matrix[P-1, Kz] z_u;                  
-}
-
-transformed parameters {
-  simplex[P] theta[D];// vector de parámetros;
-  real num[D, P];
-  real den[D];
-  // this transform random effects so that they have the correlation
-  // matrix specified by the correlation matrix above
-  matrix[P-1, Kz] u; // random effect matrix
-  u = diag_pre_multiply(sigma_u, L_u) * z_u;
-  
-  for(d in 1:D){
-    num[d, 1] = 1;
-    num[d, 2] = exp(X[d, ] * beta[1, ]' + Z[d, ] * u[1, ]') ;
-    num[d, 3] = exp(X[d, ] * beta[2, ]' + Z[d, ] * u[2, ]') ;
-    
-    den[d] = sum(num[d, ]);
-
-  }
-  for(d in 1:D){
-    for(p in 2:P){
-    theta[d, p] = num[d, p]/den[d];
-    }
-    theta[d, 1] = 1/den[d];
-  }
-}
-
-model {
-  L_u ~ lkj_corr_cholesky(1); // LKJ prior for the correlation matrix
-  to_vector(z_u) ~ normal(0, 1);
-  sigma_u ~ inv_gamma(0.0001, 0.0001);
-  to_vector(beta) ~ normal(0, 100);
- 
-  for(d in 1:D){
-    target += multinomial_lpmf(y[d, ] | theta[d, ]); 
-  }
-}
-
-  
-generated quantities {
-  // predict 
-  matrix[D1,P] tasa_pred;// vector de parámetros;
-  matrix[2, 2] Omega;
-  Omega = L_u * L_u'; // so that it return the correlation matrix
-// predicción 
-
-tasa_pred = pred_theta(Xp,Zp,P, beta, u) ; 
-
-}
-</code></pre>
+<section id="modelo-en-stan-multinomia-pred_theta" class="slide level2">
+<h2>Modelo en Stan multinomia (pred_theta)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Función pred_theta</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-42_9586f465053966010b0c8b68a7d2d2b7">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1"></a>functions {</span>
+<span id="cb24-2"><a href="#cb24-2"></a>  matrix <span class="fu">pred_theta</span>(matrix Xp, matrix Zp, int p, matrix beta, matrix u){</span>
+<span id="cb24-3"><a href="#cb24-3"></a>  int D1 <span class="ot">=</span> <span class="fu">rows</span>(Xp);</span>
+<span id="cb24-4"><a href="#cb24-4"></a>  real num1[D1, p];</span>
+<span id="cb24-5"><a href="#cb24-5"></a>  real den1[D1];</span>
+<span id="cb24-6"><a href="#cb24-6"></a>  matrix[D1,p] theta_p;</span>
+<span id="cb24-7"><a href="#cb24-7"></a>  matrix[D1,p] tasa_pred;</span>
+<span id="cb24-8"><a href="#cb24-8"></a>  </span>
+<span id="cb24-9"><a href="#cb24-9"></a>  <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D1){</span>
+<span id="cb24-10"><a href="#cb24-10"></a>    num1[d, <span class="dv">1</span>] <span class="ot">=</span> <span class="dv">1</span>;</span>
+<span id="cb24-11"><a href="#cb24-11"></a>    num1[d, <span class="dv">2</span>] <span class="ot">=</span> <span class="fu">exp</span>(Xp[d, ] <span class="sc">*</span> beta[<span class="dv">1</span>, ]<span class="st">' + Zp[d, ] * u[1, ]'</span>) ;</span>
+<span id="cb24-12"><a href="#cb24-12"></a>    num1[d, <span class="dv">3</span>] <span class="ot">=</span> <span class="fu">exp</span>(Xp[d, ] <span class="sc">*</span> beta[<span class="dv">2</span>, ]<span class="st">' + Zp[d, ] * u[2, ]'</span>) ;</span>
+<span id="cb24-13"><a href="#cb24-13"></a>    </span>
+<span id="cb24-14"><a href="#cb24-14"></a>    den1[d] <span class="ot">=</span> <span class="fu">sum</span>(num1[d, ]);</span>
+<span id="cb24-15"><a href="#cb24-15"></a>  }</span>
+<span id="cb24-16"><a href="#cb24-16"></a>  </span>
+<span id="cb24-17"><a href="#cb24-17"></a>  <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D1){</span>
+<span id="cb24-18"><a href="#cb24-18"></a>    <span class="cf">for</span>(i <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>p){</span>
+<span id="cb24-19"><a href="#cb24-19"></a>    theta_p[d, i] <span class="ot">=</span> num1[d, i]<span class="sc">/</span>den1[d];</span>
+<span id="cb24-20"><a href="#cb24-20"></a>    }</span>
+<span id="cb24-21"><a href="#cb24-21"></a>    theta_p[d, <span class="dv">1</span>] <span class="ot">=</span> <span class="dv">1</span><span class="sc">/</span>den1[d];</span>
+<span id="cb24-22"><a href="#cb24-22"></a>   }</span>
+<span id="cb24-23"><a href="#cb24-23"></a></span>
+<span id="cb24-24"><a href="#cb24-24"></a></span>
+<span id="cb24-25"><a href="#cb24-25"></a><span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D1){</span>
+<span id="cb24-26"><a href="#cb24-26"></a>    tasa_pred[d, <span class="dv">1</span>] <span class="ot">=</span> theta_p[d,<span class="dv">1</span>]<span class="sc">/</span>(theta_p[d,<span class="dv">1</span>] <span class="sc">+</span> theta_p[d,<span class="dv">2</span>]);<span class="sc">/</span><span class="er">/</span> TD</span>
+<span id="cb24-27"><a href="#cb24-27"></a>    tasa_pred[d, <span class="dv">2</span>] <span class="ot">=</span> theta_p[d,<span class="dv">2</span>];                              <span class="sc">/</span><span class="er">/</span> TO</span>
+<span id="cb24-28"><a href="#cb24-28"></a>    tasa_pred[d, <span class="dv">3</span>] <span class="ot">=</span> tasa_pred[d, <span class="dv">2</span>]<span class="sc">/</span>(<span class="dv">1</span><span class="sc">-</span> tasa_pred[d, <span class="dv">1</span>]);               <span class="sc">/</span><span class="er">/</span> TP</span>
+<span id="cb24-29"><a href="#cb24-29"></a>    }</span>
+<span id="cb24-30"><a href="#cb24-30"></a></span>
+<span id="cb24-31"><a href="#cb24-31"></a>  return tasa_pred  ;</span>
+<span id="cb24-32"><a href="#cb24-32"></a>  }</span>
+<span id="cb24-33"><a href="#cb24-33"></a>  </span>
+<span id="cb24-34"><a href="#cb24-34"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-en-stan-multinomia-data" class="slide level2">
+<h2>Modelo en Stan multinomia (data)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>data</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-43_42c5e55faee34ed8367f57fd82dc36be">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a>data {</span>
+<span id="cb25-2"><a href="#cb25-2"></a>  int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> D;    <span class="sc">/</span><span class="er">/</span> número de postestrto </span>
+<span id="cb25-3"><a href="#cb25-3"></a>  int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> D1;   <span class="sc">/</span><span class="er">/</span> número de dominios por predesir </span>
+<span id="cb25-4"><a href="#cb25-4"></a>  int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> P;    <span class="sc">/</span><span class="er">/</span> categorías</span>
+<span id="cb25-5"><a href="#cb25-5"></a>  int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> K;  <span class="sc">/</span><span class="er">/</span> cantidad de regresores</span>
+<span id="cb25-6"><a href="#cb25-6"></a>  int<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">1</span><span class="sc">&gt;</span> Kz; <span class="sc">/</span><span class="er">/</span> cantidad de regresores en Z</span>
+<span id="cb25-7"><a href="#cb25-7"></a>  int y[D, P];       <span class="sc">/</span><span class="er">/</span> matriz de datos</span>
+<span id="cb25-8"><a href="#cb25-8"></a>  matrix[D, K] X; <span class="sc">/</span><span class="er">/</span> matriz de covariables</span>
+<span id="cb25-9"><a href="#cb25-9"></a>  matrix[D, Kz] Z; <span class="sc">/</span><span class="er">/</span> matriz de covariables</span>
+<span id="cb25-10"><a href="#cb25-10"></a>  matrix[D1, K] Xp; <span class="sc">/</span><span class="er">/</span> matriz de covariables</span>
+<span id="cb25-11"><a href="#cb25-11"></a>  matrix[D1, Kz] Zp; <span class="sc">/</span><span class="er">/</span> matriz de covariables</span>
+<span id="cb25-12"><a href="#cb25-12"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-en-stan-multinomia-parameters" class="slide level2">
+<h2>Modelo en Stan multinomia (parameters)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>parameters</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-44_4324f930a5fd72758d235835bdb69cba">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a>parameters {</span>
+<span id="cb26-2"><a href="#cb26-2"></a>  matrix[P<span class="dv">-1</span>, K] beta;<span class="sc">/</span><span class="er">/</span> matriz de parámetros </span>
+<span id="cb26-3"><a href="#cb26-3"></a>  vector<span class="sc">&lt;</span>lower<span class="ot">=</span><span class="dv">0</span><span class="sc">&gt;</span>[P<span class="dv">-1</span>] sigma_u;       <span class="sc">/</span><span class="er">/</span> random effects standard deviations</span>
+<span id="cb26-4"><a href="#cb26-4"></a>  <span class="sc">/</span><span class="er">/</span> declare L_u to be the Choleski factor of a 2x2 correlation matrix</span>
+<span id="cb26-5"><a href="#cb26-5"></a>  cholesky_factor_corr[P<span class="dv">-1</span>] L_u;</span>
+<span id="cb26-6"><a href="#cb26-6"></a>  matrix[P<span class="dv">-1</span>, Kz] z_u;                  </span>
+<span id="cb26-7"><a href="#cb26-7"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-en-stan-multinomia-transformed-parameters" class="slide level2">
+<h2>Modelo en Stan multinomia (transformed parameters)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>transformed parameters</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-45_ef84626cc7a5fb07b2d0aa42e0c5b6ce">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a>transformed parameters {</span>
+<span id="cb27-2"><a href="#cb27-2"></a>  simplex[P] theta[D];<span class="sc">/</span><span class="er">/</span> vector de parámetros;</span>
+<span id="cb27-3"><a href="#cb27-3"></a>  real num[D, P];</span>
+<span id="cb27-4"><a href="#cb27-4"></a>  real den[D];</span>
+<span id="cb27-5"><a href="#cb27-5"></a>  <span class="sc">/</span><span class="er">/</span> this transform random effects so that they have the correlation</span>
+<span id="cb27-6"><a href="#cb27-6"></a>  <span class="sc">/</span><span class="er">/</span> matrix specified by the correlation matrix above</span>
+<span id="cb27-7"><a href="#cb27-7"></a>  matrix[P<span class="dv">-1</span>, Kz] u; <span class="sc">/</span><span class="er">/</span> random effect matrix</span>
+<span id="cb27-8"><a href="#cb27-8"></a>  u <span class="ot">=</span> <span class="fu">diag_pre_multiply</span>(sigma_u, L_u) <span class="sc">*</span> z_u;</span>
+<span id="cb27-9"><a href="#cb27-9"></a>  </span>
+<span id="cb27-10"><a href="#cb27-10"></a>  <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D){</span>
+<span id="cb27-11"><a href="#cb27-11"></a>    num[d, <span class="dv">1</span>] <span class="ot">=</span> <span class="dv">1</span>;</span>
+<span id="cb27-12"><a href="#cb27-12"></a>    num[d, <span class="dv">2</span>] <span class="ot">=</span> <span class="fu">exp</span>(X[d, ] <span class="sc">*</span> beta[<span class="dv">1</span>, ]<span class="st">' + Z[d, ] * u[1, ]'</span>) ;</span>
+<span id="cb27-13"><a href="#cb27-13"></a>    num[d, <span class="dv">3</span>] <span class="ot">=</span> <span class="fu">exp</span>(X[d, ] <span class="sc">*</span> beta[<span class="dv">2</span>, ]<span class="st">' + Z[d, ] * u[2, ]'</span>) ;</span>
+<span id="cb27-14"><a href="#cb27-14"></a>    </span>
+<span id="cb27-15"><a href="#cb27-15"></a>    den[d] <span class="ot">=</span> <span class="fu">sum</span>(num[d, ]);</span>
+<span id="cb27-16"><a href="#cb27-16"></a></span>
+<span id="cb27-17"><a href="#cb27-17"></a>  }</span>
+<span id="cb27-18"><a href="#cb27-18"></a>  <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D){</span>
+<span id="cb27-19"><a href="#cb27-19"></a>    <span class="cf">for</span>(p <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>P){</span>
+<span id="cb27-20"><a href="#cb27-20"></a>    theta[d, p] <span class="ot">=</span> num[d, p]<span class="sc">/</span>den[d];</span>
+<span id="cb27-21"><a href="#cb27-21"></a>    }</span>
+<span id="cb27-22"><a href="#cb27-22"></a>    theta[d, <span class="dv">1</span>] <span class="ot">=</span> <span class="dv">1</span><span class="sc">/</span>den[d];</span>
+<span id="cb27-23"><a href="#cb27-23"></a>  }</span>
+<span id="cb27-24"><a href="#cb27-24"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-en-stan-multinomia-model" class="slide level2">
+<h2>Modelo en Stan multinomia (model)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>model</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-46_668061d53f0ee962fc92cb3adf4c53f8">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>model {</span>
+<span id="cb28-2"><a href="#cb28-2"></a>  L_u <span class="sc">~</span> <span class="fu">lkj_corr_cholesky</span>(<span class="dv">1</span>); <span class="sc">/</span><span class="er">/</span> LKJ prior <span class="cf">for</span> the correlation matrix</span>
+<span id="cb28-3"><a href="#cb28-3"></a>  <span class="fu">to_vector</span>(z_u) <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">1</span>);</span>
+<span id="cb28-4"><a href="#cb28-4"></a>  sigma_u <span class="sc">~</span> <span class="fu">inv_gamma</span>(<span class="fl">0.0001</span>, <span class="fl">0.0001</span>);</span>
+<span id="cb28-5"><a href="#cb28-5"></a>  <span class="fu">to_vector</span>(beta) <span class="sc">~</span> <span class="fu">normal</span>(<span class="dv">0</span>, <span class="dv">100</span>);</span>
+<span id="cb28-6"><a href="#cb28-6"></a> </span>
+<span id="cb28-7"><a href="#cb28-7"></a>  <span class="cf">for</span>(d <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>D){</span>
+<span id="cb28-8"><a href="#cb28-8"></a>    target <span class="sc">+</span><span class="er">=</span> <span class="fu">multinomial_lpmf</span>(y[d, ] <span class="sc">|</span> theta[d, ]); </span>
+<span id="cb28-9"><a href="#cb28-9"></a>  }</span>
+<span id="cb28-10"><a href="#cb28-10"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="modelo-en-stan-multinomia-generated-quantities" class="slide level2">
+<h2>Modelo en Stan multinomia (generated quantities)</h2>
+<div class="callout callout-important callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>generated quantities</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-47_facfbdf6292e4725237317d2085d3d93">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>generated quantities {</span>
+<span id="cb29-2"><a href="#cb29-2"></a>  <span class="sc">/</span><span class="er">/</span> predict </span>
+<span id="cb29-3"><a href="#cb29-3"></a>  matrix[D1,P] tasa_pred;<span class="sc">/</span><span class="er">/</span> vector de parámetros;</span>
+<span id="cb29-4"><a href="#cb29-4"></a>  matrix[<span class="dv">2</span>, <span class="dv">2</span>] Omega;</span>
+<span id="cb29-5"><a href="#cb29-5"></a>  Omega <span class="ot">=</span> L_u <span class="sc">*</span> L_u<span class="st">'; // so that it return the correlation matrix</span></span>
+<span id="cb29-6"><a href="#cb29-6"></a><span class="st">// predicción </span></span>
+<span id="cb29-7"><a href="#cb29-7"></a></span>
+<span id="cb29-8"><a href="#cb29-8"></a><span class="st">tasa_pred = pred_theta(Xp,Zp,P, beta, u) ; </span></span>
+<span id="cb29-9"><a href="#cb29-9"></a></span>
+<span id="cb29-10"><a href="#cb29-10"></a><span class="st">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
 </section>
 <section id="lectura-bases-de-datos-censo." class="slide level2">
 <h2>Lectura bases de datos (Censo).</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-36_fa2a1a1c7ad2daf7fc88b3880accbf20">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-48_ff38bf414ef2888abae01c46f60f30b2">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>censo_mrp <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/censo_dam.rds"</span>)</span>
+<span id="cb30-2"><a href="#cb30-2"></a><span class="fu">tba</span>(censo_mrp <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-49_9a9b691b7dcc67afe011f5256e94eab6">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -2983,6 +3243,33 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">18</td>
 </tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">123</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">890</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">301</td>
+</tr>
 </tbody>
 </table>
 
@@ -2992,7 +3279,26 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="lectura-bases-de-datos-encuesta." class="slide level2">
 <h2>Lectura bases de datos (Encuesta).</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-37_035bb55d9532dc1a6759d911e5cb1ee7">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-50_ff03aa1df3eb5d1bc579e46567045454">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>encuesta_sta_MT <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">'Recursos/encuesta_sta_MT.rds'</span>)</span>
+<span id="cb31-2"><a href="#cb31-2"></a>encuesta_sta_MT <span class="ot">&lt;-</span> encuesta_sta_MT <span class="sc">%&gt;%</span> </span>
+<span id="cb31-3"><a href="#cb31-3"></a>  <span class="fu">filter</span>(edad<span class="sc">&gt;</span><span class="dv">1</span>, anoest <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">"1"</span>,<span class="st">"2"</span>,<span class="st">"3"</span>,<span class="st">"4"</span>))</span>
+<span id="cb31-4"><a href="#cb31-4"></a></span>
+<span id="cb31-5"><a href="#cb31-5"></a><span class="fu">tba</span>(encuesta_sta_MT <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-51_0a83b6d7323e5ceaa1bbda821509c855">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -3022,7 +3328,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">113958</td>
 <td style="text-align: right;">51309</td>
-<td style="text-align: right;">250001</td>
+<td style="text-align: right;">250001.0</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">3</td>
@@ -3038,7 +3344,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">113958</td>
 <td style="text-align: right;">51309</td>
-<td style="text-align: right;">211092</td>
+<td style="text-align: right;">211092.0</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">3</td>
@@ -3054,7 +3360,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">113958</td>
 <td style="text-align: right;">51309</td>
-<td style="text-align: right;">296751</td>
+<td style="text-align: right;">296751.0</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">3</td>
@@ -3070,7 +3376,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">113958</td>
 <td style="text-align: right;">51309</td>
-<td style="text-align: right;">296751</td>
+<td style="text-align: right;">296751.0</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">3</td>
@@ -3086,13 +3392,61 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 <td style="text-align: left;">1</td>
 <td style="text-align: right;">113958</td>
 <td style="text-align: right;">51309</td>
-<td style="text-align: right;">113890</td>
+<td style="text-align: right;">113890.0</td>
 <td style="text-align: left;">1</td>
 <td style="text-align: left;">3</td>
 <td style="text-align: left;">4</td>
 <td style="text-align: left;">2</td>
 <td style="text-align: right;">39</td>
 <td style="text-align: left;">Ocupado</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">Tarapacá</td>
+<td style="text-align: left;">01100100001</td>
+<td style="text-align: left;">011001</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">113890.0</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: left;">Inactivo</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">Tarapacá</td>
+<td style="text-align: left;">01100100001</td>
+<td style="text-align: left;">011001</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">231667.5</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: left;">Ocupado</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">Tarapacá</td>
+<td style="text-align: left;">01100100001</td>
+<td style="text-align: left;">011001</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">231667.5</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: left;">Desocupado</td>
 </tr>
 </tbody>
 </table>
@@ -3103,7 +3457,25 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="lectura-de-datos-covariables" class="slide level2">
 <h2>Lectura de datos (Covariables)</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-38_5fdd3df530bc7c299fb685c0552572b8">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-52_f11e6e2a7028aefc9fcc3bd0a6b89fef">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>statelevel_predictors <span class="ot">&lt;-</span> </span>
+<span id="cb32-2"><a href="#cb32-2"></a>  <span class="fu">readRDS</span>(<span class="st">"recursos/statelevel_predictors_df.rds"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb32-3"><a href="#cb32-3"></a>  <span class="fu">mutate_if</span>(is.numeric, <span class="sc">~</span>{<span class="fu">as.numeric</span>(<span class="fu">scale</span>(.x))})</span>
+<span id="cb32-4"><a href="#cb32-4"></a><span class="fu">tba</span>(statelevel_predictors <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-53_fcb93cd8e4c7ff841759088ef8c1bfcf">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -3280,36 +3652,73 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="compilar-modelo-de-stan-en-r" class="slide level2">
 <h2>Compilar modelo de <code>Stan</code> en <code>R</code></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-39_b96579306508ea489c360b077877d67c">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1"></a><span class="fu">source</span>(<span class="st">"recursos/modelo_empleo.R"</span>)</span>
-<span id="cb25-2"><a href="#cb25-2"></a><span class="fu">library</span>(magrittr)</span>
-<span id="cb25-3"><a href="#cb25-3"></a><span class="fu">library</span>(fastDummies)</span>
-<span id="cb25-4"><a href="#cb25-4"></a>encuesta_sta_MT <span class="sc">%&lt;&gt;%</span> <span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> <span class="st">"empleo"</span>)</span>
-<span id="cb25-5"><a href="#cb25-5"></a>multi_fit <span class="ot">&lt;-</span> <span class="fu">modelo_empleo</span>(<span class="at">encuesta_sta =</span> encuesta_sta_MT,</span>
-<span id="cb25-6"><a href="#cb25-6"></a>              <span class="at">censo_sta =</span> censo_mrp,</span>
-<span id="cb25-7"><a href="#cb25-7"></a>              <span class="at">predictors =</span> statelevel_predictors, </span>
-<span id="cb25-8"><a href="#cb25-8"></a>              <span class="at">X_fijo =</span> <span class="st">"luces_nocturnas + cubrimiento_rural + cubrimiento_urbano + modificacion_humana + material_paredes + material_techo + rezago_escolar + alfabeta +tasa_desocupacion"</span>,</span>
-<span id="cb25-9"><a href="#cb25-9"></a>              <span class="at">Z_aleatorio =</span> <span class="st">"dam + etnia + edad + area + anoest + sexo"</span>, </span>
-<span id="cb25-10"><a href="#cb25-10"></a>              <span class="at">fit_STAN =</span> <span class="st">"recursos/Multinivel_multinomial_no_cor.stan"</span>,</span>
-<span id="cb25-11"><a href="#cb25-11"></a>              <span class="at">path_model =</span> <span class="st">"recursos/Multinivel_multinomial_model_no_cor.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-54_6e5a7a9d4549c1b7bca272a63ec27fa8">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="fu">source</span>(<span class="st">"recursos/modelo_empleo.R"</span>)</span>
+<span id="cb33-2"><a href="#cb33-2"></a><span class="fu">library</span>(magrittr)</span>
+<span id="cb33-3"><a href="#cb33-3"></a><span class="fu">library</span>(fastDummies)</span>
+<span id="cb33-4"><a href="#cb33-4"></a>encuesta_sta_MT <span class="sc">%&lt;&gt;%</span> <span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> <span class="st">"empleo"</span>)</span>
+<span id="cb33-5"><a href="#cb33-5"></a>multi_fit <span class="ot">&lt;-</span> <span class="fu">modelo_empleo</span>(<span class="at">encuesta_sta =</span> encuesta_sta_MT,</span>
+<span id="cb33-6"><a href="#cb33-6"></a>              <span class="at">censo_sta =</span> censo_mrp,</span>
+<span id="cb33-7"><a href="#cb33-7"></a>              <span class="at">predictors =</span> statelevel_predictors, </span>
+<span id="cb33-8"><a href="#cb33-8"></a>              <span class="at">X_fijo =</span> <span class="st">"luces_nocturnas + cubrimiento_rural + cubrimiento_urbano + modificacion_humana + material_paredes + material_techo + rezago_escolar + alfabeta +tasa_desocupacion"</span>,</span>
+<span id="cb33-9"><a href="#cb33-9"></a>              <span class="at">Z_aleatorio =</span> <span class="st">"dam + etnia + edad + area + anoest + sexo"</span>, </span>
+<span id="cb33-10"><a href="#cb33-10"></a>              <span class="at">fit_STAN =</span> <span class="st">"recursos/Multinivel_multinomial_no_cor.stan"</span>,</span>
+<span id="cb33-11"><a href="#cb33-11"></a>              <span class="at">path_model =</span> <span class="st">"recursos/Multinivel_multinomial_model_no_cor.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="compilar-modelo-de-stan-en-r-1" class="slide level2">
 <h2>Compilar modelo de <code>Stan</code> en <code>R</code></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-40_52c9e2f9be0a48da0d3eebfd90e731b2">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1"></a><span class="fu">source</span>(<span class="st">"recursos/validar_modelo_bayes.R"</span>)</span>
-<span id="cb26-2"><a href="#cb26-2"></a><span class="fu">source</span>(<span class="st">"recursos/Plot_dens_draws.R"</span>)</span>
-<span id="cb26-3"><a href="#cb26-3"></a>multi_fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/Multinivel_multinomial_model_no_cor.rds"</span>)</span>
-<span id="cb26-4"><a href="#cb26-4"></a>resul_validar_modelo <span class="ot">&lt;-</span></span>
-<span id="cb26-5"><a href="#cb26-5"></a>  <span class="fu">validar_modelo_bayes</span>(<span class="at">model_bayes =</span> multi_fit<span class="sc">$</span>model_bayes, </span>
-<span id="cb26-6"><a href="#cb26-6"></a>                       <span class="at">encuesta_sta =</span> encuesta_sta_MT)</span>
-<span id="cb26-7"><a href="#cb26-7"></a></span>
-<span id="cb26-8"><a href="#cb26-8"></a><span class="fu">saveRDS</span>(resul_validar_modelo, <span class="at">file =</span> <span class="st">"recursos/resul_validar_modelo_no_cor2.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-55_94c9cd036b3a3e457d099b3998335cb9">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a><span class="fu">source</span>(<span class="st">"recursos/validar_modelo_bayes.R"</span>)</span>
+<span id="cb34-2"><a href="#cb34-2"></a><span class="fu">source</span>(<span class="st">"recursos/Plot_dens_draws.R"</span>)</span>
+<span id="cb34-3"><a href="#cb34-3"></a>multi_fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/Multinivel_multinomial_model_no_cor.rds"</span>)</span>
+<span id="cb34-4"><a href="#cb34-4"></a>resul_validar_modelo <span class="ot">&lt;-</span></span>
+<span id="cb34-5"><a href="#cb34-5"></a>  <span class="fu">validar_modelo_bayes</span>(<span class="at">model_bayes =</span> multi_fit<span class="sc">$</span>model_bayes, </span>
+<span id="cb34-6"><a href="#cb34-6"></a>                       <span class="at">encuesta_sta =</span> encuesta_sta_MT)</span>
+<span id="cb34-7"><a href="#cb34-7"></a></span>
+<span id="cb34-8"><a href="#cb34-8"></a><span class="fu">saveRDS</span>(resul_validar_modelo, <span class="at">file =</span> <span class="st">"recursos/resul_validar_modelo_no_cor2.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="resultados-del-modelo-r-hat" class="slide level2">
 <h2>Resultados del modelo, r-hat</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-42_fef324d21cf17e52f289a2d0a77835a1">
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-57_07dc710afa94e23fa78498a618cb7aa4">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -3344,7 +3753,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="resultados-del-modelo-efectos-fijos." class="slide level2">
 <h2>Resultados del modelo, efectos fijos.</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-44_d33c5d2d4470970c5bae4e363f2e3fbb">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-59_82ec4f626b119d7eb387000c80023470">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3356,7 +3765,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="resultados-del-modelo-efectos-aleatorios" class="slide level2">
 <h2>Resultados del modelo, efectos aleatorios</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-46_54ec5cb5354d2f6b637137f325bb2c25">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-61_afab7e825371825867be00d3405c2c2a">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3368,7 +3777,7 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 </section>
 <section id="resultados-del-modelo-ppc" class="slide level2">
 <h2>Resultados del modelo, PPC</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-48_49239b17db37f97c25deb9fca1c68a6c">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-63_87872a4d0cdcf64c4fab2581e9eb30d0">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3465,22 +3874,34 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="benchmarking-1" class="slide level2">
 <h2>Benchmarking</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-49_b5888172e8a37881cc4357b22bd34d0b">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1"></a><span class="fu">source</span>(<span class="st">"recursos/benchmarking_empleo.R"</span>)</span>
-<span id="cb27-2"><a href="#cb27-2"></a>list_bench <span class="ot">&lt;-</span></span>
-<span id="cb27-3"><a href="#cb27-3"></a>  <span class="fu">benchmarking_empleo</span>(</span>
-<span id="cb27-4"><a href="#cb27-4"></a>    <span class="at">encuesta_sta =</span> encuesta_sta_MT,</span>
-<span id="cb27-5"><a href="#cb27-5"></a>    <span class="at">poststrat_df =</span> multi_fit<span class="sc">$</span>censo_pred,</span>
-<span id="cb27-6"><a href="#cb27-6"></a>    <span class="at">names_cov =</span>  <span class="st">"dam"</span>,</span>
-<span id="cb27-7"><a href="#cb27-7"></a>    <span class="at">metodo =</span> <span class="st">"linear"</span></span>
-<span id="cb27-8"><a href="#cb27-8"></a>  )</span>
-<span id="cb27-9"><a href="#cb27-9"></a></span>
-<span id="cb27-10"><a href="#cb27-10"></a><span class="fu">saveRDS</span>(list_bench, <span class="at">file =</span> <span class="st">"recursos/list_bench_empleo.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-64_7540e8f54b4b823320d8eb859be315da">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a><span class="fu">source</span>(<span class="st">"recursos/benchmarking_empleo.R"</span>)</span>
+<span id="cb35-2"><a href="#cb35-2"></a>list_bench <span class="ot">&lt;-</span></span>
+<span id="cb35-3"><a href="#cb35-3"></a>  <span class="fu">benchmarking_empleo</span>(</span>
+<span id="cb35-4"><a href="#cb35-4"></a>    <span class="at">encuesta_sta =</span> encuesta_sta_MT,</span>
+<span id="cb35-5"><a href="#cb35-5"></a>    <span class="at">poststrat_df =</span> multi_fit<span class="sc">$</span>censo_pred,</span>
+<span id="cb35-6"><a href="#cb35-6"></a>    <span class="at">names_cov =</span>  <span class="st">"dam"</span>,</span>
+<span id="cb35-7"><a href="#cb35-7"></a>    <span class="at">metodo =</span> <span class="st">"linear"</span></span>
+<span id="cb35-8"><a href="#cb35-8"></a>  )</span>
+<span id="cb35-9"><a href="#cb35-9"></a></span>
+<span id="cb35-10"><a href="#cb35-10"></a><span class="fu">saveRDS</span>(list_bench, <span class="at">file =</span> <span class="st">"recursos/list_bench_empleo.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="validacion-del-benchmarking" class="slide level2">
 <h2>Validacion del Benchmarking</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-51_4dcd536cdebee56445c611e09ab97a12">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-66_11dafbce3b71fd068a51ee6f0bbdd3d0">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3492,40 +3913,61 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="plot-de-validación-de-estimaciones-i" class="slide level2">
 <h2>Plot de validación de estimaciones (I)</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-52_33f31f5c56b23d1d4eeb7ae497c120cd">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1"></a>subgrupo <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"dam"</span>,<span class="st">"sexo"</span>, <span class="st">"area"</span>, <span class="st">"etnia"</span>, <span class="st">"edad"</span>, <span class="st">"anoest"</span>)</span>
-<span id="cb28-2"><a href="#cb28-2"></a></span>
-<span id="cb28-3"><a href="#cb28-3"></a>poststrat_df <span class="ot">&lt;-</span> multi_fit<span class="sc">$</span>censo_pred <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span>  </span>
-<span id="cb28-4"><a href="#cb28-4"></a>  <span class="fu">mutate</span>( <span class="at">gk_TO =</span>list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TO,</span>
-<span id="cb28-5"><a href="#cb28-5"></a>          <span class="at">gk_TP =</span> list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TP,</span>
-<span id="cb28-6"><a href="#cb28-6"></a>          <span class="at">gk_TD =</span> list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TD )</span>
-<span id="cb28-7"><a href="#cb28-7"></a></span>
-<span id="cb28-8"><a href="#cb28-8"></a>plot_subgrupo <span class="ot">&lt;-</span> <span class="fu">map</span>(</span>
-<span id="cb28-9"><a href="#cb28-9"></a>  <span class="at">.x =</span> <span class="fu">setNames</span>(subgrupo, subgrupo),</span>
-<span id="cb28-10"><a href="#cb28-10"></a>  <span class="sc">~</span> <span class="fu">plot_compare_Ind</span>(</span>
-<span id="cb28-11"><a href="#cb28-11"></a>    <span class="at">sample =</span> encuesta_sta_MT,</span>
-<span id="cb28-12"><a href="#cb28-12"></a>    <span class="at">poststrat =</span> poststrat_df,</span>
-<span id="cb28-13"><a href="#cb28-13"></a>    <span class="at">by1 =</span> .x</span>
-<span id="cb28-14"><a href="#cb28-14"></a>  )</span>
-<span id="cb28-15"><a href="#cb28-15"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-67_40b1664ed825a03bbbd65da4038d75d4">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1"></a>subgrupo <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"dam"</span>,<span class="st">"sexo"</span>, <span class="st">"area"</span>, <span class="st">"etnia"</span>, <span class="st">"edad"</span>, <span class="st">"anoest"</span>)</span>
+<span id="cb36-2"><a href="#cb36-2"></a></span>
+<span id="cb36-3"><a href="#cb36-3"></a>poststrat_df <span class="ot">&lt;-</span> multi_fit<span class="sc">$</span>censo_pred <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span>  </span>
+<span id="cb36-4"><a href="#cb36-4"></a>  <span class="fu">mutate</span>( <span class="at">gk_TO =</span>list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TO,</span>
+<span id="cb36-5"><a href="#cb36-5"></a>          <span class="at">gk_TP =</span> list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TP,</span>
+<span id="cb36-6"><a href="#cb36-6"></a>          <span class="at">gk_TD =</span> list_bench<span class="sc">$</span>gk_bench<span class="sc">$</span>TD )</span>
+<span id="cb36-7"><a href="#cb36-7"></a></span>
+<span id="cb36-8"><a href="#cb36-8"></a>plot_subgrupo <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="at">.x =</span> <span class="fu">setNames</span>(subgrupo, subgrupo),</span>
+<span id="cb36-9"><a href="#cb36-9"></a>  <span class="sc">~</span> <span class="fu">plot_compare_Ind</span>( <span class="at">sample =</span> encuesta_sta_MT, </span>
+<span id="cb36-10"><a href="#cb36-10"></a>                      <span class="at">poststrat =</span> poststrat_df, <span class="at">by1 =</span> .x</span>
+<span id="cb36-11"><a href="#cb36-11"></a>  )</span>
+<span id="cb36-12"><a href="#cb36-12"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="plot-de-validación-de-estimaciones-ii" class="slide level2">
 <h2>Plot de validación de estimaciones (II)</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-53_27d36a978bde8112eca340763c807afd">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1"></a>temp_dir_plot_uni <span class="ot">&lt;-</span> <span class="fu">map</span>(</span>
-<span id="cb29-2"><a href="#cb29-2"></a>  <span class="fu">names</span>(plot_subgrupo),</span>
-<span id="cb29-3"><a href="#cb29-3"></a>  <span class="sc">~</span> <span class="fu">ggsave</span>(</span>
-<span id="cb29-4"><a href="#cb29-4"></a>    <span class="at">plot =</span> plot_subgrupo[[.x]]<span class="sc">$</span>Plot,</span>
-<span id="cb29-5"><a href="#cb29-5"></a>    <span class="at">filename =</span>    <span class="fu">paste0</span>(<span class="st">"recursos/empleo_plot_uni_"</span>,  .x, <span class="st">".png"</span>),</span>
-<span id="cb29-6"><a href="#cb29-6"></a>    <span class="at">scale =</span> <span class="dv">2</span></span>
-<span id="cb29-7"><a href="#cb29-7"></a>  )</span>
-<span id="cb29-8"><a href="#cb29-8"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-68_219609e8c63225bba608f05483fe86b9">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1"></a>temp_dir_plot_uni <span class="ot">&lt;-</span> <span class="fu">map</span>(</span>
+<span id="cb37-2"><a href="#cb37-2"></a>  <span class="fu">names</span>(plot_subgrupo),</span>
+<span id="cb37-3"><a href="#cb37-3"></a>  <span class="sc">~</span> <span class="fu">ggsave</span>(</span>
+<span id="cb37-4"><a href="#cb37-4"></a>    <span class="at">plot =</span> plot_subgrupo[[.x]]<span class="sc">$</span>Plot,</span>
+<span id="cb37-5"><a href="#cb37-5"></a>    <span class="at">filename =</span>    <span class="fu">paste0</span>(<span class="st">"recursos/empleo_plot_uni_"</span>,  .x, <span class="st">".png"</span>),</span>
+<span id="cb37-6"><a href="#cb37-6"></a>    <span class="at">scale =</span> <span class="dv">2</span></span>
+<span id="cb37-7"><a href="#cb37-7"></a>  )</span>
+<span id="cb37-8"><a href="#cb37-8"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="plot-de-validación-por-dam" class="slide level2">
 <h2>Plot de validación por dam</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-54_97936a4ad84933e058c3bef1cf73d1a1">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-69_d77f618920bb71c7af10ce2b0f52489d">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3537,7 +3979,7 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="plot-de-validación-por-años-de-estudio" class="slide level2">
 <h2>Plot de validación por años de estudio</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-55_e1b3a151a312cb0ecf2f8af9b9287b87">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-70_9bf6df8adbb72888a1e9a63a39011402">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3549,7 +3991,7 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="plot-de-validación-por-edad" class="slide level2">
 <h2>Plot de validación por edad</h2>
-<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-56_c14e6405764360756948bf9cb90b32db">
+<div class="cell" data-layout-align="center" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-71_33af889123ecc8837b694f7b881a95fa">
 <div class="cell-output-display">
 <div class="quarto-figure quarto-figure-center">
 <figure>
@@ -3561,48 +4003,82 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="benchmarking-para-la-iteración-i" class="slide level2">
 <h2>Benchmarking para la iteración <span class="math inline">\(i\)</span></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-57_24d0413157c0ef4efcfc531f4425a37b">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1"></a>ii <span class="ot">=</span> <span class="dv">19</span> </span>
-<span id="cb30-2"><a href="#cb30-2"></a>paramtros_chain <span class="ot">&lt;-</span> <span class="fu">as.array</span>(multi_fit<span class="sc">$</span>model_bayes,</span>
-<span id="cb30-3"><a href="#cb30-3"></a>                            <span class="at">pars =</span> <span class="st">"tasa_pred"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb30-4"><a href="#cb30-4"></a>  <span class="fu">as_draws_matrix</span>()</span>
-<span id="cb30-5"><a href="#cb30-5"></a></span>
-<span id="cb30-6"><a href="#cb30-6"></a>censo_pred_temp <span class="ot">&lt;-</span></span>
-<span id="cb30-7"><a href="#cb30-7"></a>  multi_fit<span class="sc">$</span>censo_pred <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"TD"</span>, <span class="st">"TO"</span>, <span class="st">"TP"</span>))</span>
-<span id="cb30-8"><a href="#cb30-8"></a></span>
-<span id="cb30-9"><a href="#cb30-9"></a>dat_tasa <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
-<span id="cb30-10"><a href="#cb30-10"></a>  paramtros_chain[ii,],</span>
-<span id="cb30-11"><a href="#cb30-11"></a>  <span class="at">nrow =</span> <span class="fu">nrow</span>(censo_pred_temp),</span>
-<span id="cb30-12"><a href="#cb30-12"></a>  <span class="at">ncol =</span> <span class="dv">3</span>,</span>
-<span id="cb30-13"><a href="#cb30-13"></a>  <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb30-14"><a href="#cb30-14"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(censo_pred_temp), <span class="fu">c</span>(<span class="st">"TD"</span>, <span class="st">"TO"</span>, <span class="st">"TP"</span>))</span>
-<span id="cb30-15"><a href="#cb30-15"></a>) <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-72_96d2d543b97453f3685d94bf0f9511c8">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1"></a>ii <span class="ot">=</span> <span class="dv">19</span> </span>
+<span id="cb38-2"><a href="#cb38-2"></a>paramtros_chain <span class="ot">&lt;-</span> <span class="fu">as.array</span>(multi_fit<span class="sc">$</span>model_bayes,</span>
+<span id="cb38-3"><a href="#cb38-3"></a>                            <span class="at">pars =</span> <span class="st">"tasa_pred"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb38-4"><a href="#cb38-4"></a>  <span class="fu">as_draws_matrix</span>()</span>
+<span id="cb38-5"><a href="#cb38-5"></a></span>
+<span id="cb38-6"><a href="#cb38-6"></a>censo_pred_temp <span class="ot">&lt;-</span></span>
+<span id="cb38-7"><a href="#cb38-7"></a>  multi_fit<span class="sc">$</span>censo_pred <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(<span class="st">"TD"</span>, <span class="st">"TO"</span>, <span class="st">"TP"</span>))</span>
+<span id="cb38-8"><a href="#cb38-8"></a></span>
+<span id="cb38-9"><a href="#cb38-9"></a>dat_tasa <span class="ot">&lt;-</span> <span class="fu">matrix</span>(</span>
+<span id="cb38-10"><a href="#cb38-10"></a>  paramtros_chain[ii,], <span class="at">nrow =</span> <span class="fu">nrow</span>(censo_pred_temp),</span>
+<span id="cb38-11"><a href="#cb38-11"></a>  <span class="at">ncol =</span> <span class="dv">3</span>, <span class="at">byrow =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb38-12"><a href="#cb38-12"></a>  <span class="at">dimnames =</span> <span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">nrow</span>(censo_pred_temp), <span class="fu">c</span>(<span class="st">"TD"</span>, <span class="st">"TO"</span>, <span class="st">"TP"</span>))</span>
+<span id="cb38-13"><a href="#cb38-13"></a>) <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="benchmarking-para-la-iteración-i-1" class="slide level2">
 <h2>Benchmarking para la iteración <span class="math inline">\(i\)</span></h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-58_413f4fc050313051d5100f326629e46e">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1"></a>censo_pred_temp <span class="ot">&lt;-</span> <span class="fu">cbind</span>(censo_pred_temp, dat_tasa)</span>
-<span id="cb31-2"><a href="#cb31-2"></a></span>
-<span id="cb31-3"><a href="#cb31-3"></a><span class="fu">benchmarking_empleo_iter</span>(</span>
-<span id="cb31-4"><a href="#cb31-4"></a>  <span class="at">poststrat_df =</span> censo_pred_temp,</span>
-<span id="cb31-5"><a href="#cb31-5"></a>  <span class="at">Total_Xk =</span> list_bench<span class="sc">$</span>Total,</span>
-<span id="cb31-6"><a href="#cb31-6"></a>  <span class="at">names_cov =</span> list_bench<span class="sc">$</span>var_bench,</span>
-<span id="cb31-7"><a href="#cb31-7"></a>  <span class="at">metodo_calib =</span> list_bench<span class="sc">$</span>metodo_bench</span>
-<span id="cb31-8"><a href="#cb31-8"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-73_8166bc078c2695ec8e497296ad365c7e">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1"></a>censo_pred_temp <span class="ot">&lt;-</span> <span class="fu">cbind</span>(censo_pred_temp, dat_tasa)</span>
+<span id="cb39-2"><a href="#cb39-2"></a></span>
+<span id="cb39-3"><a href="#cb39-3"></a><span class="fu">benchmarking_empleo_iter</span>(</span>
+<span id="cb39-4"><a href="#cb39-4"></a>  <span class="at">poststrat_df =</span> censo_pred_temp,</span>
+<span id="cb39-5"><a href="#cb39-5"></a>  <span class="at">Total_Xk =</span> list_bench<span class="sc">$</span>Total,</span>
+<span id="cb39-6"><a href="#cb39-6"></a>  <span class="at">names_cov =</span> list_bench<span class="sc">$</span>var_bench,</span>
+<span id="cb39-7"><a href="#cb39-7"></a>  <span class="at">metodo_calib =</span> list_bench<span class="sc">$</span>metodo_bench</span>
+<span id="cb39-8"><a href="#cb39-8"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section>
 <section id="benchmarking-para-todas-las-iteraciones" class="slide level2">
 <h2>Benchmarking para todas las iteraciones</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-59_485629a5a44da2c12647b357624bf801">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1"></a>result_iter_calib <span class="ot">&lt;-</span> <span class="fu">benchmarking_empleo_all</span>(</span>
-<span id="cb32-2"><a href="#cb32-2"></a>  <span class="at">multi_fit =</span> multi_fit,</span>
-<span id="cb32-3"><a href="#cb32-3"></a>  <span class="at">list_bench =</span> list_bench,</span>
-<span id="cb32-4"><a href="#cb32-4"></a>  <span class="at">pars =</span> <span class="st">"tasa_pred"</span>,</span>
-<span id="cb32-5"><a href="#cb32-5"></a>  <span class="at">n_iter =</span> <span class="dv">100</span></span>
-<span id="cb32-6"><a href="#cb32-6"></a>)</span>
-<span id="cb32-7"><a href="#cb32-7"></a></span>
-<span id="cb32-8"><a href="#cb32-8"></a><span class="fu">saveRDS</span>(result_iter_calib, <span class="st">"recursos/result_iter_calib.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-74_650e2a49e424fa0c354568f4a325d213">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1"></a>result_iter_calib <span class="ot">&lt;-</span> <span class="fu">benchmarking_empleo_all</span>(</span>
+<span id="cb40-2"><a href="#cb40-2"></a>  <span class="at">multi_fit =</span> multi_fit,</span>
+<span id="cb40-3"><a href="#cb40-3"></a>  <span class="at">list_bench =</span> list_bench,</span>
+<span id="cb40-4"><a href="#cb40-4"></a>  <span class="at">pars =</span> <span class="st">"tasa_pred"</span>,</span>
+<span id="cb40-5"><a href="#cb40-5"></a>  <span class="at">n_iter =</span> <span class="dv">100</span></span>
+<span id="cb40-6"><a href="#cb40-6"></a>)</span>
+<span id="cb40-7"><a href="#cb40-7"></a></span>
+<span id="cb40-8"><a href="#cb40-8"></a><span class="fu">saveRDS</span>(result_iter_calib, <span class="st">"recursos/result_iter_calib.rds"</span>)  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
 </div>
 </section></section>
 <section>
@@ -3612,18 +4088,27 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="estimación-nacional-usando-las-cadenas" class="slide level2">
 <h2>Estimación nacional usando las cadenas</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-60_34687da431b8e4b1904968235a4469f9">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1"></a><span class="fu">source</span>(<span class="st">"recursos/Funciones_empleo.R"</span>)</span>
-<span id="cb33-2"><a href="#cb33-2"></a>result_iter_calib <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/result_iter_calib.rds"</span>) </span>
-<span id="cb33-3"><a href="#cb33-3"></a><span class="fu">map_df</span>(</span>
-<span id="cb33-4"><a href="#cb33-4"></a>  result_iter_calib,</span>
-<span id="cb33-5"><a href="#cb33-5"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x) <span class="sc">%&gt;%</span></span>
-<span id="cb33-6"><a href="#cb33-6"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb33-7"><a href="#cb33-7"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
-<span id="cb33-8"><a href="#cb33-8"></a>                <span class="at">values_from =</span> value)</span>
-<span id="cb33-9"><a href="#cb33-9"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable) <span class="sc">%&gt;%</span></span>
-<span id="cb33-10"><a href="#cb33-10"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
-<span id="cb33-11"><a href="#cb33-11"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-75_7c2c7d68a5c3bd5a2289c586b337af55">
+<div class="sourceCode cell-code" id="cb41"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="#cb41-1"></a><span class="fu">source</span>(<span class="st">"recursos/Funciones_empleo.R"</span>)</span>
+<span id="cb41-2"><a href="#cb41-2"></a>result_iter_calib <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"recursos/result_iter_calib.rds"</span>) </span>
+<span id="cb41-3"><a href="#cb41-3"></a><span class="fu">map_df</span>(</span>
+<span id="cb41-4"><a href="#cb41-4"></a>  result_iter_calib,</span>
+<span id="cb41-5"><a href="#cb41-5"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x) <span class="sc">%&gt;%</span></span>
+<span id="cb41-6"><a href="#cb41-6"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb41-7"><a href="#cb41-7"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
+<span id="cb41-8"><a href="#cb41-8"></a>                <span class="at">values_from =</span> value)</span>
+<span id="cb41-9"><a href="#cb41-9"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable) <span class="sc">%&gt;%</span></span>
+<span id="cb41-10"><a href="#cb41-10"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
+<span id="cb41-11"><a href="#cb41-11"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <table>
 <thead>
@@ -3653,21 +4138,36 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </table>
 </div>
 </div>
+</div>
+</div>
+</div>
 </section>
 <section id="estimación-dam-usando-las-cadenas" class="slide level2">
 <h2>Estimación dam usando las cadenas</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-61_652caf360ca2f004efa2b11a1e19028a">
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1"></a>tab_dam <span class="ot">&lt;-</span>  <span class="fu">map_df</span>(</span>
-<span id="cb34-2"><a href="#cb34-2"></a>  result_iter_calib,</span>
-<span id="cb34-3"><a href="#cb34-3"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x, <span class="at">var_by =</span> <span class="st">"dam"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-4"><a href="#cb34-4"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb34-5"><a href="#cb34-5"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
-<span id="cb34-6"><a href="#cb34-6"></a>                <span class="at">values_from =</span> value)</span>
-<span id="cb34-7"><a href="#cb34-7"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable, dam) <span class="sc">%&gt;%</span></span>
-<span id="cb34-8"><a href="#cb34-8"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
-<span id="cb34-9"><a href="#cb34-9"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span>
-<span id="cb34-10"><a href="#cb34-10"></a></span>
-<span id="cb34-11"><a href="#cb34-11"></a><span class="fu">tba</span>(tab_dam <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-76_3693c1fedd293335ed94c65005385597">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1"></a>tab_dam <span class="ot">&lt;-</span>  <span class="fu">map_df</span>(</span>
+<span id="cb42-2"><a href="#cb42-2"></a>  result_iter_calib,</span>
+<span id="cb42-3"><a href="#cb42-3"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x, <span class="at">var_by =</span> <span class="st">"dam"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb42-4"><a href="#cb42-4"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb42-5"><a href="#cb42-5"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
+<span id="cb42-6"><a href="#cb42-6"></a>                <span class="at">values_from =</span> value)</span>
+<span id="cb42-7"><a href="#cb42-7"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable, dam) <span class="sc">%&gt;%</span></span>
+<span id="cb42-8"><a href="#cb42-8"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
+<span id="cb42-9"><a href="#cb42-9"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-77_c6cd90b2ecdf63eb373120fd27d3cf2d">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>
@@ -3718,18 +4218,30 @@ g_i = \frac{\exp(\lambda^\top x_i)}{1 + \exp(\lambda^\top x_i)}.
 </section>
 <section id="estimación-sexo-usando-las-cadenas" class="slide level2">
 <h2>Estimación sexo usando las cadenas</h2>
-<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-62_39093167ab3ffbc1879388b8d4b3abee">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1"></a>tab_sexo <span class="ot">&lt;-</span>  <span class="fu">map_df</span>(</span>
-<span id="cb35-2"><a href="#cb35-2"></a>  result_iter_calib,</span>
-<span id="cb35-3"><a href="#cb35-3"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x, <span class="at">var_by =</span> <span class="fu">c</span>(<span class="st">"sexo"</span>)) <span class="sc">%&gt;%</span></span>
-<span id="cb35-4"><a href="#cb35-4"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb35-5"><a href="#cb35-5"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
-<span id="cb35-6"><a href="#cb35-6"></a>                <span class="at">values_from =</span> value)</span>
-<span id="cb35-7"><a href="#cb35-7"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable, sexo) <span class="sc">%&gt;%</span></span>
-<span id="cb35-8"><a href="#cb35-8"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
-<span id="cb35-9"><a href="#cb35-9"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span>
-<span id="cb35-10"><a href="#cb35-10"></a></span>
-<span id="cb35-11"><a href="#cb35-11"></a><span class="fu">tba</span>(tab_sexo <span class="sc">%&gt;%</span> <span class="fu">head</span>(<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código de R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-78_452cbd9155f002344b6fc98152cec40f">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1"></a>tab_sexo <span class="ot">&lt;-</span>  <span class="fu">map_df</span>(</span>
+<span id="cb43-2"><a href="#cb43-2"></a>  result_iter_calib,</span>
+<span id="cb43-3"><a href="#cb43-3"></a>  <span class="sc">~</span> <span class="fu">Indicadores_censo</span>(.x, <span class="at">var_by =</span> <span class="fu">c</span>(<span class="st">"sexo"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb43-4"><a href="#cb43-4"></a>    <span class="fu">mutate</span>(<span class="at">value =</span> value <span class="sc">*</span> <span class="dv">100</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb43-5"><a href="#cb43-5"></a>    <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> Metodo ,</span>
+<span id="cb43-6"><a href="#cb43-6"></a>                <span class="at">values_from =</span> value)</span>
+<span id="cb43-7"><a href="#cb43-7"></a>) <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(variable, sexo) <span class="sc">%&gt;%</span></span>
+<span id="cb43-8"><a href="#cb43-8"></a>  <span class="fu">summarise</span>(<span class="at">estimado =</span> <span class="fu">mean</span>(Bench),</span>
+<span id="cb43-9"><a href="#cb43-9"></a>            <span class="at">estimado_se =</span> <span class="fu">sd</span>(Bench))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell" data-hash="Benchmarking-en-Cadenas-MCMC_cache/revealjs/unnamed-chunk-79_b04bc70a7a30830bf2bcf9a9c8eb069c">
 <div class="cell-output-display">
 <table class="table table-striped lightable-classic" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
 <thead>

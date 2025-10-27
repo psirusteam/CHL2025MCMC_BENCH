@@ -677,9 +677,15 @@ $$
 
 Obtener el modelo es solo un paso más, ahora se debe realizar la predicción en el censo, el cual a sido previamente estandarizado y homologado con la encuesta. 
 
+::: {.callout-tip}
+### Código en R
 ```{r, }
 poststrat_df <- readRDS("Recursos/censo_dam2.rds") %>% 
-     inner_join(statelevel_predictors_df) 
+     inner_join(statelevel_predictors_df)
+```
+:::
+
+```{r, echo=FALSE}
 tba( poststrat_df %>% arrange(desc(n)) %>% head(5))
 ```
 Note que la información del censo esta agregada.
@@ -688,11 +694,13 @@ Note que la información del censo esta agregada.
 
 Para obtener una distribución posterior de cada observación se hace uso de la función *posterior_epred* de la siguiente forma.
 
+::: {.callout-tip}
+### Código en R
 ```{r, eval=FALSE}
 epred_mat <- posterior_epred(fit, newdata = poststrat_df,  type = "response")
 saveRDS(epred_mat, "recursos/epred_mat.rds")
 ```
-
+:::
 
 ## Proceso de estimación en `R` (I)
 
@@ -701,7 +709,9 @@ En cada iteración $l$ de la cadena MCMC:
 1. Sustituir $\hat{y}_k^{(l)}$ en la tabla de post-estratificación.  
 2. Construir la matriz de calibración $\mathbf{X}_k$.  
 
-\small
+::: {.callout-tip}
+### Código en R
+
 ```{r, eval=TRUE}
 library(sampling)
 epred_mat <- readRDS("recursos/epred_mat.rds")
@@ -714,7 +724,15 @@ metodo <- "linear"
 temp_post <- poststrat_df %>%
   mutate(yk = epred_mat[iter,]) %>% 
   select(dam:n, yk)
+```
+:::
 
+## Proceso de estimación en `R` (II)
+
+::: {.callout-tip}
+### Código en R
+
+```{r, eval=TRUE}
 # 2. Matriz de calibración
 Xk <- temp_post %>% 
   select(all_of(names_cov)) %>%
@@ -723,12 +741,14 @@ Xk <- temp_post %>%
   mutate_at(vars(matches("\\d$")), ~ . * temp_post$yk)
 
 ```
+:::
 
-
-## Proceso de estimación en `R` (II)
+## Proceso de estimación en `R` (III)
 
 3. Calcular los totales de la encuesta $\mathbf{t}_X$.  
-\small
+
+::: {.callout-tip}
+### Código en R
 
 ```{r, eval=TRUE}
 # 3. Totales de la encuesta
@@ -743,10 +763,14 @@ Total_Xk <- encuesta_sta %>%
   colSums()
 Total_Xk
 ```
+:::
 
-## Proceso de estimación en `R` (III)
+## Proceso de estimación en `R` (IV)
 
 4. Resolver el sistema de calibración para obtener $g_k^{(l)}$.  
+
+::: {.callout-tip}
+### Código en R
 
 ```{r, eval=TRUE}
 # 4. Resolver calibración
@@ -764,7 +788,12 @@ check_calib <- checkcalibration(
   total = Total_Xk, g = gk_calib
 )
 ```
-## Proceso de estimación en `R` (IV)
+:::
+
+## Proceso de estimación en `R` (V)
+
+::: {.callout-tip}
+### Código en R
 
 ```{r, eval=TRUE}
 # Totales ajustados
@@ -774,8 +803,12 @@ hat_tx <- Xk %>%
 
 round(Total_Xk - hat_tx, 4)
 ```
+:::
 
 ## Proceso de estimación en `R` (Función benchmarking)
+
+::: {.callout-tip}
+### Código en R
 
 ```{r}
 source("recursos/benchmarking_ingreso.r")
@@ -790,8 +823,13 @@ poststrat_df_iter <- benchmarking(
 
 tba(poststrat_df_iter %>% head(5))
 ```
+:::
+
 
 ## Proceso de estimación en `R` para la MCMC
+
+::: {.callout-tip}
+### Código en R
 
 ```{r, eval=FALSE}
 poststrat_df_iter2 <- map(1:nrow(epred_mat),
@@ -813,6 +851,7 @@ poststrat_df_iter
 saveRDS(poststrat_df_iter2, "recursos/poststrat_df_iter_ingreso.rds")
 
 ```
+:::
 
 ```{r, echo=FALSE, eval=FALSE}
 safe_benchmarking2 <- possibly(function(i) {
@@ -836,43 +875,47 @@ saveRDS(poststrat_df_iter3, "recursos/poststrat_df_iter_ingreso_logit.rds")
 
 ## Proceso de estimación en `R` para la MCMC **sin benchmarking**
 
+::: {.callout-tip}
+### Código en R
+
 ```{r, eval=FALSE}
 theta_iter <-  map(poststrat_df_iter3, ~{
     .x %>% 
     group_by(dam) %>% 
-    summarise(theta = sum(yk*n))  
-}, .progress = TRUE)
+    summarise(theta = sum(yk*n))  }, .progress = TRUE)
 
 theta_modelo <-  theta_iter %>% bind_rows() %>%
   group_by(dam) %>%
-  summarise(
-        estimate = mean(theta),
+  summarise(estimate = mean(theta),
         sd = sd(theta),
         lci = quantile(theta, probs = (1 - 0.95)/2),
         uci = quantile(theta, probs = 1 - (1 - 0.95)/2))
 
 saveRDS(theta_modelo, "recursos/02.theta_modelo_ingreso.rds")
 ```
+:::
 
 ## Proceso de estimación en `R` para la MCMC **con benchmarking**
+
+::: {.callout-tip}
+### Código en R
 
 ```{r, eval=FALSE}
 theta_iter2 <-  map(poststrat_df_iter2, ~ {
   .x %>%
     group_by(dam) %>%
-    summarise(theta = sum(yk*n2))
-}, .progress = TRUE)
+    summarise(theta = sum(yk*n2))}, .progress = TRUE)
 
 theta_bench <- theta_iter2 %>% bind_rows() %>%
   group_by(dam) %>%
-  summarise(
-    estimate = mean(theta),
+  summarise( estimate = mean(theta),
     sd = sd(theta),
     lci = quantile(theta, probs = (1 - 0.95) / 2),
     uci = quantile(theta, probs = 1 - (1 - 0.95) / 2)
   )
 saveRDS(theta_bench, "recursos/03.theta_bench_ingreso.rds")
 ```
+:::
 
 ## Comparando estimaciones muestra, modelo y modelo con benchmarking
 
@@ -887,45 +930,83 @@ theta_muestra <-
 inner_join(theta_modelo, theta_bench, by = "dam") %>%
   mutate(dam = paste0("dam_", dam)) %>%
   inner_join(theta_muestra, ,  by = "dam") %>%
-  mutate(diff_bench = round(bench - muestra, 5))
+  mutate(diff_bench = round(bench - muestra, 5)) %>% head(10) %>% tba()
 ```
 
 
 ## Estimaciones desagregadas por Nacional
 
+::: {.callout-tip}
+### Código en R
+
 ```{r}
 source("recursos/calc_theta.R")
-poststrat_df_iter2  <- readRDS("recursos/poststrat_df_iter_ingreso.rds")[1:10]
-calc_theta(result_list = poststrat_df_iter2, 
+poststrat_df_iter2  <- 
+  readRDS("recursos/poststrat_df_iter_ingreso.rds")[1:10]
+paso <- calc_theta(result_list = poststrat_df_iter2, 
            levels = NULL, ci_level = 0.95)
+```
+:::
+
+```{r, echo=FALSE}
+paso$estimates %>% tba()
 ```
 
 
 ## Estimaciones desagregadas por DAM - área 
 
+::: {.callout-tip}
+### Código en R
+
 ```{r}
-calc_theta(
+paso <- calc_theta(
   result_list = poststrat_df_iter2,
   levels = c("dam", "area"),
   ci_level = 0.95
-)$estimates %>%
+)$estimates
+```
+:::
+
+
+```{r, echo=FALSE}
+paso %>%
   head(8) %>% tba()
 ```
 
 ## Estimaciones desagregadas por DAM - área - sexo 
 
+::: {.callout-tip}
+### Código en R
+
 ```{r}
-calc_theta(result_list = poststrat_df_iter2[1:10], 
-           levels = c("dam", "area", "sexo"), ci_level = 0.95)$estimates %>% 
+paso <- calc_theta(result_list = poststrat_df_iter2[1:10], 
+           levels = c("dam", "area", "sexo"), 
+           ci_level = 0.95)$estimates 
+```
+:::
+
+```{r, echo=FALSE}
+paso %>%
   head(8) %>% tba()
 ```
 
+
 ## Estimaciones desagregadas por DAM - área - etnia 
 
+::: {.callout-tip}
+### Código en R
+
 ```{r}
-calc_theta(result_list = poststrat_df_iter2[1:10], 
-           levels = c("dam", "area", "etnia"),
-           ci_level = 0.95)$estimates %>% 
+paso <- calc_theta(
+  result_list = poststrat_df_iter2[1:10],
+  levels = c("dam", "area", "etnia"),
+  ci_level = 0.95
+)$estimates 
+```
+:::
+
+```{r, echo=FALSE}
+paso %>%
   head(8) %>% tba()
 ```
 
@@ -1114,7 +1195,7 @@ donde
 - $u_{dk}$: efecto aleatorio del dominio $d$ en la categoría $k$.
 
 
-## Transformación a probabilidades (softmax con baseline)
+## Transformación a probabilidades
 
 - Para $k=2,\dots,K$ los predictores lineales son
 
@@ -1174,9 +1255,11 @@ $$
 \text{TP}_{d'} = \frac{\text{TO}_{d'}}{1-\text{TD}_{d'}}.
 $$
 
-## Modelo en Stan  multinomia  
+## Modelo en Stan  multinomia (pred_theta)
 
-```
+::: {.callout-important}
+### Función pred_theta
+```{r, eval=FALSE}
 functions {
   matrix pred_theta(matrix Xp, matrix Zp, int p, matrix beta, matrix u){
   int D1 = rows(Xp);
@@ -1211,7 +1294,15 @@ for(d in 1:D1){
   }
   
 }
+```
+:::
 
+## Modelo en Stan  multinomia (data)
+
+::: {.callout-important}
+### data
+
+```{r, eval=FALSE}
 data {
   int<lower=1> D;    // número de postestrto 
   int<lower=1> D1;   // número de dominios por predesir 
@@ -1225,7 +1316,15 @@ data {
   matrix[D1, Kz] Zp; // matriz de covariables
 }
   
+```
+:::
 
+## Modelo en Stan  multinomia (parameters)
+
+::: {.callout-important}
+### parameters
+
+```{r, eval=FALSE}
 parameters {
   matrix[P-1, K] beta;// matriz de parámetros 
   vector<lower=0>[P-1] sigma_u;       // random effects standard deviations
@@ -1233,7 +1332,15 @@ parameters {
   cholesky_factor_corr[P-1] L_u;
   matrix[P-1, Kz] z_u;                  
 }
+```
+:::
 
+## Modelo en Stan  multinomia (transformed parameters)
+
+::: {.callout-important}
+### transformed parameters
+
+```{r, eval=FALSE}
 transformed parameters {
   simplex[P] theta[D];// vector de parámetros;
   real num[D, P];
@@ -1258,7 +1365,16 @@ transformed parameters {
     theta[d, 1] = 1/den[d];
   }
 }
+```
 
+:::
+
+## Modelo en Stan  multinomia (model)
+
+::: {.callout-important}
+### model
+
+```{r, eval=FALSE}
 model {
   L_u ~ lkj_corr_cholesky(1); // LKJ prior for the correlation matrix
   to_vector(z_u) ~ normal(0, 1);
@@ -1269,8 +1385,15 @@ model {
     target += multinomial_lpmf(y[d, ] | theta[d, ]); 
   }
 }
+```
+:::
 
-  
+## Modelo en Stan  multinomia (generated quantities)
+
+::: {.callout-important}
+### generated quantities
+
+```{r, eval=FALSE}
 generated quantities {
   // predict 
   matrix[D1,P] tasa_pred;// vector de parámetros;
@@ -1283,29 +1406,61 @@ tasa_pred = pred_theta(Xp,Zp,P, beta, u) ;
 }
 
 ```
+:::
 
 
 ## Lectura bases de datos (Censo).   
 
-
-```{r, eval=TRUE, echo=FALSE}
+::: {.callout-tip}
+### Código de R
+```{r, eval=FALSE, echo=TRUE}
 censo_mrp <- readRDS("recursos/censo_dam.rds")
 tba(censo_mrp %>% head(5))
 
 ```
+:::
+
+```{r, eval=TRUE, echo=FALSE}
+censo_mrp <- readRDS("recursos/censo_dam.rds")
+tba(censo_mrp %>% head(8))
+
+```
 
 ## Lectura bases de datos (Encuesta).   
+
+::: {.callout-tip}
+### Código de R
+```{r, eval=FALSE, echo=TRUE}
+encuesta_sta_MT <- readRDS('Recursos/encuesta_sta_MT.rds')
+encuesta_sta_MT <- encuesta_sta_MT %>% 
+  filter(edad>1, anoest %in% c("1","2","3","4"))
+
+tba(encuesta_sta_MT %>% head(8))
+
+```
+:::
 
 ```{r, eval=TRUE, echo=FALSE}
 encuesta_sta_MT <- readRDS('Recursos/encuesta_sta_MT.rds')
 encuesta_sta_MT <- encuesta_sta_MT %>% 
   filter(edad>1, anoest %in% c("1","2","3","4"))
 
-tba(encuesta_sta_MT %>% head(5))
+tba(encuesta_sta_MT %>% head(8))
 ```
 
 
 ## Lectura de datos (Covariables)
+
+::: {.callout-tip}
+### Código de R
+```{r, eval=FALSE, echo=TRUE}
+statelevel_predictors <- 
+  readRDS("recursos/statelevel_predictors_df.rds") %>% 
+  mutate_if(is.numeric, ~{as.numeric(scale(.x))})
+tba(statelevel_predictors %>% head(8))
+
+```
+:::
 
 
 ```{r, echo=FALSE}
@@ -1316,6 +1471,8 @@ tba(statelevel_predictors %>% head(5))
 
 ## Compilar modelo de `Stan` en `R`
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 source("recursos/modelo_empleo.R")
 library(magrittr)
@@ -1329,10 +1486,13 @@ multi_fit <- modelo_empleo(encuesta_sta = encuesta_sta_MT,
               fit_STAN = "recursos/Multinivel_multinomial_no_cor.stan",
               path_model = "recursos/Multinivel_multinomial_model_no_cor.rds")
 ```
+:::
 
 
 ## Compilar modelo de `Stan` en `R`
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 source("recursos/validar_modelo_bayes.R")
 source("recursos/Plot_dens_draws.R")
@@ -1343,14 +1503,17 @@ resul_validar_modelo <-
 
 saveRDS(resul_validar_modelo, file = "recursos/resul_validar_modelo_no_cor2.rds")
 ```
+:::
 
 ## Resultados del modelo, r-hat
 
+::: {.callout-tip}
+### Código de R
 ```{r, echo=FALSE, eval=FALSE}
 resul_validar_modelo <- readRDS("recursos/resul_validar_modelo_no_cor.rds")
 saveRDS(resul_validar_modelo$tbla_rhat, file = "recursos/tbla_rhat.rds")
 ```
-
+:::
 
 ```{r, echo=FALSE}
 
@@ -1486,6 +1649,8 @@ $$
 
 ## Benchmarking 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 source("recursos/benchmarking_empleo.R")
 list_bench <-
@@ -1499,6 +1664,7 @@ list_bench <-
 saveRDS(list_bench, file = "recursos/list_bench_empleo.rds")
 
 ```
+:::
 
 ## Validacion del Benchmarking 
 
@@ -1516,6 +1682,8 @@ knitr::include_graphics("Recursos/plot_bench_empleo.png")
 
 ## Plot de validación de estimaciones (I)
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 subgrupo <- c("dam","sexo", "area", "etnia", "edad", "anoest")
 
@@ -1524,18 +1692,18 @@ poststrat_df <- multi_fit$censo_pred %>% data.frame() %>%
           gk_TP = list_bench$gk_bench$TP,
           gk_TD = list_bench$gk_bench$TD )
 
-plot_subgrupo <- map(
-  .x = setNames(subgrupo, subgrupo),
-  ~ plot_compare_Ind(
-    sample = encuesta_sta_MT,
-    poststrat = poststrat_df,
-    by1 = .x
+plot_subgrupo <- map(.x = setNames(subgrupo, subgrupo),
+  ~ plot_compare_Ind( sample = encuesta_sta_MT, 
+                      poststrat = poststrat_df, by1 = .x
   )
 )
 ```
+:::
 
 ## Plot de validación de estimaciones (II)
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 temp_dir_plot_uni <- map(
   names(plot_subgrupo),
@@ -1547,6 +1715,7 @@ temp_dir_plot_uni <- map(
 )
 
 ```
+:::
 
 ## Plot de validación por dam
 
@@ -1571,6 +1740,8 @@ knitr::include_graphics("Recursos/empleo_plot_uni_edad.png")
 
 ## Benchmarking para la iteración $i$ 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 ii = 19 
 paramtros_chain <- as.array(multi_fit$model_bayes,
@@ -1581,16 +1752,17 @@ censo_pred_temp <-
   multi_fit$censo_pred %>% select(-c("TD", "TO", "TP"))
 
 dat_tasa <- matrix(
-  paramtros_chain[ii,],
-  nrow = nrow(censo_pred_temp),
-  ncol = 3,
-  byrow = TRUE,
+  paramtros_chain[ii,], nrow = nrow(censo_pred_temp),
+  ncol = 3, byrow = TRUE,
   dimnames = list(1:nrow(censo_pred_temp), c("TD", "TO", "TP"))
 ) %>% data.frame()
 ```
+:::
 
 ## Benchmarking para la iteración $i$ 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 censo_pred_temp <- cbind(censo_pred_temp, dat_tasa)
 
@@ -1601,9 +1773,12 @@ benchmarking_empleo_iter(
   metodo_calib = list_bench$metodo_bench
 )
 ```
+:::
 
 ## Benchmarking para todas las iteraciones 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=FALSE}
 result_iter_calib <- benchmarking_empleo_all(
   multi_fit = multi_fit,
@@ -1614,11 +1789,15 @@ result_iter_calib <- benchmarking_empleo_all(
 
 saveRDS(result_iter_calib, "recursos/result_iter_calib.rds")  
 ```
+:::
+
 
 # Estimaciones 
 
 ## Estimación nacional usando las cadenas 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=TRUE}
 source("recursos/Funciones_empleo.R")
 result_iter_calib <- readRDS("recursos/result_iter_calib.rds") 
@@ -1634,8 +1813,12 @@ map_df(
 
 
 ```
+:::
 
 ## Estimación dam usando las cadenas 
+
+::: {.callout-tip}
+### Código de R
 
 ```{r, eval=TRUE}
 tab_dam <-  map_df(
@@ -1647,13 +1830,19 @@ tab_dam <-  map_df(
 ) %>% group_by(variable, dam) %>%
   summarise(estimado = mean(Bench),
             estimado_se = sd(Bench))
+```
+:::
 
+```{r, eval=TRUE, echo=FALSE}
 tba(tab_dam %>% head(5))
 
 ```
 
+
 ## Estimación sexo usando las cadenas 
 
+::: {.callout-tip}
+### Código de R
 ```{r, eval=TRUE}
 tab_sexo <-  map_df(
   result_iter_calib,
@@ -1664,7 +1853,10 @@ tab_sexo <-  map_df(
 ) %>% group_by(variable, sexo) %>%
   summarise(estimado = mean(Bench),
             estimado_se = sd(Bench))
+```
+:::
 
+```{r, eval=TRUE, echo=FALSE}
 tba(tab_sexo %>% head(5))
 
 ```
