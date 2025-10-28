@@ -1,0 +1,426 @@
+---
+title: "Agenda 2030 y Modelos SAE"
+subtitle: "Estimación en Áreas Pequeñas (SAE)"
+author: "Andrés Gutierrez y Stalyn Guerrero"
+date: "`r Sys.Date()`"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+bibliography: referencias_SAE_2025.bib
+---
+  
+# Agenda 2030 y Objetivos de Desarrollo Sostenible
+  
+## ¿Qué es la Agenda 2030?
+
+La **Agenda 2030 para el Desarrollo Sostenible** es un compromiso global adoptado por los Estados Miembros de las Naciones Unidas en 2015. Establece un marco universal con **17 Objetivos de Desarrollo Sostenible (ODS)** y **169 metas** que buscan erradicar la pobreza, proteger el planeta y asegurar la prosperidad para todos.
+
+## Principios de la Agenda 2030
+- **Universalidad:** aplica a todos los países, independientemente de su nivel de desarrollo.  
+- **Integración:** los objetivos están interrelacionados y deben abordarse de manera conjunta.  
+- **No dejar a nadie atrás:** exige la desagregación de los datos para reflejar las desigualdades dentro de los países.  
+
+::: {.callout-tip}
+### Resolución de la Asamblea General de la ONU 68/261:
+“Los indicadores de los Objetivos de Desarrollo Sostenible deberán desglosarse, siempre que sea pertinente, por ingreso, sexo, edad, raza, etnicidad, estado migratorio, discapacidad y ubicación geográfica, u otras características, de conformidad con los Principios Fundamentales de las Estadísticas Oficiales.”
+:::
+
+## Objetivos de Desarrollo Sostenible
+
+![](img/ods17.png){fig-align="center"}
+
+## Ejemplos de Metas Relevantes
+
+- **ODS 1 (Fin de la pobreza):** Erradicar la pobreza extrema y reducir a la mitad la pobreza en todas sus dimensiones según las definiciones nacionales. 
+
+- **ODS 2 (Hambre cero):** Asegurar el acceso a una alimentación sana, nutritiva y suficiente durante todo el año.  
+
+- **ODS 8 (Trabajo decente):** Lograr el empleo pleno y productivo, con igualdad salarial por trabajo de igual valor.  
+
+- **ODS 17 (Alianzas):** Aumentar la disponibilidad de datos desagregados de alta calidad, oportunos y fiables.
+
+
+## Desagregación de los indicadores
+
+La desagregación estadística es esencial para **identificar desigualdades ocultas**.  
+Ejemplo: estimar la pobreza o el desempleo por sexo, edad, territorio o etnia, permite diseñar políticas más focalizadas.  
+
+## Principios fundamentales de las estadísticas oficiales
+
+::: {.callout-tip}
+### Resolución de la Asamblea General de la ONU 68/261:
+La confianza esencial del público en la integridad de los sistemas estadísticos oficiales y la credibilidad que este otorga a las estadísticas dependen en gran medida del respeto de los valores y principios fundamentales que son la base de toda sociedad que procura entenderse a sí misma y respetar los derechos de sus miembros y que, en este contexto, son cruciales la independencia profesional y la rendición de cuentas de los organismos de estadística.
+:::
+
+# Limitaciones de las encuestas
+  
+## Restricciones en la producción de indicadores ODS
+
+- Los tamaños muestrales de las encuestas suelen ser **suficientes a nivel nacional o regional**, pero **no para áreas pequeñas**.  
+
+- En subpoblaciones (como municipios o grupos étnicos), los errores de muestreo aumentan significativamente.
+
+## El coeficiente de variación (CV)
+
+El CV es una medida relativa de precisión:
+  $$
+    CV(\hat{\theta}) = \frac{SE(\hat{\theta})}{\hat{\theta}} \times 100
+  $$
+
+## Uso del coeficiente de variación
+
+Sarndal et. al.(2003) afirma que un estadístico puede expresar su
+opinión acerca de que un coeficiente de variación del 2% es bueno,
+considerando las restricciones de la encuesta, mientras que un valor
+del coeficiente de variación de 9% puede ser considerado
+inaceptable.
+
+De esta forma, muchos institutos nacionales de estadística alrededor
+del mundo han considerado que las precisiones de las estadísticas
+resultantes de una encuesta estén supeditadas al comportamiento de
+su coeficiente de variación.
+
+
+## Alertas sobre el coeficiente de variación
+
+
+![Fuente: INEGI](img/cv_alerts.png){fig-align="center"}
+
+
+## Dominios de estudio y subpoblaciones de interés
+
+Una encuesta se planea con el fin de generar información precisa y
+confiable en los dominios de estudio que se han predefinido. Sin
+embargo, existen subgrupos poblacionales que la encuesta no abordó
+en su diseño, y sobre los cuales se quisiera una mayor precisión.
+
+- Incidencia de la pobreza desagregado por departamento oprovincia (tamaño de muestra conocido y planificado).
+
+- Tasa de desocupación desagregada por sexo (tamaño de muestra aleatorio, pero planificado).
+
+- Tasa de asistencia neta estudiantil en primaria desagregada por quintiles de ingreso (tamaño de muestra aleatorio).
+
+## Precisión de los estimadores
+
+Debido a que una encuesta es una investigación parcial sobre una
+población finita, es necesario saber que:
+
+- A partir de una encuesta, no se calculan indicadores, sino que se estiman con ayuda de los datos de la encuesta.
+
+- Es necesario calcular el grado de error que se comete al no poder realizar una investigación exhaustiva. Este error es conocido como el error de muestreo.
+
+- La precisión de un estimador está supeditada al intervalo de confianza.
+
+Entre más angosto sea el intervalo, más precisión se genera y por ende se tiene un menor error de muestreo.
+
+## El intervalo de confianza en subpoblaciones
+
+Si el parámetro de interés sobre el cual se busca realizar la inferencia
+es d , y se ha definido una subpoblación de interés Ud , entonces un
+intervalo del 95% de confianza sobre esa subpoblación está dado
+por la siguiente expresión:
+
+$$
+(\hat{\theta} - t_{0.975}\times se(\hat{\theta}) , \hat{\theta} + t_{0.975}\times se(\hat{\theta}) )
+$$
+
+El uso del coeficiente de variación como indicador de la confiabilidad
+de las estadísticas provenientes de encuestas de hogares debería ser
+complementado con algunas otras medidas que permitan crear
+reglas de confiabilidad y precisión.
+
+
+## El intervalo de confianza
+
+Nótese que la longitud de los intervalos de confianza induce la
+seguridad de que un estimador es preciso:
+
+- La incidencia de la pobreza en el departamento del país se
+estimó en 5.2 %, con un intervalo de confianza de (5.15 %,
+5.25 %).
+
+- La tasa de desocupación en el país para los hombres se ubicó
+en en 7.5 %, con un intervalo de confianza de (7.1 %, 7.9 %);
+mientras que para las mujeres se ubicó en 9.2 %, con intervalo
+de confianza de (8.8 %, 9.6 %).
+
+- La tasa de asistencia neta estudiantil en primaria para el último
+quintil de ingreso se estimó en 85 %, con un intervalo de
+confianza de (48.2 %, 100.0 %).
+
+## El tamaño de muestra
+
+- El tamaño de muestra afecta de manera indirecta la amplitud del intervalo de confianza, a través del error estándar que generalmente decrece a medida que el tamaño de muestra se hace más grande.
+
+- Un tamaño de muestra adecuado garantiza la convergencia en distribución de los estimadores a la distribución teórica de donde se calculan los percentiles.
+
+- Por ejemplo, es posible plantear que todas las estimaciones basadas en un tamaño de muestra menor a un umbral predefinido deberían ser suprimidas o marcadas como no confiables.
+
+## El tamaño de muestra efectivo 
+
+- En las encuestas de hogares, con diseños de muestreo complejos, no existe una sucesión de variables que sean independientes e identicamente distribuidas.
+
+- La muestra $y_1,... , y_n$  no es un vector en el espacio n-dimensional, donde se asume que cada componente del vector puede variar por sí mismo.
+
+- La dimensión final del vector $y_1,... , y_n$ es mucho menor que $n$, puesto que existe una forma jerárquica en la selección de los hogares y a la interrelación de la variable de interés con las UPMs
+
+## El tamaño de muestra efectivo
+
+El tamaño de muestra efectivo se define como sigue:
+
+$$
+n_{efectivo} = \frac{n}{Deff}
+$$
+
+En donde Deff es el efecto de diseño que depende de: 1. El número
+de encuestas promedio que se realizaron en cada UPM. 2. La
+correlación existente entre la variable de interés y las mismas UPMs.
+
+Es posible considerar que, si el tamaño de muestra efectivo no es
+mayor a un umbral, entonces la cifra no debería ser considerada
+para publicación.
+
+## Grados de libertad
+
+Son una medida de cuántas unidades independientes de información se tienen en la inferencia. Nótese que: 
+
+- En el caso extremo de realizar un censo en cada UPMs, sin importar el número de individuos que componen el conglomerado, el número de unidades independientes será únicamente el número de UPMs seleccionadas en la primera etapa de muestreo.
+
+- En las encuestas de hogares, la variabilidad de la estimación es la contribución del conglomerado a la gran media más una contribución (considerada insignificante) de la segunda etapa de muestreo.
+
+## Grados de libertad
+
+En las subpoblaciones los grados de libertad no se consideran fijos
+sino variables.
+
+$$
+gl = \sum_{h=1}^H v_h \times (n_{Ih} -1 )
+$$
+
+Note que $v_h$ es una variable indicadora que toma el valor uno si el estrato $h$ contiene uno o mas casos de la subpoblación de interés, $n_{Ih}$ es el número de UPMs en el estrato. En el caso más general, los grados de libertad se reducen a la siguiente expresión: 
+
+$$gl = #UPMs − #Estratos$$
+
+
+# Introducción a los modelos de estimación en áreas pequeñas (SAE)
+  
+## Motivación
+
+Cuando los **estimadores directos** basados solo en los datos observados en el dominio tienen alta varianza o no existen, se requiere “**tomar prestada fuerza**” de otras fuentes o áreas.
+
+Dos alternativas:
+
+1. **Sobremuestreo** (aumentar el tamaño de muestra, costoso).  
+
+2. **Modelos de estimación en áreas pequeñas (SAE)** (uso de información auxiliar).  
+
+## Concepto de área pequeña
+
+Una **área pequeña** es un dominio (geográfico o de subpoblación) para el cual el tamaño muestral no permite obtener estimaciones confiables.
+
+Ejemplos:
+
+- Tasa de desempleo por municipio.
+
+- Pobreza por grupo étnico.
+
+- Asistencia escolar por quintil de ingreso.
+
+## Enfoques principales
+Los métodos SAE se dividen en dos tipos:
+
+- **Modelos de área:** el modelo vincula la variable de interés con covariables agregadas a nivel de área.
+
+- **Modelos de unidad:** el modelo se ajusta a nivel de individuos u hogares, combinando datos censales o administrativos con datos de encuesta.
+
+## Tipos de estimadores
+
+- **Estimadores sintéticos:** usan información auxiliar basada en un modelo.  
+
+- **Estimadores compuestos:** combinación entre estimadores directos y sintéticos para equilibrar precisión y sesgo.  
+
+$$
+\hat{\theta}_d = \lambda_d \hat{\theta}^{\text{directo}}_d + (1 - \lambda_d)\hat{\theta}^{\text{sintético}}_d
+$$
+
+## Consideraciones prácticas
+
+- Requieren **variables auxiliares** bien correlacionadas con la variable de interés.  
+
+- Los datos auxiliares deben ser **consistentes y actualizados** a través de las áreas.  
+
+- El tamaño muestral efectivo y los grados de libertad determinan la precisión alcanzable.
+
+## Riesgos y desafíos
+
+- Posibles problemas de confidencialidad en áreas muy pequeñas.  
+
+- Diferencias entre estimaciones modeladas y conocimiento local.  
+
+- Disponibilidad limitada de información auxiliar de calidad.  
+
+- Sostenibilidad institucional y técnica del sistema de estimación.
+
+## Flujo del modelo de área
+
+![Fuente: División de Estadísticas, CEPAL.](img/Workflow_Modelo_de_area_1.png){width=100%}
+
+
+
+
+## Aplicaciones actuales — Panorama 2025
+
+Los métodos de  SAE se han consolidado como herramientas operativas en oficinas nacionales de estadística y organismos multilaterales.  
+
+Permiten producir estimaciones confiables de indicadores sociales, laborales y de salud a niveles territoriales finos, alineándose con el principio de **“no dejar a nadie atrás”** de la Agenda 2030.
+
+
+## Referencias clave (I)
+
+- World Bank. *Guidelines to Small Area Estimation for Poverty Mapping*. Washington DC: World Bank; 2023. (@WorldBank2023).
+
+- David Newhouse. *Small Area Estimation of Poverty and Wealth Using Geospatial Data: What Have We Learned So Far?* Policy Research Working Paper WPS 10512. Washington DC: World Bank; julio 2023. (@Newhouse2023).
+
+- Joshua D. Merfeld, Haoyi Chen, Partha Lahiri & David Newhouse. *Small Area Estimation with Geospatial Data: A Primer*. UN Statistics Division; revisión preliminar diciembre 2024 (versión difundida en 2025). (@Merfeld2024)
+
+- Isabel Molina, Balgobin Nandram J. N. K. Rao. *Small area estimation of general parameters with application to poverty indicators: A hierarchical Bayes approach*. arXiv preprint; julio 2014. (@Molina2014)
+
+## Referencias clave (II)
+
+- Nicolas Frink & Timo Schmid. *Small area estimation with generalized random forests: Estimating poverty rates in Mexico*. arXiv preprint; junio 2024. (@Frink2024)
+
+- Alejandra Arias‑Salazar et al. *Small area estimation for composite indicators: the case of multidimensional poverty incidence*. (@AriasSalazar2023)
+
+- Sumonkanti Das & Ray Chambers. *Small Area Poverty Estimation Under Heteroskedasticity*. Journal of Survey Statistics and Methodology, Vol. 12(2), abril 2024, pp. 369-403. (@DasChambers2024)
+
+
+## Ejemplos de modelos de área
+
+- En Chile, se aplicaron modelos de área para estimar la pobreza comunal usando SAE @cepal_chile2021  
+
+- Guatemala utilizó metodologías similares para desagregar indicadores nutricionales @incap_guatemala2021
+
+- Otros estudios recientes incluyen estimaciones de inseguridad alimentaria a nivel municipal en Colombia @dane_colombia2022 y Chile @fao_chile2023
+
+
+
+## Ejemplos de modelos de unidad
+
+- México implementó modelos de unidad para medir la pobreza municipal @coneval_mexico2015  
+
+- Por su parte, @cepal_familia2021 documenta aplicaciones en Colombia y Perú.  
+
+- Finalmente, @cepalstat2024 provee una plataforma geoespacial para visualizar resultados regionales.
+
+## Empleo y mercado laboral
+
+- **Estados Unidos:** el programa **SAIPE** del *Census Bureau* produce estimaciones anuales de pobreza e ingreso para todos los condados y estados(@USCensus_SAIPE_2024).  
+
+- **BLS (Bureau of Labor Statistics):** genera estimaciones mensuales de desempleo local mediante modelos compuestos que combinan CPS, CES y registros de seguro de desempleo (@BLS_LAUS_2024). 
+
+
+## Salud Pública: Estimación de cobertura vacunal y morbilidad infantil
+
+* **@seeskin2024**: Este estudio describe métodos de estimación de áreas pequeñas utilizando datos del National Immunization Survey-Child (NIS-Child) para generar estimaciones a nivel de condado para niños de hasta dos años de edad. Se aplicó un modelo lineal mixto modificado de Fay-Herriot, combinando estimaciones directas con predicciones basadas en características del condado, como salud y demografía.
+
+* **@hantman2022**: Implementaron técnicas de SAE para evaluar la prevalencia de resultados de salud infantil a nivel de condado, estado y región, utilizando datos de encuestas nacionales. Este enfoque permite estimaciones precisas en áreas con muestras limitadas.
+
+## Salud Pública: Estimación de cobertura vacunal y morbilidad infantil
+
+* **@yilema2025**: Utilizaron SAE para estimar tasas de vacunación infantil a nivel local, combinando datos de encuestas con variables auxiliares del censo. Los resultados informan la asignación de recursos y la planificación de intervenciones.
+
+
+* **@wakefield2020**: Revisaron enfoques de SAE para estimar resultados de salud, destacando el uso de información auxiliar en áreas con datos limitados. Se discuten modelos jerárquicos y bayesianos aplicados a prevalencia de VIH en Malawi.
+
+
+* **@sae4health**: Aplicación en R Shiny que facilita la estimación de prevalencia utilizando técnicas de SAE, con soporte para modelos a nivel de área y unidad, efectos espaciales y análisis bayesiano rápido mediante INLA. 
+
+
+## Educación y Servicios Sociales
+
+* **@logan2019**: Estudiaron la estimación de áreas pequeñas para tractos censales, evaluando la precisión y aplicabilidad de los modelos jerárquicos en datos de la American Community Survey (ACS). 
+
+* **@corral2022**: Proporcionaron directrices sobre el uso de SAE para estimar indicadores generales en años sin censo, reemplazando datos censales obsoletos con encuestas unitarias más recientes. 
+
+
+
+## Modelos de área (Fay–Herriot y variantes)
+
+| Paquete         | Tipo                 | Descripción                                                          | Funciones clave                         | Fuente / Nota                                                |
+| --------------- | -------------------- | -------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------ |
+| **`sae`**       | Frecuentista         | Implementa modelos Fay–Herriot, EBLUP, benchmarking y MSE bootstrap. | `fay.herriot()`, `eblupFH()`, `mseFH()` | [CRAN – sae](https://cran.r-project.org/package=sae)         |
+| **`sae2`**      | Frecuentista         | Extiende `sae` para modelos heterocedásticos y transformaciones.     | `eblupFH.transf()`                      | [CRAN – sae2](https://cran.r-project.org/package=sae2)       |
+| **`rsae`**      | Bayesiano            | Estimación robusta con INLA y efectos espaciales.                    | `rsae()`                                | [CRAN – rsae](https://cran.r-project.org/package=rsae)       |
+| **`hbsae`**     | Bayesiano (MCMC)     | Modelos jerárquicos bayesianos para SAE.                             | `hbsae()`                               | [CRAN – hbsae](https://cran.r-project.org/package=hbsae)     |
+
+
+
+## Modelos de unidad (Unit-level o ELL)
+
+| Paquete        | Tipo               | Descripción                                                     | Funciones clave                 | Fuente / Nota                                                            |
+| -------------- | ------------------ | --------------------------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------ |
+| **`emdi`**     | Frecuentista       | Implementa el método ELL y genera mapas automáticos de pobreza. | `ebp()`, `plot()`, `map_plot()` | [CRAN – emdi](https://cran.r-project.org/package=emdi)                   |
+| **`saeSim`**   | Simulación         | Genera datos artificiales para probar modelos ELL y FH.         | `sae_sim()`, `fh_data()`        | [CRAN – saeSim](https://cran.r-project.org/package=saeSim)               |
+
+
+## Evaluación, diagnóstico y visualización
+
+| Paquete                 | Propósito                                                                                                                | Funciones clave                                     | Fuente                                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| **`saeTrafo`**          | Aplicación de transformaciones Box–Cox, log-shift, arcsin, etc. para normalizar la variable respuesta.                   | `boxcox_trans()`, `backtrans()`                     | [CRAN – saeTrafo](https://cran.r-project.org/package=saeTrafo)                                                          |
+| **`saeBest`**           | Evaluación bayesiana de modelos de área y unidad mediante *MCMC*; cálculo de medidas de ajuste y comparación de modelos. | `summary()`, `plot_posterior()`, `compare_models()` | [CRAN – saeBest](https://cran.r-project.org/package=saeBest)                                                             |
+| **`bayesplot`**         | Diagnóstico visual de modelos bayesianos (densidades, trace plots, convergencia).                                        | `mcmc_trace()`, `mcmc_pairs()`, `mcmc_dens()`       | [CRAN – bayesplot](https://cran.r-project.org/package=bayesplot)                                                         |
+
+## Evaluación, diagnóstico y visualización
+                              
+| Paquete                 | Propósito                                                                                                                | Funciones clave                                     | Fuente                                                                                                                   |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |                              
+| **`tmap`, `ggspatial`** | Visualización de resultados SAE sobre mapas (shapefiles, polígonos, municipios).                                         | `tm_shape()`, `geom_sf()`                           | [CRAN – tmap](https://cran.r-project.org/package=tmap); [CRAN – ggspatial](https://cran.r-project.org/package=ggspatial) |
+| **`posterior`**         | Resumen, diagnóstico y manipulación de distribuciones posteriores (útil con `saeBest`).                                  | `summarise_draws()`, `as_draws_df()`                | [CRAN – posterior](https://cran.r-project.org/package=posterior)                                                         |
+
+
+## Riesgos y desafíos actuales
+
+- **Dependencia fuerte** de la correlación entre la variable de interés y los datos auxiliares.  
+
+- **Fuentes desactualizadas** generan sesgos (censos antiguos o registros no armonizados).  
+
+- **Confidencialidad**: riesgo de identificación en áreas muy pequeñas.  
+
+- **Validación institucional:** diferencias con estadísticas basadas en conocimiento local.  
+
+- **Transparencia:** necesidad de reportar errores estándar, MSE y mapas de CV.
+
+
+## Buenas prácticas operativas
+
+1. **Validación externa:** comparar con registros administrativos y conocimiento local.  
+
+2. **Diagnóstico de modelos:** revisar residuos, influencia y sensibilidad a auxiliares.  
+
+3. **Publicación responsable:** incluir intervalos de confianza y mapas de incertidumbre.  
+
+4. **Benchmarking:** garantizar coherencia con totales nacionales.  
+
+5. **Actualización periódica:** mantener vigentes los datos censales y administrativos.
+
+## Conclusión 
+
+Los métodos SAE permiten cumplir el principio de la Agenda 2030 de “**no dejar a nadie atrás**”, proporcionando estimaciones desagregadas de alta calidad para políticas basadas en evidencia.
+
+> “Sin datos desagregados, no hay inclusión estadística.”  
+> — División de Estadísticas, CEPAL
+
+## Referencias
