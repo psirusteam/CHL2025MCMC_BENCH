@@ -8,10 +8,22 @@
 /* --- Base y tamaño global --- */
 .reveal { font-family: "Inter", "Helvetica Neue", Arial, sans-serif; }
 .reveal .slides {
-  font-size: 0.85em;          /* compactar texto sin perder legibilidad */
+  font-size: 0.9em;          /* compactar texto sin perder legibilidad */
   line-height: 1.12;
-  padding: 12px 48px;        /* reducir márgenes laterales */
-  max-width: 1100px;
+  padding: 30px 78px;        /* reducir márgenes laterales */
+  max-width: 3100px;
+}
+/* --- Texto justificado en todo el contenido --- */
+.reveal p, 
+.reveal li, 
+.reveal blockquote {
+  text-align: justify;
+  text-justify: inter-word; /* mejora el espaciado de las palabras */
+}
+
+.justify {
+  text-align: justify;
+  text-justify: inter-word;
 }
 
 /* Encabezados más compactos y jerarquizados */
@@ -19,7 +31,81 @@
 .reveal h2 { font-size: 1.45em; margin-bottom: 0.15em; }
 .reveal h3 { font-size: 1.15em; margin-bottom: 0.1em; }
 
+/* --- Bloques de código más legibles --- */
+.reveal pre {
+  max-width: 100%;
+  max-height: 100vh;
+  overflow-y: auto;
+  margin-left: auto;
+  margin-right: auto;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 0.6em;
+}
+
 .reveal pre code {
-  font-size: 26px;   /* ajusta según necesites */
-  line-height: 1.5;
+  font-size: 3em !important;   /* aumenta el tamaño del texto */
+  line-height: 1 !important;   /* mejora la separación entre líneas */
+  font-family: "Fira Code", "Consolas", "Courier New", monospace;
+}
+
+.reveal pre code {
+  font-size: 3em !tip;   /* aumenta el tamaño del texto */
+  line-height: 1 !tip;   /* mejora la separación entre líneas */
+  font-family: "Fira Code", "Consolas", "Courier New", monospace;
+}
+
+/* --- Estilo para citas dentro de slides --- */
+.reveal blockquote {
+  border-left: 5px solid #007ACC;    /* línea vertical azul */
+  background-color: #f2f7ff;         /* fondo suave para diferenciar la cita */
+  padding: 0.8em 1em;                /* espacio interno */
+  margin: 1em auto;                  /* espacio superior/inferior y centrado horizontal */
+  font-style: italic;                /* cursiva para resaltar la cita */
+  font-size: 1.05em;                 /* ligeramente más grande que el texto normal */
+  line-height: 1.4;                  /* mejora la legibilidad */
+  max-width: 85%;                     /* no ocupar todo el slide */
+  border-radius: 6px;                /* bordes redondeados */
+  color: #333;                        /* color del texto */
+  font-family: Consolas, "Lucida Console", "Courier New", monospace;
+}
+
+/* Opcional: centrado del texto de la cita */
+.reveal blockquote p {
+  text-align: justify;
+}
+
+
+/* --- Centrando figuras e imágenes --- */
+.reveal figure, 
+.reveal .figure,
+.reveal img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* --- Tamaño adaptable de imágenes --- */
+.reveal img {
+  max-width: 90%;     /* no excede el ancho del slide */
+  max-height: 80vh;   /* no excede la altura visible */
+  height: auto;
+  border-radius: 6px;
+}
+
+/* --- Subtítulos de figuras --- */
+.reveal figcaption {
+  text-align: center;
+  font-size: 0.85em;
+  font-style: italic;
+  margin-top: 0.3em;
+  color: #444;
+}
+
+/* --- Contenedores con scroll horizontal --- */
+.reveal .scrollable {
+  max-height: 75vh;
+  overflow-y: auto;
+  padding-right: 10px;
 }
