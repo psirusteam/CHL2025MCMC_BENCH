@@ -18,3 +18,11 @@ Presentacion/recursos/resul_validar_modelo.rds
 Presentacion/recursos/resul_validar_modelo_no_cor.rds  
 Recursos/Dia1_S2/img/Normal/model_NormalMedia.rds
 Recursos/Dia1_S2/img/Normal/model_NormalMedia2.rds
+Recursos/Dia2_S2/data/poststrat_df_iter_ingreso.rds
+Recursos/Dia2_S2/data/poststrat_df_iter_ingreso_logit.rds
+Recursos/Dia2_S2/data/Multinivel_multinomial_model_no_cor.rds
+Recursos/Dia2_S2/data/epred_mat.rds
+Recursos/Dia3_S2/data/poststrat_df_iter_ingreso.rds
+Recursos/Dia3_S2/data/poststrat_df_iter_ingreso_logit.rds
+Recursos/Dia3_S2/data/Multinivel_multinomial_model_no_cor.rds
+Recursos/Dia3_S2/data/epred_mat.rds
