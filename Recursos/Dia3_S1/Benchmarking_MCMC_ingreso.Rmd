@@ -126,48 +126,32 @@ library(printr)
 ```
 :::
 
-## Proceso de estimación en `R` (II) {.scroll-container}
-
-- Funciones desarrolladas para simplificar la metodología (archivo `funciones_mrp.R`):
-
-1. **plot_interaction**:  
-   - Crea diagramas de líneas para estudiar la interacción entre variables.
-   - Útil para detectar solapamientos y decidir si incluir interacción en el modelo.
-
-2. **Plot_Compare**:  
-   - Valida la homologación entre censo y encuesta.
-   - Compara proporciones de variables homogéneas entre ambos conjuntos de datos.
-
-3. **Aux_Agregado**:  
-   - Genera estimaciones a diferentes niveles de agregación.
-   - Especialmente útil en procesos repetitivos o cuando se requiere análisis por dominios.
-
-**Las funciones están diseñada específicamente  para este  proceso**
-
 
 ## Encuesta de hogares
 
 Los datos empleados en esta ocasión corresponden a la ultima encuesta de hogares, la cual ha sido estandarizada por *CEPAL* y se encuentra disponible en *BADEHOG*
 
-## Variables de la encuesta
 
--   *dam*: Corresponde al código asignado a la división administrativa mayor del país.
+```{r, echo=FALSE}
+encuesta_mrp <- readRDS("data/encuesta_mrp.rds")
+tba(encuesta_mrp %>% head(10)) 
+```
 
--   *dam2*: Corresponde al código asignado a la segunda división administrativa del país.
+## Lectura de covariables 
 
--   *lp* y *li* lineas de pobreza y pobreza extrema definidas por CEPAL. 
+```{r, echo=FALSE, eval=TRUE}
+statelevel_predictors_df <-
+  readRDS("data/statelevel_predictors_df_dam2.rds") %>% 
+    mutate_at(.vars = c("luces_nocturnas",
+                      "cubrimiento_cultivo",
+                      "cubrimiento_urbano",
+                      "modificacion_humana",
+                      "accesibilidad_hospitales",
+                      "accesibilidad_hosp_caminado"),
+            function(x) as.numeric(scale(x)))
+tba(statelevel_predictors_df  %>%  head(5))
+```
 
--   *área* división geográfica (Urbano y Rural). 
-
--   *sexo* Hombre y Mujer. 
-
--   *etnia* En estas variable se definen tres grupos:  afrodescendientes, indígenas y Otros. 
-
--   *anoest* Años de escolaridad  
-
--   *edad* Rangos de edad 
-
--   *fep* Factor de expansión por persona
 
 ## Benchmarking por iteración de la cadena MCMC
 
@@ -255,20 +239,6 @@ $$
 
 Obtener el modelo es solo un paso más, ahora se debe realizar la predicción en el censo, el cual a sido previamente estandarizado y homologado con la encuesta. 
 
-```{r, echo=FALSE, eval=TRUE}
-statelevel_predictors_df <-
-  readRDS("data/statelevel_predictors_df_dam2.rds") %>% 
-    mutate_at(.vars = c("luces_nocturnas",
-                      "cubrimiento_cultivo",
-                      "cubrimiento_urbano",
-                      "modificacion_humana",
-                      "accesibilidad_hospitales",
-                      "accesibilidad_hosp_caminado"),
-            function(x) as.numeric(scale(x)))
-tba(statelevel_predictors_df  %>%  head(5))
-```
-
-
 ::: {.callout-tip}
 ### Código en R
 ```{r, }
@@ -289,6 +259,7 @@ Para obtener una distribución posterior de cada observación se hace uso de la 
 ::: {.callout-tip}
 ### Código en R
 ```{r, eval=FALSE}
+fit <- readRDS("data/fit_ingresos.rds")
 epred_mat <- posterior_epred(fit, newdata = poststrat_df,  type = "response")
 saveRDS(epred_mat, "data/epred_mat.rds")
 ```
