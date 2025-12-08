@@ -1,0 +1,495 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking ejemplificado en Modelos de Área para el mercado del trabajo"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+date: today 
+date-format: "YYYY"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(TeachingSampling)
+library(sampling)
+library(knitr)
+library(kableExtra)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+## Introducción
+
+En esta presentación se muestra el procedimiento para realizar **benchmarking multinomial** mediante calibración:
+
+* Categorías:
+
+  * Ocupado
+  * Inactivo
+  * Desocupado
+
+* Método:
+
+  * `calib(method = "logit")` del paquete `sampling`.
+
+El objetivo es asegurar que los totales ajustados coincidan **exactamente** con los totales directos provenientes de la encuesta.
+
+
+
+## Objetivo del Benchmarking
+
+Queremos corregir las probabilidades modelo-basadas:
+
+$$
+y_{k} = (p_{k,O},\ p_{k,I},\ p_{k,D})
+$$
+
+para que al multiplicarlas por el tamaño poblacional $N_k$:
+
+$$
+N_k , y_k
+$$
+
+reproduzcan exactamente los totales directos:
+
+$$
+T^{dir}_c = \sum_k N_k  y_{k,c}
+\qquad c \in \{Ocupado, Inactivo, Desocupado\}.
+$$
+
+La calibración se realiza **marginalmente** por categoría.
+
+
+
+## Datos del ejemplo
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+library(sampling)
+
+y_pred <- matrix(
+  c(0.55, 0.35, 0.10, 
+    0.50, 0.38, 0.12, 
+    0.45, 0.30, 0.25, 
+    0.60, 0.30, 0.10),
+  ncol = 3,
+  byrow = TRUE
+)
+colnames(y_pred) <- c("Ocupado", "Inactivo", "Desocupado")
+```
+:::
+
+## Datos del ejemplo
+
+```{r, echo=FALSE}
+y_pred %>% tba()
+```
+
+
+## Tamaños poblacionales y totales directos
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+N_mpio <- c(500, 600, 400, 200)
+
+dir <- c("Ocupado" = 850,
+         "Inactivo" = 680,
+         "Desocupado" = 170)
+```
+:::
+
+
+
+
+## Calibración de la categoría **Ocupado**
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+gk1 <- calib(
+  Xs    = y_pred[, 1],  # columna Ocupado
+  total = dir[1],       # total directo
+  d     = N_mpio,
+  method = "logit"
+)
+
+gk1
+```
+:::
+
+
+
+## Resultados calibrados (Ocupado)
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+y_bench1 <- gk1 * y_pred[, 1]
+tot_ocupado_bench <- N_mpio * y_bench1
+
+y_bench1
+tot_ocupado_bench
+round(sum(tot_ocupado_bench)) == dir[1]
+```
+:::
+
+
+
+## Calibración de la categoría **Inactivo**
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+gk2 <- calib(
+  Xs    = y_pred[, 2],  
+  total = dir[2],       
+  d     = N_mpio,
+  method = "logit"
+)
+
+y_bench2 <- gk2 * y_pred[, 2]
+tot_Inactivo_bench <- N_mpio * y_bench2
+
+round(sum(tot_Inactivo_bench)) == dir[2]
+```
+:::
+
+
+## Reconstrucción de la categoría **Desocupado**
+
+Cumpliendo la restricción:
+
+$$
+p_{k,O} + p_{k,I} + p_{k,D} = 1
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+y_bench3 <- 1 - (y_bench1 + y_bench2)
+
+tot_Desocupado_bench <- N_mpio - (tot_ocupado_bench + tot_Inactivo_bench)
+
+round(sum(tot_Desocupado_bench)) == dir[3]
+```
+:::
+
+
+## Consolidación del vector calibrado
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+y_bench <- cbind(y_bench1, y_bench2, y_bench3)
+```
+:::
+
+
+```{r, echo=FALSE}
+y_bench %>% tba()
+```
+
+
+
+## Totales ajustados y validación
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+tot_bench <- cbind(
+  tot_ocupado_bench,
+  tot_Inactivo_bench,
+  tot_Desocupado_bench
+)
+```
+:::
+
+
+```{r, echo=FALSE}
+tot_bench %>% tba()
+```
+
+
+## Conclusiones
+
+* La calibración logit es estable y garantiza positividad.
+* El benchmarking multinomial se realiza de forma marginal.
+* La tercera categoría se obtiene por restricción.
+* El procedimiento es compatible con áreas pequeñas y modelos MCMC.
+
+
+## Tasas de ocupación, desocupación y participación
+
+En esta presentación se muestra cómo realizar **benchmarking** para tres tasas laborales fundamentales:
+
+* **TD** – Tasa de Desocupación
+* **TO** – Tasa de Ocupación
+* **TP** – Tasa de Participación
+
+El procedimiento se implementa mediante **calibración logit (`calib()`)**, ajustando simultáneamente numeradores y denominadores para cumplir los totales directos de la encuesta.
+
+
+## Fórmulas de interés
+
+$$
+TD = \frac{D}{O + D}
+$$
+
+$$
+TO = \frac{O}{O + D + I}
+$$
+
+$$
+TP = \frac{O + D}{O + D + I}
+$$
+
+El objetivo del benchmarking es garantizar que los totales ajustados coincidan **exactamente** con:
+
+* total de ocupados directos
+* total de inactivos directos
+* total de desocupados directos
+* total poblacional directo
+
+
+## Totales predichos por categoría
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+O_pred <- y_pred[, "Ocupado"]    * N_mpio
+I_pred <- y_pred[, "Inactivo"]   * N_mpio
+D_pred <- y_pred[, "Desocupado"] * N_mpio
+
+TD_pred <- D_pred / (O_pred + D_pred)
+TD_pred
+```
+:::
+
+
+## Tasa directa de Desocupación (TD)
+
+$$
+TD^{dir} = \frac{D}{O+D}
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+tasa_dir_TD <- dir["Desocupado"]/(dir["Desocupado"] + dir["Ocupado"])
+tasa_dir_TD
+```
+:::
+
+
+
+## Benchmarking de TD (Desocupación)
+
+Objetivo:
+
+* Ajustar numerador (**D**)
+* Ajustar denominador (**O + D**)
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+Xs_TD <- cbind(1, TD_pred)
+
+total_dir <- c(
+  "tot_PEA"        = dir["Desocupado"] + dir["Ocupado"],
+  "tot_Desocupado" = dir["Desocupado"]
+)
+
+gk1 <- calib(
+  Xs = Xs_TD,
+  total = total_dir,
+  d = N_mpio,
+  method = "logit"
+)
+gk1
+```
+:::
+
+
+## TD ajustada
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+tasa_bench_TD <- gk1 * TD_pred
+tasa_bench_TD
+```
+:::
+
+
+## Validación TD
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+Num_TD_bench <- tasa_bench_TD * N_mpio
+Den_TD_bench <- gk1 * N_mpio
+
+c(
+  Numerador = sum(Num_TD_bench),
+  Numerador_Directo = dir["Desocupado"],
+  Denominador = sum(Den_TD_bench),
+  Denominador_Directo = dir["Desocupado"] + dir["Ocupado"]
+)
+
+sum(Num_TD_bench)/sum(Den_TD_bench)
+```
+:::
+
+
+##  Benchmarking de TO (Ocupación)
+
+$$
+TO = \frac{O}{O + D + I}
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+TO_pred <- O_pred / (O_pred + D_pred + I_pred)
+
+gk2 <- calib(
+  Xs    = TO_pred,
+  total = dir["Ocupado"],
+  d     = N_mpio,
+  method = "logit"
+)
+
+tasa_bench_TO <- gk2 * TO_pred
+tasa_bench_TO
+```
+:::
+
+
+## Validación TO
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+Num_TO_bench <- tasa_bench_TO * N_mpio
+
+c(
+  Numerador = sum(Num_TO_bench),
+  Numerador_Directo = dir["Ocupado"]
+)
+
+sum(Num_TO_bench) / sum(N_mpio)
+```
+:::
+
+
+## Benchmarking de TP (Participación)
+
+$$
+TP = \frac{O+D}{N}
+$$
+
+TP se obtiene sumando numeradores calibrados:
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+Num_TP_bench <- Num_TO_bench + Num_TD_bench
+TP_bench <- Num_TP_bench / N_mpio
+TP_bench
+```
+:::
+
+## Validación TP
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+sum(Num_TP_bench)
+dir["Ocupado"] + dir["Desocupado"]
+
+sum(Num_TP_bench) / sum(N_mpio)
+```
+:::
+
+## Conclusiones
+
+* La calibración logit permite imponer múltiples restricciones exactas.
+* TD, TO y TP quedan coherentes entre sí después del benchmarking.
+* El método generaliza fácilmente a DAM, áreas, grupos demográficos y MCMC.
+
+
+
+# ¡Gracias!
+
+
