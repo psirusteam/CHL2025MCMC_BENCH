@@ -15,6 +15,17 @@ La capacitación aborda los fundamentos teóricos y prácticos de los modelos de
 
 ------------------------------------------------------------------------
 
+# Capacitación en Métodos de Estimación de Áreas Pequeñas (SAE) con MCMC
+
+## Agenda de trabajo
+
+| **Día**        | **Fecha**        | **Temas principales**                                                                                     | **Actividades**                                 |
+|----------------|------------------|------------------------------------------------------------------------------------------------------------|-------------------------------------------------|
+| **Martes**     | 9 de diciembre   | - Ingreso área<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2<br><br>- Ingreso unidad<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2 | Exposición teórica y ejercicios introductorios |
+| **Miércoles**  | 10 de diciembre  | - Pobreza área<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2<br><br>- Pobreza unidad<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2 | Ejercicios aplicados en R                      |
+| **Jueves**     | 11 de diciembre  | - Mercado laboral área<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2<br><br>- Mercado laboral unidad<br> • Modelo<br> • Benchmarking 1<br> • Benchmarking 2 | Ejercicios en R y discusión de resultados      |
+
+
 ## Agenda de trabajo
 
 +---------------+-----------------+----------------------------+------------------------------------------------+
