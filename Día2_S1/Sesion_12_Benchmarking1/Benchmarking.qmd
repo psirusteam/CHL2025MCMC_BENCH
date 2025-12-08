@@ -1,0 +1,263 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking ejemplificado en Modelos de Área para pobreza"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+date: today 
+date-format: "YYYY"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+library(tidyverse)
+library(TeachingSampling)
+library(sampling)
+library(knitr)
+library(kableExtra)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+```
+
+
+##  Motivación
+
+En modelos de área (por ejemplo, Fay–Herriot), las estimaciones para los dominios:
+
+* Pueden presentar **incoherencias** entre niveles geográficos
+
+* Requieren ajuste para cumplir **identidades contables**.
+
+El **benchmarking** consiste en un ajuste estético para que las estimaciones modelo cumplan un total conocido, manteniendo al mismo tiempo la estructura relativa del predictor original.
+
+## Idea general
+
+Sea:
+
+* $\hat{P}_d$: estimación del modelo para el dominio $d$;
+* $N_d$: población del dominio;
+* $T^{DIR}$: total observado directamente (por encuesta o censo).
+
+El modelo produce:
+
+$$
+\hat{T}^{SAE} = \sum_{d=1}^D N_d , \hat{P}_d
+$$
+
+pero no garantiza:
+
+$$
+\hat{T}^{SAE} = T^{DIR}.
+$$
+
+Por ello, buscamos nuevos valores $\tilde{P}_d$ tales que:
+
+$$
+\sum_d N_d  \tilde{P}_d = T^{DIR}.
+$$
+
+
+## Enfoque de calibración
+
+Se define una función que ajusta cada predictor:
+
+$$
+\tilde{P}_d = g_d \times \hat{P}_d,
+$$
+
+donde los coeficientes $g_d$ se obtienen mediante un método de calibración (lineal, logit, raking, etc.).
+
+Se plantea una restricción:
+
+$$
+\sum_d N_d \times g_d \times \hat{P}_d = T^{DIR}.
+$$
+
+## Benchmarking mediante calibración lineal
+
+Implementamos:
+
+* Predicciones modelo por dominio (p. ej., pobreza);
+
+* Tamaños poblacionales $N_d$;
+
+* Total nacional directo observado.
+
+Luego, calibramos para encontrar la serie ajustada $g_d$.
+
+
+## Ejemplo reproducible
+::: {.callout-tip}
+
+### Datos base del ejemplo
+
+```{r}
+# Vector con tasas predichas por el modelo para cada municipio (entre 0 y 1)
+# Estas tasas podrían provenir de cualquier modelo: logístico, beta-binomial,
+# Fay-Herriot, MCMC, etc.
+y_pred <- c(0.35, 0.42, 0.28, 0.70)
+
+# Tamaño poblacional por municipio
+N_mpio <- c(500, 600, 400, 200)
+
+# Suma de pobres predicha por el modelo sin benchmarking
+sum(y_pred * N_mpio)
+```
+:::
+
+::: {.callout-tip}
+
+### Total directo observado a nivel nacional
+
+```{r}
+Pobreza_dir <- c(1700, 700)
+```
+:::
+
+
+## Matriz de calibración
+
+La calibración usa la matriz:
+
+$$
+X_s =
+\begin{bmatrix}
+1 & \hat{P}_1 \\
+1 & \hat{P}_2 \\
+\vdots & \vdots \\
+1 & \hat{P}_D
+\end{bmatrix}
+$$
+
+y los totales conocidos:
+
+$$
+T =
+\begin{bmatrix}
+\sum_d N_d \\
+T^{DIR}
+\end{bmatrix}
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+Xs <- cbind(1 , y_pred)
+```
+:::
+
+
+## Cálculo de factores de calibración
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+gk <- calib(
+  Xs = Xs,
+  total = Pobreza_dir,
+  d = N_mpio,
+  method = "linear"
+)
+
+gk
+```
+:::
+
+
+## Estimación calibrada por dominio
+
+::: {.callout-tip}
+
+### Código de `R`
+```{r}
+# Pobreza calibrada por municipio
+y_bench <- gk * y_pred
+y_bench
+```
+:::
+
+## Validación: total nacional
+
+::: {.callout-tip}
+
+### Validación de consistencia
+
+```{r}
+tot_pobreza_bench <- y_bench * N_mpio
+tot_pobreza_bench
+```
+:::
+
+
+```{r, echo=FALSE}
+data.frame(
+tot_pobreza_bench = sum(tot_pobreza_bench), 
+Pobreza_dir = Pobreza_dir[2], 
+diff = sum(tot_pobreza_bench) - Pobreza_dir[2]) %>% tba()
+```
+
+
+
+
+## Resultado
+
+::: {.callout-tip}
+
+### Validación de consistencia
+
+```{r, fig.width=8, fig.height=4}
+df_plot <- tibble(
+  dominio = paste0("d", 1:4),
+  modelo  = y_pred,
+  bench   = y_bench
+)
+```
+:::
+
+```{r, fig.width=8, fig.height=4, echo=FALSE}
+df_plot %>% tba()
+```
+
+
+##  Conclusiones
+
+* El benchmarking es un paso **obligatorio** cuando se requiere coherencia nacional.
+
+* Su implementación es sencilla mediante `calib()`.
+
+* Es compatible con FH, MCMC y estimadores bayesianos.
+
+* Permite producir series armonizadas para tabulados oficiales.
+
