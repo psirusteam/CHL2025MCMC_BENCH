@@ -1,0 +1,603 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking 2 en Modelos de Área"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+date: "`r Sys.Date()`"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+library(rstan)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(bayesplot)
+library(posterior)
+library(patchwork)
+library(sampling)
+```
+
+## Introducción al *benchmarking*
+
+En esta etapa del proceso presenta la forma para realizar el *benchmarking* entre estimaciones modelo‐basadas a nivel DAM y estimaciones directas representativas a nivel DAM.
+
+El procedimiento garantiza consistencia entre ambos niveles mediante el ajuste proporcional de las predicciones modelo‐basadas, manteniendo la coherencia poblacional derivada del censo.
+
+
+## Extracción del total de personas por DAM2 desde el Censo
+
+El primer paso consiste en obtener los tamaños poblacionales reales de cada dominio DAM2 a partir del Censo.
+
+Estos totales censales se usarán como **medidas de tamaño** en el procedimiento de benchmarking, ya que permiten ponderar adecuadamente el aporte de cada dominio al total nacional.
+
+En términos generales, para cada dominio $d$ se dispone de un total poblacional:
+
+$$
+N_d = \sum_{i \in U_d} 1,
+$$
+
+donde $U_d$ es el conjunto de personas (o viviendas) en el dominio $d$.
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+# Totales poblacionales censales por dominio DAM2
+total_persona <- readRDS("../Recurso/data/Modelo_area/MCMC/total_personas_dam2.rds") %>% 
+  group_by(dam) 
+
+```
+
+:::
+
+## Conteo de personas por dominio
+
+```{r, echo=FALSE}
+head(total_persona, 10) %>% tba()
+```
+
+## Estimación Directa a Nivel DAM
+
+A partir de la encuesta de hogares, se construyen estimadores directos del **ingreso medio** a nivel de dominio DAM.
+Para ello, se crea una base con las variables clave del diseño: identificadores de dominio (`dam`, `dam2`), pesos de expansión (`wkx`), unidades primarias (`upm`), estrato (`estrato`) y la variable de interés `ingreso`.
+
+El estimador directo del ingreso medio en el dominio (d) se puede expresar como:
+
+$$
+\hat{Y}_d^{DIR} =
+\frac{ \sum_{i \in s_d} w_i  y_i }{ \sum_{i \in s_d} w_i },
+$$
+
+donde $w_i$ son los pesos de muestreo y $y_i$ el ingreso de la unidad $i$ en el dominio $d$.
+
+## Set de datos de la encuesta
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+set_data <- readRDS("../Recurso/data/encuesta2017CHL.Rds") %>% 
+  transmute(
+    dam   = haven::as_factor(dam_ee, levels = "values"),
+    dam2  = haven::as_factor(comuna, levels = "values"),
+    dam   = str_pad(dam,  width = 2, pad = "0"),
+    dam2  = str_pad(dam2, width = 5, pad = "0"),
+    wkx   = `_fep`,       # peso de expansión
+    upm   = `_upm`,       # unidad primaria de muestreo
+    estrato = `_estrato`, # estrato de muestreo
+    ingreso = ingcorte    # variable de ingreso
+  ) %>% ungroup()
+```
+:::
+
+
+## Creación del diseño complejo
+
+Para incorporar correctamente el diseño muestral (estratificación, conglomeración y pesos), se construye un objeto de diseño con el paquete `survey`.
+Esto garantiza que los estimadores directos y sus varianzas reflejen el diseño complejo de la encuesta.
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+options(survey.lonely.psu = "adjust")
+library(survey)
+library(srvyr)
+
+diseno <- as_survey_design(
+  ids = upm,
+  weights = wkx,
+  strata = estrato,
+  nest = TRUE,
+  .data = set_data
+)
+```
+
+:::
+
+## Estimación directa por DAM
+
+A partir del diseño, se obtienen:
+
+* el **denominador** (total de personas ponderadas) $\hat{N}_d^{DIR}$,
+* el **numerador** (suma ponderada del ingreso) $\hat{T}_d^{DIR}$,
+* el **ingreso medio** $\hat{Y}_d^{DIR}$ y sus intervalos de confianza.
+
+En notación:
+
+$$
+\hat{N}_d^{DIR} = \sum_{i \in s_d} w_i,
+\qquad
+\hat{T}_d^{DIR} = \sum_{i \in s_d} w_i y_i,
+\qquad 
+\hat{Y}_d^{DIR} = \frac{\hat{T}_d^{DIR}}{\hat{N}_d^{DIR}}
+$$
+
+## Estimación directa por DAM usando el `R`
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+directoDam <- diseno %>% 
+  group_by(dam) %>% 
+  summarise(
+    den_dir   = survey_total(           vartype = NULL),      # \hat{N}_d^{DIR}
+    num_dir   = survey_total(ingreso,   vartype = NULL),      # \hat{T}_d^{DIR}
+    theta_dir = survey_mean(ingreso,    vartype = c("ci"))    # \hat{Y}_d^{DIR}
+  )
+```
+
+:::
+
+```{r, echo=FALSE}
+head(directoDam, 5) %>% tba()
+```
+
+## Consolidación de la Información
+
+En esta etapa se integran:
+
+* los totales censales (`total_persona`),
+
+* las predicciones del modelo de área (`estimacion_normal`),
+
+* los identificadores geográficos (`dam`, `dam2`).
+
+Las predicciones modelo–basadas representan, por ejemplo, salidas de un modelo Fay–Herriot o de un modelo bayesiano para el ingreso medio.
+
+
+## Consolidación de la Información 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+estimacionesPre <- readRDS("../Recurso/data/Modelo_area/ingreso/estimacionesPre_normal_log.rds")
+
+estimacionesPre <- estimacionesPre %>% 
+  select(dam, dam2, estimacion_normal) %>% 
+  inner_join(total_persona,  by = c("dam2", "dam"))
+```
+
+:::
+
+```{r, echo=FALSE}
+head(estimacionesPre, 5) %>% tba()
+```
+
+## Vector de totales por DAM
+
+El benchmarking busca asegurar que las estimaciones calibradas reproduzcan los totales directos a nivel DAM.
+Para ello, se construye un vector de totales que contiene, concatenados:
+
+* los denominadores $\hat{N}_d^{DIR}$,
+* los numeradores $\hat{T}_d^{DIR}$ del ingreso.
+
+Es decir, el vector:
+
+$$
+\mathbf{t} =
+\big(
+\hat{N}_1^{DIR},\dots,\hat{N}_D^{DIR},
+\hat{T}_1^{DIR},\dots,\hat{T}_D^{DIR}
+\big)^\top.
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+# Vector de totales directos (denominadores + numeradores)
+totales <- c( directoDam$den_dir, directoDam$num_dir)
+names(totales) <- c(
+  paste0("Den_DAM_", directoDam$dam),
+  paste0("Num_DAM_", directoDam$dam)
+)
+
+```
+
+:::
+
+## Definición de $X_s$
+
+La matriz indicadora $\mathbf{X}_{DAM}$ se define como:
+
+$$
+\mathbf{X}_{DAM}(i,d) =
+\begin{cases}
+1 & \text{si unidad } i \in DAM_d,\\
+0 & \text{si no}.
+\end{cases}
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+# Matriz de indicadores por DAM (one-hot)
+X_dam <- model.matrix(~ dam - 1, data = estimacionesPre)
+
+# Matriz de calibración:
+#  - Den_DAM: totales poblacionales por DAM
+#  - Num_DAM: totales de ingreso modelo-basado por DAM
+Xs <- cbind(
+  Den_DAM = X_dam,
+  Num_DAM = X_dam * estimacionesPre$estimacion_normal
+)
+
+colnames(Xs) <- names(totales)
+```
+
+:::
+
+## Resultado de $X_s$
+
+La matriz resultante (X_s) refleja la estructura de restricciones que se impondrán en la calibración:
+las columnas asociadas a cada DAM en **Den_DAM** y **Num_DAM** representan los totales a reproducir.
+
+```{r,echo=FALSE}
+Xs %>% 
+  data.frame() %>% 
+  select(matches("01|02|03")) %>% 
+  head(10) %>% 
+  tba()
+```
+
+## Cálculo de factores de calibración
+
+La calibración busca factores $g_k$ que ajusten los pesos de cada dominio de manera que:
+
+$$
+\sum_k d_k  g_k  X_{k} = \mathbf{t},
+$$
+
+donde:
+
+* $d_k$ son los pesos de diseño (aquí, `total_pp`),
+
+* $X_k$ es la fila correspondiente a la unidad $k$ en $X_s$,
+
+* $\mathbf{t}$ es el vector de totales (`totales`).
+
+## Cálculo de factores de calibración
+
+De esta forma, se asegura que los totales tras el ajuste coincidan con los directos.
+
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r, eval=TRUE}
+model_FH_normal <- readRDS("../Recurso/data/Modelo_area/ingreso/model_FH_normal_loging.rds")
+
+extra <- rstan::extract(model_FH_normal, pars = c("thetaFH", "y_pred"))
+
+thetaFH_df <- as_draws_matrix(exp(extra$thetaFH)) %>% 
+  as.data.frame() 
+
+y_pred_draws <- as_draws_matrix(exp(extra$y_pred)) %>% 
+  as.data.frame() 
+
+temp_draws <-  bind_cols(thetaFH_df, y_pred_draws) 
+colnames(temp_draws) <- estimacionesPre$dam2
+
+```
+:::
+
+## Muestras posteriores del modelo bayesiano 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r, eval=TRUE}
+temp_draws <- temp_draws %>% 
+  mutate(iter = paste0("iter_", row_number())) %>% 
+  pivot_longer(
+    cols = all_of(estimacionesPre$dam2),
+    names_to = "dam2",
+    values_to = "value"
+  )   %>% 
+  pivot_wider(
+    names_from = iter,
+    values_from = value
+  )
+
+```
+:::
+
+## Definiendo la estructura para la iteración
+
+Antes de aplicar benchmarking sobre las predicciones del modelo, se define la estructura para iterar sobre los **draws MCMC**.
+Cada iteración corresponde a un vector diferente de predicciones $\theta_d^{(l)}$, con $l = 1, \dots, L$.
+
+El objetivo es realizar benchmarking iteración por iteración, de modo que el ajuste preserve la variabilidad posterior.
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+# Número de iteraciones del MCMC que se usarán para el benchmarking.
+n_iter = 2000
+# Se crea una lista vacía que almacenará los resultados de cada iteración.
+lista_res <- vector("list", n_iter)
+# Se construyen los nombres de las columnas que contienen los draws.
+iter_cols <- paste0("iter_", seq_len(n_iter))
+```
+
+:::
+
+## Recorrido por las cadenas
+
+En este paso se implementa el **benchmarking iterativo**.
+Para cada iteración del modelo:
+
+1. Se construye la matriz $X_s$ correspondiente:
+
+   * Una parte para los totales de población (Den_DAM).
+   * Una parte para los totales de ingreso modelo–basado (Num_DAM).
+
+2. Se calcula el vector de factores de calibración $g_k^{(l)}$.
+
+3. Se obtiene el ingreso calibrado $\tilde{\theta}_d^{(l)} = g_k^{(l)} \theta_d^{(l)}$.
+
+
+## Recorrido por las cadenas
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+for (i in seq_len(n_iter)) {
+  # Nombre de la columna que contiene los draws de esta iteración
+  iter_name <- iter_cols[i]
+  
+  # Matriz Xs = [Den_DAM, Num_DAM]
+  # Den_DAM: indicador por dominio
+  # Num_DAM: indicador por dominio * predicción del modelo en esta iteración
+  Xs <- cbind(
+    Den_DAM = X_dam,
+    Num_DAM = X_dam * temp_draws[[iter_name]]
+  )
+ # Asignación ordenada de nombres según 'totales'
+  colnames(Xs) <- names(totales)
+ # Benchmarking mediante calibración lineal
+  gk <- calib(
+    Xs    = Xs,
+    total = totales,                   # vector de totales directos (den + num)
+    d     = estimacionesPre$total_pp,  # totales poblacionales censales
+    method = "linear"
+  )
+  
+# Se almacena el resultado calibrado para esta iteración.
+# y_bench es el ingreso ajustado por tempario-predicción: gk * predicción
+  lista_res[[i]] <- data.frame(
+    iter    = i,
+    dam2    = estimacionesPre$dam2,
+    y_bench = gk * estimacionesPre$estimacion_normal
+  )
+}
+```
+
+:::
+
+
+## Estimaciones con Benchmarking
+
+Los resultados calibrados de todas las iteraciones se combinan en un solo `data.frame`.
+Luego, para cada dominio DAM2, se calcula:
+
+* media posterior
+* desviación estándar
+* intervalo creíble del 95%
+* coeficiente de variación (CVE)
+
+## Estimaciones con Benchmarking
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+# Unir resultados de todas las iteraciones MCMC
+df_all <- bind_rows(lista_res)
+
+# Resumen final por dominio: media, sd, IC95% y CVE
+resumen <- df_all %>%
+  group_by(dam2) %>%
+  summarise(
+    mean = mean(y_bench, na.rm = TRUE),                 # posterior mean
+    sd   = sd(y_bench, na.rm = TRUE),                   # posterior sd
+    lci  = quantile(y_bench, 0.025, na.rm = TRUE),       # 2.5%
+    uci  = quantile(y_bench, 0.975, na.rm = TRUE),       # 97.5%
+    cve  =( sd / mean)*100,                                    # coeficiente de variación
+    .groups = "drop"
+  )
+```
+
+:::
+
+
+## Resultados
+
+```{r, echo=FALSE}
+head(resumen, 10) %>% inner_join(estimacionesPre) %>% arrange(mean) %>% 
+  tba()
+```
+
+## Automatizando el proceso 
+
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+source("Benchmarking_area.R")
+res_logit <- Benchmarking_area(
+  temp_draws     = temp_draws,
+  X_dam          = X_dam,
+  totales        = totales,
+  estimacionesPre = estimacionesPre,
+  n_iter         = 2000,
+  calib_method   = "linear",
+  parallel       = FALSE,
+  n_cores        = 4
+)
+
+
+```
+:::
+
+
+## Resultados 
+
+```{r, echo=FALSE}
+head(res_logit$resumen, 10) %>% inner_join(estimacionesPre) %>% arrange(mean) %>% 
+  tba()
+```
+
+## Validación de resultados 
+
+```{r, echo=FALSE}
+tab_resul <- inner_join(res_logit$resumen , estimacionesPre, by = "dam2") %>%
+  mutate(dam = str_sub(dam2, 1, 2), wi = mean / estimacion_normal) %>%
+  group_by(dam) %>%
+  summarise(
+    estimacion_normal_bench = weighted.mean(estimacion_normal, total_pp * wi),
+    estimacion_normal = weighted.mean(estimacion_normal, total_pp)
+  ) %>%
+  inner_join(directoDam, by = "dam") %>% data.frame()
+tab_resul %>% head(10) %>%
+  select(dam, estimacion_normal, estimacion_normal_bench, theta_dir) %>% tba()
+
+```
+
+## Validación de resultados 
+
+```{r, echo=FALSE}
+df_long <- tab_resul %>% 
+  pivot_longer(
+    cols = c(estimacion_normal, 
+             estimacion_normal_bench, 
+             theta_dir),
+    names_to = "tipo",
+    values_to = "estimacion"
+  )
+
+# Gráfico
+ggplot(df_long, aes(x = dam, y = estimacion, color = tipo, group = tipo)) +
+    geom_line(aes(y = theta_dir_low), linetype  = 2) +
+  geom_line(aes(y = theta_dir_upp),  linetype  = 2) +
+   geom_point(aes(color = tipo, shape = tipo), size = 2) +
+  scale_color_manual(
+    values = c(
+      "estimacion_normal" = "blue",
+      "estimacion_normal_bench" = "red",
+      "theta_dir" = "black"
+    ),
+    labels = c(
+      "estimacion_normal" = "Modelo (Normal)",
+      "estimacion_normal_bench" = "Modelo Benchmarked",
+      "theta_dir" = "Estimación Directa"
+    )
+  ) +
+  labs(
+    title = "Comparación de Estimaciones por DAM",
+    x = "DAM",
+    y = "Estimación",
+    color = "Tipo de Estimación", 
+    shape = "Tipo de Estimación"
+  ) +
+  scale_shape_manual(
+    values = c(
+      "estimacion_normal" = 16,
+      "estimacion_normal_bench" = 17,
+      "theta_dir" = 20
+    ),
+    labels = c(
+      "estimacion_normal" = "Modelo (Normal)",
+      "estimacion_normal_bench" = "Modelo Benchmarked",
+      "theta_dir" = "Estimación Directa"
+    )
+  )+
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```
+
+# Gracias 
