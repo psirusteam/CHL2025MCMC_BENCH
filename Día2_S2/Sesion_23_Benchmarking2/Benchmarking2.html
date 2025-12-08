@@ -1,0 +1,2324 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="Benchmarking2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Benchmarking2_files/libs/quarto-html/tabby.min.js"></script>
+<script src="Benchmarking2_files/libs/quarto-html/popper.min.js"></script>
+<script src="Benchmarking2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="Benchmarking2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Benchmarking2_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="Benchmarking2_files/libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <meta name="author" content="Andrés Gutierrez - Stalyn Guerrero">
+  <title>Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="Benchmarking2_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="Benchmarking2_files/libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="Benchmarking2_files/libs/revealjs/dist/theme/quarto-2c1b5f745a11cfad616ebade4a4a7d24.css">
+  <link rel="stylesheet" href="styles.css">
+  <link href="Benchmarking2_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="Benchmarking2_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="Benchmarking2_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="Benchmarking2_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <script src="Benchmarking2_files/libs/kePrint-0.0.1/kePrint.js"></script>
+
+  <link href="Benchmarking2_files/libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" data-background-image="img/logoCepal.jpg" data-background-position="center 90%" data-background-size="120px" class="quarto-title-block center">
+  <h1 class="title">Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC</h1>
+  <p class="subtitle">Benchmarking para el Modelo de unidad de la pobreza</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Andrés Gutierrez - Stalyn Guerrero 
+</div>
+        <p class="quarto-title-affiliation">
+            División de Estadísticas - CEPAL
+          </p>
+    </div>
+</div>
+
+</section>
+<section id="introducción" class="slide level2">
+<h2>Introducción</h2>
+<ul>
+<li><p>El proceso de benchmarking de cadenas MCMC es crucial en SAE, porque:</p>
+<ul>
+<li><p>Garantiza que las estimaciones desagregadas sean coherentes con los niveles de agregación donde la encuesta es representativa, por ejemplo, divisiones administrativas mayores o nivel nacional.</p></li>
+<li><p>Debe tenerse presente que el benchmarking es un procedimiento de ajuste estético: no mejora la calidad intrínseca del estimador, pero sí asegura consistencia y comparabilidad.</p></li>
+</ul></li>
+</ul>
+</section>
+<section id="estimación-bajo-mcmc" class="slide level2">
+<h2>Estimación bajo MCMC</h2>
+<ul>
+<li><p>El proceso de predicción de la pobreza en dominios no observados se realiza mediante <strong>MCMC</strong>, combinando la información muestral y la estructura del modelo de unidad.</p></li>
+<li><p>Esta aproximación permite:</p>
+<ul>
+<li>Propagar la incertidumbre de los parámetros.<br>
+</li>
+<li>Obtener predicciones consistentes a nivel de unidad y dominio.</li>
+</ul></li>
+</ul>
+</section>
+<section id="proceso-de-estimación-en-r-i" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (I)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Librerías principales utilizadas:</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href=""></a><span class="co"># Interprete de STAN en R</span></span>
+<span id="cb1-2"><a href=""></a><span class="fu">library</span>(rstan)</span>
+<span id="cb1-3"><a href=""></a><span class="fu">library</span>(rstanarm)</span>
+<span id="cb1-4"><a href=""></a><span class="co"># Manejo de bases de datos.</span></span>
+<span id="cb1-5"><a href=""></a><span class="fu">library</span>(tidyverse)</span>
+<span id="cb1-6"><a href=""></a><span class="co"># Gráficas de los modelos. </span></span>
+<span id="cb1-7"><a href=""></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb1-8"><a href=""></a><span class="fu">library</span>(bayesplot)</span>
+<span id="cb1-9"><a href=""></a><span class="fu">library</span>(patchwork)</span>
+<span id="cb1-10"><a href=""></a><span class="co"># Organizar la presentación de las tablas</span></span>
+<span id="cb1-11"><a href=""></a><span class="fu">library</span>(kableExtra)</span>
+<span id="cb1-12"><a href=""></a><span class="fu">library</span>(printr)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="encuesta-de-hogares" class="slide level2">
+<h2>Encuesta de hogares</h2>
+<p>Los datos empleados en esta ocasión corresponden a la ultima encuesta de hogares, la cual ha sido estandarizada por <em>CEPAL</em> y se encuentra disponible en <em>BADEHOG</em></p>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">upm</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estrato</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">ingreso</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">lp</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">li</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pobreza</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">logingreso</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">area</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sexo</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">anoest</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">edad</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">etnia</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">fep</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">yk</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">1100100001</td>
+<td style="text-align: right;">11001</td>
+<td style="text-align: right;">250000</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.4292</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">1100100001</td>
+<td style="text-align: right;">11001</td>
+<td style="text-align: right;">211091</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.2600</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">1100100001</td>
+<td style="text-align: right;">11001</td>
+<td style="text-align: right;">296750</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.6006</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">1100100001</td>
+<td style="text-align: right;">11001</td>
+<td style="text-align: right;">296750</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">12.6006</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">1100100001</td>
+<td style="text-align: right;">11001</td>
+<td style="text-align: right;">113889</td>
+<td style="text-align: right;">113958</td>
+<td style="text-align: right;">51309</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">11.6430</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="lectura-de-covariables" class="slide level2">
+<h2>Lectura de covariables</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">area0</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">area1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">etnia2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sexo2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad5</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest99</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">etnia1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">piso_tierra</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">material_paredes</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">material_techo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">rezago_escolar</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">alfabeta</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">tasa_desocupacion</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pollution_CO</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">vegetation_NDVI</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Elevation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temperature_ECMWF</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temperature_2metros</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">total_precipitation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">precipitation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">population_density</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">luces_nocturnas</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cubrimiento_cultivo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cubrimiento_urbano</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">modificacion_humana</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">accesibilidad_hospitales</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">accesibilidad_hosp_caminado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01101</td>
+<td style="text-align: right;">0.0126</td>
+<td style="text-align: right;">0.9874</td>
+<td style="text-align: right;">0.0016</td>
+<td style="text-align: right;">0.5044</td>
+<td style="text-align: right;">0.2374</td>
+<td style="text-align: right;">0.2338</td>
+<td style="text-align: right;">0.2242</td>
+<td style="text-align: right;">0.0926</td>
+<td style="text-align: right;">0.1360</td>
+<td style="text-align: right;">0.4547</td>
+<td style="text-align: right;">0.2711</td>
+<td style="text-align: right;">0.0245</td>
+<td style="text-align: right;">0.1709</td>
+<td style="text-align: right;">0.0051</td>
+<td style="text-align: right;">0.2133</td>
+<td style="text-align: right;">0.5059</td>
+<td style="text-align: right;">0.3940</td>
+<td style="text-align: right;">0.0285</td>
+<td style="text-align: right;">0.0703</td>
+<td style="text-align: right;">0.0229</td>
+<td style="text-align: right;">-1.7713</td>
+<td style="text-align: right;">-0.0492</td>
+<td style="text-align: right;">2.0871</td>
+<td style="text-align: right;">1.3892</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0057</td>
+<td style="text-align: right;">-0.3101</td>
+<td style="text-align: right;">-0.4713</td>
+<td style="text-align: right;">-0.9633</td>
+<td style="text-align: right;">-0.3591</td>
+<td style="text-align: right;">-0.6911</td>
+<td style="text-align: right;">0.0238</td>
+<td style="text-align: right;">0.0469</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01107</td>
+<td style="text-align: right;">0.0230</td>
+<td style="text-align: right;">0.9770</td>
+<td style="text-align: right;">0.0011</td>
+<td style="text-align: right;">0.4998</td>
+<td style="text-align: right;">0.2723</td>
+<td style="text-align: right;">0.2157</td>
+<td style="text-align: right;">0.1863</td>
+<td style="text-align: right;">0.0426</td>
+<td style="text-align: right;">0.1856</td>
+<td style="text-align: right;">0.5305</td>
+<td style="text-align: right;">0.0978</td>
+<td style="text-align: right;">0.0358</td>
+<td style="text-align: right;">0.2949</td>
+<td style="text-align: right;">0.0372</td>
+<td style="text-align: right;">0.2447</td>
+<td style="text-align: right;">0.5403</td>
+<td style="text-align: right;">0.1832</td>
+<td style="text-align: right;">0.0528</td>
+<td style="text-align: right;">0.0851</td>
+<td style="text-align: right;">0.0229</td>
+<td style="text-align: right;">-1.7300</td>
+<td style="text-align: right;">0.2182</td>
+<td style="text-align: right;">2.3984</td>
+<td style="text-align: right;">1.6136</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0078</td>
+<td style="text-align: right;">-0.2644</td>
+<td style="text-align: right;">-0.1883</td>
+<td style="text-align: right;">-0.9633</td>
+<td style="text-align: right;">-0.3157</td>
+<td style="text-align: right;">-0.4150</td>
+<td style="text-align: right;">-0.2180</td>
+<td style="text-align: right;">-0.0922</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01401</td>
+<td style="text-align: right;">0.3575</td>
+<td style="text-align: right;">0.6425</td>
+<td style="text-align: right;">0.0004</td>
+<td style="text-align: right;">0.4280</td>
+<td style="text-align: right;">0.2539</td>
+<td style="text-align: right;">0.2415</td>
+<td style="text-align: right;">0.2023</td>
+<td style="text-align: right;">0.0719</td>
+<td style="text-align: right;">0.1781</td>
+<td style="text-align: right;">0.5285</td>
+<td style="text-align: right;">0.1377</td>
+<td style="text-align: right;">0.0280</td>
+<td style="text-align: right;">0.4207</td>
+<td style="text-align: right;">0.0193</td>
+<td style="text-align: right;">0.6109</td>
+<td style="text-align: right;">0.8826</td>
+<td style="text-align: right;">0.2323</td>
+<td style="text-align: right;">0.0513</td>
+<td style="text-align: right;">0.0762</td>
+<td style="text-align: right;">0.0209</td>
+<td style="text-align: right;">-1.7393</td>
+<td style="text-align: right;">0.9481</td>
+<td style="text-align: right;">1.8649</td>
+<td style="text-align: right;">1.5590</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0068</td>
+<td style="text-align: right;">-0.3569</td>
+<td style="text-align: right;">-0.5357</td>
+<td style="text-align: right;">-0.9607</td>
+<td style="text-align: right;">-0.3883</td>
+<td style="text-align: right;">-1.3414</td>
+<td style="text-align: right;">0.4371</td>
+<td style="text-align: right;">0.1599</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01402</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.4744</td>
+<td style="text-align: right;">0.2064</td>
+<td style="text-align: right;">0.1792</td>
+<td style="text-align: right;">0.2376</td>
+<td style="text-align: right;">0.1568</td>
+<td style="text-align: right;">0.2536</td>
+<td style="text-align: right;">0.4256</td>
+<td style="text-align: right;">0.0752</td>
+<td style="text-align: right;">0.0720</td>
+<td style="text-align: right;">0.8568</td>
+<td style="text-align: right;">0.0194</td>
+<td style="text-align: right;">0.6728</td>
+<td style="text-align: right;">0.9187</td>
+<td style="text-align: right;">0.1814</td>
+<td style="text-align: right;">0.1854</td>
+<td style="text-align: right;">0.0380</td>
+<td style="text-align: right;">0.0190</td>
+<td style="text-align: right;">-1.7546</td>
+<td style="text-align: right;">2.2707</td>
+<td style="text-align: right;">1.1709</td>
+<td style="text-align: right;">0.6441</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0093</td>
+<td style="text-align: right;">-0.3582</td>
+<td style="text-align: right;">-0.5581</td>
+<td style="text-align: right;">-0.9618</td>
+<td style="text-align: right;">-0.3905</td>
+<td style="text-align: right;">-1.4837</td>
+<td style="text-align: right;">0.9270</td>
+<td style="text-align: right;">0.2968</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01403</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0006</td>
+<td style="text-align: right;">0.4242</td>
+<td style="text-align: right;">0.2685</td>
+<td style="text-align: right;">0.2378</td>
+<td style="text-align: right;">0.2269</td>
+<td style="text-align: right;">0.1209</td>
+<td style="text-align: right;">0.2529</td>
+<td style="text-align: right;">0.3686</td>
+<td style="text-align: right;">0.1539</td>
+<td style="text-align: right;">0.0799</td>
+<td style="text-align: right;">0.8113</td>
+<td style="text-align: right;">0.0864</td>
+<td style="text-align: right;">0.9684</td>
+<td style="text-align: right;">0.9782</td>
+<td style="text-align: right;">0.2796</td>
+<td style="text-align: right;">0.1937</td>
+<td style="text-align: right;">0.0494</td>
+<td style="text-align: right;">0.0153</td>
+<td style="text-align: right;">-1.5885</td>
+<td style="text-align: right;">4.3891</td>
+<td style="text-align: right;">-1.1246</td>
+<td style="text-align: right;">-2.0702</td>
+<td style="text-align: right;">1e-04</td>
+<td style="text-align: right;">0.0228</td>
+<td style="text-align: right;">-0.3581</td>
+<td style="text-align: right;">-0.5595</td>
+<td style="text-align: right;">-0.9362</td>
+<td style="text-align: right;">-0.3875</td>
+<td style="text-align: right;">-1.4958</td>
+<td style="text-align: right;">0.1454</td>
+<td style="text-align: right;">-0.0117</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="benchmarking-por-iteración-de-la-cadena-mcmc" class="slide level2">
+<h2>Benchmarking por iteración de la cadena MCMC</h2>
+<p>Para estimar correctamente la incertidumbre posterior y garantizar coherencia con los <strong>totales directos de pobreza</strong>, el cálculo de los factores de calibración se repite para <strong>cada realización</strong> (l) de la cadena MCMC.</p>
+<p>De esta forma obtenemos una familia de factores</p>
+<p><span class="math display">\[
+\{g_k^{(l)} \}_{l=1}^L
+\]</span></p>
+<p>y, a partir de ellos, una familia de estimadores calibrados de la tasa de pobreza:</p>
+<p><span class="math display">\[
+\{\widehat{P}_d^{(l)\text{cal}}\}_{l=1}^L.
+\]</span></p>
+</section>
+<section id="notación" class="slide level2">
+<h2>Notación</h2>
+<ul>
+<li><span class="math inline">\(l = 1,\ldots,L\)</span>: iteración de la cadena MCMC</li>
+<li><span class="math inline">\(\boldsymbol{P}^{(l)}\)</span>: parámetros muestreados en la iteración <span class="math inline">\(l\)</span></li>
+<li><span class="math inline">\(\hat{p}_k^{(l)}\)</span>: tasa de pobreza predicha para el post-estrato <span class="math inline">\(k\)</span> dada <span class="math inline">\(\boldsymbol{P}^{(l)}\)</span></li>
+<li><span class="math inline">\(n_k\)</span>: tamaño poblacional del post-estrato</li>
+<li><span class="math inline">\(\mathbf{x}_k\)</span>: vector de calibración (dummies por DAM) del post-estrato</li>
+<li><span class="math inline">\(\mathbf{t}_X\)</span>: totales directos de pobreza a nivel nacional o por DAM</li>
+</ul>
+</section>
+<section id="proceso-para-cada-iteración-l-i" class="slide level2">
+<h2>Proceso para cada iteración <span class="math inline">\(l\)</span> (I)</h2>
+<h3 id="predicción-condicional-modelo">1. Predicción condicional (modelo)</h3>
+<p><span class="math display">\[
+\hat{p}_k^{(l)} = E\big(P_k  \mid \boldsymbol{\theta}^{(l)}  \big)
+\]</span></p>
+<p>donde <span class="math inline">\(P_k\)</span> es la tasa de pobreza del post-estrato.</p>
+<h3 id="estimación-directa-de-la-pobreza-a-nivel-de-dominio">2. Estimación directa de la pobreza a nivel de dominio</h3>
+<p><span class="math display">\[
+\widehat{\mathbf{t}}_X^{DIR}
+\]</span></p>
+</section>
+<section id="proceso-para-cada-iteración-l-ii" class="slide level2">
+<h2>Proceso para cada iteración <span class="math inline">\(l\)</span> (II)</h2>
+<h3 id="calibración-resolver-para-g_kl">3. Calibración — resolver para <span class="math inline">\(g_k^{(l)}\)</span></h3>
+<p>Buscamos valores positivos <span class="math inline">\(g_k^{(l)}\)</span> tales que:</p>
+<p><span class="math display">\[
+\sum_{k} g_k^{(l)}  n_k  \mathbf{x}_k \equiv
+\widehat{\mathbf{t}}_X^{DIR}
+\]</span></p>
+<p>donde <span class="math inline">\(\mathbf{t}_X\)</span> incluye:</p>
+<ul>
+<li>totales poblacionales por DAM</li>
+<li>totales de personas pobres por DAM o a nivel nacional</li>
+</ul>
+<p>En la práctica, <code>calib()</code> obtiene:</p>
+<p><span class="math display">\[
+g_k^{(l)} = h\left(\lambda^{(l)\top}\mathbf{x}_k \right),
+\]</span></p>
+<p>donde <span class="math inline">\(h(\cdot)\)</span> depende del método (<code>logit</code> recomendado para tasas), y <span class="math inline">\(\lambda^{(l)}\)</span> es el vector de Lagrange de la iteración.</p>
+</section>
+<section id="proceso-para-cada-iteración-l-iii" class="slide level2">
+<h2>Proceso para cada iteración <span class="math inline">\(l\)</span> (III)</h2>
+<h3 id="estimador-calibrado-de-la-tasa-de-pobreza-por-dominio-d">4. Estimador calibrado de la tasa de pobreza por dominio (d)</h3>
+<p><span class="math display">\[
+\widehat{P}_d^{(l)\text{cal}}
+= \frac{1}{N_d} \sum_{k\in d} g_k^{(l)} n_k \hat{p}_k^{(l)}.
+\]</span></p>
+<p>donde (N_d = _{kd} n_k).</p>
+<p>Así se obtiene la tasa ajustada respetando los totales directos.</p>
+</section>
+<section id="proceso-para-cada-iteración-l-iv" class="slide level2">
+<h2>Proceso para cada iteración <span class="math inline">\(l\)</span> (IV)</h2>
+<h3 id="repetir-para-l1dotsl">5. Repetir para <span class="math inline">\(l=1,\dots,L\)</span></h3>
+<p>Esto genera la muestra posterior calibrada:</p>
+<p><span class="math display">\[
+\{\widehat{P}_d^{(l),\text{cal}}\}_{l=1}^L.
+\]</span></p>
+<h3 id="obtención-del-estimador-final-e-intervalos-creíbles">6. Obtención del estimador final e intervalos creíbles</h3>
+<p><span class="math display">\[
+\widehat{P}_d^{\text{cal}}
+= \frac{1}{L}\sum_{l=1}^L \widehat{P}_d^{(l),\text{cal}}
+\]</span></p>
+<p><span class="math display">\[
+IC_{1-\alpha}(P_d)
+= \text{quantiles}\left({\widehat{P}_d^{(l),\text{cal}}}\right).
+\]</span></p>
+</section>
+<section id="observaciones-prácticas-y-requisitos-i" class="slide level2">
+<h2>Observaciones prácticas y requisitos (I)</h2>
+<ul>
+<li><p><strong>Positividad:</strong> Debe cumplirse <span class="math inline">\(g_k^{(l)} &gt; 0\)</span>. Si no ocurre, conviene usar método <code>"logit"</code> o descartar la iteración (muy raro).</p></li>
+<li><p><strong>Propagación de incertidumbre:</strong> La incertidumbre proviene tanto del modelo como de la calibración. Esto produce intervalos más realistas y coherentes con los totales observados.</p></li>
+</ul>
+</section>
+<section id="observaciones-prácticas-y-requisitos-ii" class="slide level2">
+<h2>Observaciones prácticas y requisitos (II)</h2>
+<ul>
+<li><p><strong>Costo computacional:</strong> Calibrar en cada iteración puede ser costoso. Se recomienda reducir el número de post-estratos o usar agregaciones intermedias.</p></li>
+<li><p><strong>Diagnósticos:</strong> Revisar la distribución de <span class="math inline">\(g_k^{(l)}\)</span>:</p>
+<ul>
+<li>histogramas</li>
+<li>percentiles</li>
+<li>valores extremos</li>
+<li>verificar que se cumplen exactamente los totales fijados:</li>
+</ul></li>
+</ul>
+<p><span class="math display">\[
+\sum_k g_k^{(l)} n_k \mathbf{x}_k \approx \mathbf{t}_X.
+\]</span></p>
+</section>
+<section id="proceso-de-estimación-y-predicción" class="slide level2">
+<h2>Proceso de estimación y predicción</h2>
+<p>Obtener el modelo es solo un paso más, ahora se debe realizar la predicción en el censo, el cual a sido previamente estandarizado y homologado con la encuesta.</p>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href=""></a>poststrat_df <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Recursos/Modelo_unidad/censo_dam2.rds"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb2-2"><a href=""></a>     <span class="fu">inner_join</span>(statelevel_predictors_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam2</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">area</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">etnia</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sexo</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">edad</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">anoest</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">area0</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">area1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">etnia2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sexo2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">edad5</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest2</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest3</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest4</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">anoest99</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">etnia1</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">piso_tierra</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">material_paredes</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">material_techo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">rezago_escolar</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">alfabeta</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">tasa_desocupacion</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">pollution_CO</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">vegetation_NDVI</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Elevation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temperature_ECMWF</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">temperature_2metros</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">total_precipitation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">precipitation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">population_density</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">luces_nocturnas</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cubrimiento_cultivo</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">cubrimiento_urbano</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">modificacion_humana</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">accesibilidad_hospitales</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">accesibilidad_hosp_caminado</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">13201</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">46766</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.5157</td>
+<td style="text-align: right;">0.2513</td>
+<td style="text-align: right;">0.2042</td>
+<td style="text-align: right;">0.2518</td>
+<td style="text-align: right;">0.0765</td>
+<td style="text-align: right;">0.1496</td>
+<td style="text-align: right;">0.4951</td>
+<td style="text-align: right;">0.2124</td>
+<td style="text-align: right;">0.0280</td>
+<td style="text-align: right;">0.1096</td>
+<td style="text-align: right;">4e-04</td>
+<td style="text-align: right;">0.0736</td>
+<td style="text-align: right;">0.6202</td>
+<td style="text-align: right;">0.3179</td>
+<td style="text-align: right;">0.0385</td>
+<td style="text-align: right;">0.0688</td>
+<td style="text-align: right;">0.0202</td>
+<td style="text-align: right;">-0.8190</td>
+<td style="text-align: right;">0.1107</td>
+<td style="text-align: right;">0.1069</td>
+<td style="text-align: right;">0.1652</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0689</td>
+<td style="text-align: right;">5.1790</td>
+<td style="text-align: right;">2.6378</td>
+<td style="text-align: right;">-0.3121</td>
+<td style="text-align: right;">1.8661</td>
+<td style="text-align: right;">1.7482</td>
+<td style="text-align: right;">-0.4728</td>
+<td style="text-align: right;">-0.1807</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">13119</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">45879</td>
+<td style="text-align: right;">0.0066</td>
+<td style="text-align: right;">0.9934</td>
+<td style="text-align: right;">0.0003</td>
+<td style="text-align: right;">0.5192</td>
+<td style="text-align: right;">0.2480</td>
+<td style="text-align: right;">0.1981</td>
+<td style="text-align: right;">0.2666</td>
+<td style="text-align: right;">0.0940</td>
+<td style="text-align: right;">0.1333</td>
+<td style="text-align: right;">0.4843</td>
+<td style="text-align: right;">0.2623</td>
+<td style="text-align: right;">0.0209</td>
+<td style="text-align: right;">0.0989</td>
+<td style="text-align: right;">6e-04</td>
+<td style="text-align: right;">0.0728</td>
+<td style="text-align: right;">0.5547</td>
+<td style="text-align: right;">0.3691</td>
+<td style="text-align: right;">0.0295</td>
+<td style="text-align: right;">0.0673</td>
+<td style="text-align: right;">0.0208</td>
+<td style="text-align: right;">-0.6038</td>
+<td style="text-align: right;">-0.2372</td>
+<td style="text-align: right;">0.7445</td>
+<td style="text-align: right;">0.8473</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0320</td>
+<td style="text-align: right;">4.8237</td>
+<td style="text-align: right;">2.1005</td>
+<td style="text-align: right;">0.5322</td>
+<td style="text-align: right;">1.1706</td>
+<td style="text-align: right;">1.6470</td>
+<td style="text-align: right;">-0.4610</td>
+<td style="text-align: right;">-0.1696</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">13101</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: right;">40861</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0013</td>
+<td style="text-align: right;">0.4890</td>
+<td style="text-align: right;">0.3123</td>
+<td style="text-align: right;">0.3170</td>
+<td style="text-align: right;">0.1746</td>
+<td style="text-align: right;">0.0742</td>
+<td style="text-align: right;">0.0780</td>
+<td style="text-align: right;">0.3337</td>
+<td style="text-align: right;">0.4832</td>
+<td style="text-align: right;">0.0279</td>
+<td style="text-align: right;">0.0798</td>
+<td style="text-align: right;">3e-04</td>
+<td style="text-align: right;">0.2288</td>
+<td style="text-align: right;">0.3063</td>
+<td style="text-align: right;">0.6032</td>
+<td style="text-align: right;">0.0201</td>
+<td style="text-align: right;">0.0581</td>
+<td style="text-align: right;">0.0220</td>
+<td style="text-align: right;">-1.4233</td>
+<td style="text-align: right;">-0.1928</td>
+<td style="text-align: right;">0.4775</td>
+<td style="text-align: right;">0.6273</td>
+<td style="text-align: right;">1e-04</td>
+<td style="text-align: right;">0.0752</td>
+<td style="text-align: right;">2.4286</td>
+<td style="text-align: right;">2.9204</td>
+<td style="text-align: right;">-0.9204</td>
+<td style="text-align: right;">3.7382</td>
+<td style="text-align: right;">2.2047</td>
+<td style="text-align: right;">-0.4918</td>
+<td style="text-align: right;">-0.1880</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">13201</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">39566</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.5157</td>
+<td style="text-align: right;">0.2513</td>
+<td style="text-align: right;">0.2042</td>
+<td style="text-align: right;">0.2518</td>
+<td style="text-align: right;">0.0765</td>
+<td style="text-align: right;">0.1496</td>
+<td style="text-align: right;">0.4951</td>
+<td style="text-align: right;">0.2124</td>
+<td style="text-align: right;">0.0280</td>
+<td style="text-align: right;">0.1096</td>
+<td style="text-align: right;">4e-04</td>
+<td style="text-align: right;">0.0736</td>
+<td style="text-align: right;">0.6202</td>
+<td style="text-align: right;">0.3179</td>
+<td style="text-align: right;">0.0385</td>
+<td style="text-align: right;">0.0688</td>
+<td style="text-align: right;">0.0202</td>
+<td style="text-align: right;">-0.8190</td>
+<td style="text-align: right;">0.1107</td>
+<td style="text-align: right;">0.1069</td>
+<td style="text-align: right;">0.1652</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0689</td>
+<td style="text-align: right;">5.1790</td>
+<td style="text-align: right;">2.6378</td>
+<td style="text-align: right;">-0.3121</td>
+<td style="text-align: right;">1.8661</td>
+<td style="text-align: right;">1.7482</td>
+<td style="text-align: right;">-0.4728</td>
+<td style="text-align: right;">-0.1807</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">13201</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">38791</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">1.0000</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.5157</td>
+<td style="text-align: right;">0.2513</td>
+<td style="text-align: right;">0.2042</td>
+<td style="text-align: right;">0.2518</td>
+<td style="text-align: right;">0.0765</td>
+<td style="text-align: right;">0.1496</td>
+<td style="text-align: right;">0.4951</td>
+<td style="text-align: right;">0.2124</td>
+<td style="text-align: right;">0.0280</td>
+<td style="text-align: right;">0.1096</td>
+<td style="text-align: right;">4e-04</td>
+<td style="text-align: right;">0.0736</td>
+<td style="text-align: right;">0.6202</td>
+<td style="text-align: right;">0.3179</td>
+<td style="text-align: right;">0.0385</td>
+<td style="text-align: right;">0.0688</td>
+<td style="text-align: right;">0.0202</td>
+<td style="text-align: right;">-0.8190</td>
+<td style="text-align: right;">0.1107</td>
+<td style="text-align: right;">0.1069</td>
+<td style="text-align: right;">0.1652</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.0689</td>
+<td style="text-align: right;">5.1790</td>
+<td style="text-align: right;">2.6378</td>
+<td style="text-align: right;">-0.3121</td>
+<td style="text-align: right;">1.8661</td>
+<td style="text-align: right;">1.7482</td>
+<td style="text-align: right;">-0.4728</td>
+<td style="text-align: right;">-0.1807</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Note que la información del censo esta agregada.</p>
+</section>
+<section id="distribución-posterior." class="slide level2">
+<h2>Distribución posterior.</h2>
+<p>Para obtener una distribución posterior de cada observación se hace uso de la función <em>posterior_epred</em> de la siguiente forma.</p>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href=""></a>fit <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Recursos/Modelo_unidad/fit_pobreza.rds"</span>)</span>
+<span id="cb3-2"><a href=""></a>epred_mat <span class="ot">&lt;-</span> <span class="fu">posterior_epred</span>(fit, <span class="at">newdata =</span> poststrat_df,  <span class="at">type =</span> <span class="st">"response"</span>)</span>
+<span id="cb3-3"><a href=""></a><span class="fu">saveRDS</span>(epred_mat, <span class="st">"../Recursos/Modelo_unidad/epred_mat.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-i-1" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (I)</h2>
+<p>En cada iteración <span class="math inline">\(l\)</span> de la cadena MCMC:</p>
+<ol type="1">
+<li>Sustituir <span class="math inline">\(\hat{y}_k^{(l)}\)</span> en la tabla de post-estratificación.<br>
+</li>
+<li>Construir la matriz de calibración <span class="math inline">\(\mathbf{X}_k\)</span>.</li>
+</ol>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href=""></a><span class="fu">library</span>(sampling)</span>
+<span id="cb4-2"><a href=""></a>epred_mat <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"../Recursos/Modelo_unidad/epred_mat.rds"</span>)</span>
+<span id="cb4-3"><a href=""></a></span>
+<span id="cb4-4"><a href=""></a>iter <span class="ot">&lt;-</span> <span class="dv">1</span> </span>
+<span id="cb4-5"><a href=""></a>names_cov <span class="ot">&lt;-</span> <span class="st">"dam"</span></span>
+<span id="cb4-6"><a href=""></a>metodo <span class="ot">&lt;-</span> <span class="st">"logit"</span></span>
+<span id="cb4-7"><a href=""></a></span>
+<span id="cb4-8"><a href=""></a><span class="co"># 1. Predicciones en el post-estrato</span></span>
+<span id="cb4-9"><a href=""></a>temp_post <span class="ot">&lt;-</span> poststrat_df <span class="sc">%&gt;%</span></span>
+<span id="cb4-10"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">yk =</span> epred_mat[iter,]) <span class="sc">%&gt;%</span> </span>
+<span id="cb4-11"><a href=""></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-ii" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (II)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href=""></a><span class="co"># 2. Matriz de calibración</span></span>
+<span id="cb5-2"><a href=""></a>  Xk_num <span class="ot">&lt;-</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-3"><a href=""></a>    fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
+<span id="cb5-4"><a href=""></a>                            <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-5"><a href=""></a>    <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) ,<span class="sc">~</span>.<span class="sc">*</span>temp_post<span class="sc">$</span>yk) <span class="sc">%&gt;%</span></span>
+<span id="cb5-6"><a href=""></a>    <span class="fu">as.matrix</span>()</span>
+<span id="cb5-7"><a href=""></a> </span>
+<span id="cb5-8"><a href=""></a>  Xk_den <span class="ot">&lt;-</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span> </span>
+<span id="cb5-9"><a href=""></a>    fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
+<span id="cb5-10"><a href=""></a>                            <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb5-11"><a href=""></a>    <span class="fu">as.matrix</span>()</span>
+<span id="cb5-12"><a href=""></a>  </span>
+<span id="cb5-13"><a href=""></a>  <span class="fu">colnames</span>(Xk_num) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"num_"</span>, <span class="fu">colnames</span>(Xk_num))</span>
+<span id="cb5-14"><a href=""></a>  <span class="fu">colnames</span>(Xk_den) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"den_"</span>, <span class="fu">colnames</span>(Xk_den))</span>
+<span id="cb5-15"><a href=""></a>  </span>
+<span id="cb5-16"><a href=""></a>  Xk <span class="ot">&lt;-</span> <span class="fu">cbind</span>(Xk_num, Xk_den)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-iii" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (III)</h2>
+<ol start="3" type="1">
+<li>Calcular los totales de la encuesta <span class="math inline">\(\mathbf{t}_X\)</span>.</li>
+</ol>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href=""></a><span class="co"># 3. Totales de la encuesta</span></span>
+<span id="cb6-2"><a href=""></a> encuesta_temp <span class="ot">&lt;-</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="fu">all_of</span>(names_cov)) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-3"><a href=""></a>    fastDummies<span class="sc">::</span><span class="fu">dummy_cols</span>(<span class="at">select_columns =</span> names_cov,</span>
+<span id="cb6-4"><a href=""></a>                            <span class="at">remove_selected_columns =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-5"><a href=""></a></span>
+<span id="cb6-6"><a href=""></a>  num_total <span class="ot">&lt;-</span> encuesta_temp <span class="sc">%&gt;%</span> </span>
+<span id="cb6-7"><a href=""></a>    <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>))</span>
+<span id="cb6-8"><a href=""></a>              ,<span class="sc">~</span>.<span class="sc">*</span>encuesta_mrp<span class="sc">$</span>yk<span class="sc">*</span>encuesta_mrp<span class="sc">$</span>fep) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-9"><a href=""></a>    <span class="fu">colSums</span>()</span>
+<span id="cb6-10"><a href=""></a>  </span>
+<span id="cb6-11"><a href=""></a>  den_total <span class="ot">&lt;-</span> encuesta_temp <span class="sc">%&gt;%</span> </span>
+<span id="cb6-12"><a href=""></a>    <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)) ,<span class="sc">~</span>.<span class="sc">*</span>encuesta_mrp<span class="sc">$</span>fep) <span class="sc">%&gt;%</span> </span>
+<span id="cb6-13"><a href=""></a>    <span class="fu">colSums</span>()</span>
+<span id="cb6-14"><a href=""></a>  </span>
+<span id="cb6-15"><a href=""></a>  <span class="fu">names</span>(num_total) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"num_"</span>, <span class="fu">names</span>(num_total))  </span>
+<span id="cb6-16"><a href=""></a>  <span class="fu">names</span>(den_total) <span class="ot">&lt;-</span> <span class="fu">paste0</span>(<span class="st">"den_"</span>, <span class="fu">names</span>(den_total))</span>
+<span id="cb6-17"><a href=""></a>  </span>
+<span id="cb6-18"><a href=""></a>  Total_Xk <span class="ot">&lt;-</span> <span class="fu">c</span>(num_total, den_total)</span>
+<span id="cb6-19"><a href=""></a>  Xk <span class="ot">&lt;-</span> Xk[,<span class="fu">names</span>(Total_Xk)]</span>
+<span id="cb6-20"><a href=""></a>Total_Xk</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>num_dam_01 num_dam_02 num_dam_03 num_dam_04 num_dam_05 num_dam_06 num_dam_07 
+     35953      50202      31638     123869     180948     104476     135876 
+num_dam_08 num_dam_09 num_dam_10 num_dam_11 num_dam_12 num_dam_13 num_dam_14 
+    227022     171349     111416       5783       5410     592171      45043 
+num_dam_15 num_dam_16 den_dam_01 den_dam_02 den_dam_03 den_dam_04 den_dam_05 
+     16662      69454     346917     586198     284814     775198    1856498 
+den_dam_06 den_dam_07 den_dam_08 den_dam_09 den_dam_10 den_dam_11 den_dam_12 
+    929632    1047293    1625099     999730     882790     105156     151681 
+den_dam_13 den_dam_14 den_dam_15 den_dam_16 
+   7223236     371358     161015     460799 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-iv" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (IV)</h2>
+<ol start="4" type="1">
+<li>Resolver el sistema de calibración para obtener <span class="math inline">\(g_k^{(l)}\)</span>.</li>
+</ol>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href=""></a><span class="co"># 4. Resolver calibración</span></span>
+<span id="cb8-2"><a href=""></a>gk_calib <span class="ot">&lt;-</span> <span class="fu">calib</span>(</span>
+<span id="cb8-3"><a href=""></a>  <span class="at">Xs =</span> Xk,</span>
+<span id="cb8-4"><a href=""></a>  <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
+<span id="cb8-5"><a href=""></a>  <span class="at">total =</span> Total_Xk,</span>
+<span id="cb8-6"><a href=""></a>  <span class="at">method =</span> metodo</span>
+<span id="cb8-7"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href=""></a><span class="fu">summary</span>(gk_calib)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Min.</th>
+<th style="text-align: right;">1st Qu.</th>
+<th style="text-align: right;">Median</th>
+<th style="text-align: right;">Mean</th>
+<th style="text-align: right;">3rd Qu.</th>
+<th style="text-align: right;">Max.</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.0542583</td>
+<td style="text-align: right;">0.9724394</td>
+<td style="text-align: right;">1.019823</td>
+<td style="text-align: right;">1.002006</td>
+<td style="text-align: right;">1.044458</td>
+<td style="text-align: right;">1.716754</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="diagnóstico" class="slide level2">
+<h2>Diagnóstico</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href=""></a>check_calib <span class="ot">&lt;-</span> <span class="fu">checkcalibration</span>(</span>
+<span id="cb10-2"><a href=""></a>  <span class="at">Xs =</span> Xk, <span class="at">d =</span> temp_post<span class="sc">$</span>n,</span>
+<span id="cb10-3"><a href=""></a>  <span class="at">total =</span> Total_Xk, <span class="at">g =</span> gk_calib</span>
+<span id="cb10-4"><a href=""></a>)</span>
+<span id="cb10-5"><a href=""></a>check_calib</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$message
+[1] "the calibration is done"
+
+$result
+[1] TRUE
+
+$value
+[1] 1e-06</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-v" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (V)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href=""></a><span class="co"># Totales ajustados</span></span>
+<span id="cb12-2"><a href=""></a>hat_tx <span class="ot">&lt;-</span> Xk <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb12-3"><a href=""></a>  <span class="fu">mutate_at</span>(<span class="fu">vars</span>(<span class="fu">matches</span>(<span class="st">"</span><span class="sc">\\</span><span class="st">d$"</span>)), <span class="sc">~</span> . <span class="sc">*</span> temp_post<span class="sc">$</span>n <span class="sc">*</span> gk_calib) <span class="sc">%&gt;%</span> </span>
+<span id="cb12-4"><a href=""></a>  <span class="fu">colSums</span>()</span>
+<span id="cb12-5"><a href=""></a></span>
+<span id="cb12-6"><a href=""></a><span class="fu">round</span>(Total_Xk <span class="sc">-</span> hat_tx, <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>num_dam_01 num_dam_02 num_dam_03 num_dam_04 num_dam_05 num_dam_06 num_dam_07 
+   -0.0001     0.0000     0.0000    -0.0001     0.0000     0.0000     0.0000 
+num_dam_08 num_dam_09 num_dam_10 num_dam_11 num_dam_12 num_dam_13 num_dam_14 
+   -0.0001     0.0000    -0.0004     0.0000     0.0007     0.0000     0.0000 
+num_dam_15 num_dam_16 den_dam_01 den_dam_02 den_dam_03 den_dam_04 den_dam_05 
+    0.0132     0.0000    -0.0008     0.0000    -0.0002    -0.0009     0.0000 
+den_dam_06 den_dam_07 den_dam_08 den_dam_09 den_dam_10 den_dam_11 den_dam_12 
+    0.0000     0.0000    -0.0006     0.0000    -0.0015     0.0000     0.0110 
+den_dam_13 den_dam_14 den_dam_15 den_dam_16 
+    0.0000     0.0000     0.0773     0.0000 </code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-función-benchmarking" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> (Función benchmarking)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">source</span>(<span class="st">"../Recursos/Modelo_unidad/funciones/benchmarking_ingreso.r"</span>)</span>
+<span id="cb14-2"><a href=""></a></span>
+<span id="cb14-3"><a href=""></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking_pobreza</span>(</span>
+<span id="cb14-4"><a href=""></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb14-5"><a href=""></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> pobreza),</span>
+<span id="cb14-6"><a href=""></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
+<span id="cb14-7"><a href=""></a>  <span class="at">metodo =</span> <span class="st">"logit"</span>, </span>
+<span id="cb14-8"><a href=""></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb14-9"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam2</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">area</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">etnia</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sexo</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">edad</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">anoest</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">yk</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">yk_bench</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n2</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.1433</td>
+<td style="text-align: right;">0.1363</td>
+<td style="text-align: right;">9.5088</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">2</td>
+<td style="text-align: right;">24</td>
+<td style="text-align: right;">0.1433</td>
+<td style="text-align: right;">0.1363</td>
+<td style="text-align: right;">22.8211</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0.1433</td>
+<td style="text-align: right;">0.1363</td>
+<td style="text-align: right;">2.8526</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">98</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">0.1433</td>
+<td style="text-align: right;">0.1363</td>
+<td style="text-align: right;">15.2141</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">01101</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">99</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.1433</td>
+<td style="text-align: right;">0.1363</td>
+<td style="text-align: right;">0.9509</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="proceso-de-estimación-en-r-para-la-mcmc" class="slide level2">
+<h2>Proceso de estimación en <code>R</code> para la MCMC</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>poststrat_df_iter2 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">500</span>,</span>
+<span id="cb15-2"><a href=""></a>  <span class="sc">~</span>{</span>
+<span id="cb15-3"><a href=""></a>temp_post <span class="ot">&lt;-</span> poststrat_df <span class="sc">%&gt;%</span></span>
+<span id="cb15-4"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">yk =</span> epred_mat[.x,]) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href=""></a>  <span class="fu">select</span>(dam<span class="sc">:</span>n, yk)</span>
+<span id="cb15-6"><a href=""></a></span>
+<span id="cb15-7"><a href=""></a>poststrat_df_iter <span class="ot">&lt;-</span> <span class="fu">benchmarking_pobreza</span>(</span>
+<span id="cb15-8"><a href=""></a>  <span class="at">poststrat_df =</span> temp_post <span class="sc">%&gt;%</span> <span class="fu">data.frame</span>(),</span>
+<span id="cb15-9"><a href=""></a>  <span class="at">encuesta_sta =</span> encuesta_mrp <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">yk =</span> pobreza),</span>
+<span id="cb15-10"><a href=""></a>  <span class="at">names_cov =</span> <span class="st">"dam"</span>,</span>
+<span id="cb15-11"><a href=""></a>  <span class="at">metodo =</span> <span class="st">"logit"</span>, </span>
+<span id="cb15-12"><a href=""></a>  <span class="at">show_plot =</span> <span class="cn">FALSE</span></span>
+<span id="cb15-13"><a href=""></a>)</span>
+<span id="cb15-14"><a href=""></a>poststrat_df_iter</span>
+<span id="cb15-15"><a href=""></a>  }</span>
+<span id="cb15-16"><a href=""></a>)</span>
+<span id="cb15-17"><a href=""></a><span class="fu">saveRDS</span>(poststrat_df_iter2, <span class="st">"../Recursos/Modelo_unidad/poststrat_df_iter_pobreza.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="estimación-nacional" class="slide level2">
+<h2>Estimación nacional</h2>
+<ul>
+<li>SIN benchmarking (usa n)</li>
+</ul>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href=""></a>theta_modelo_sin <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb16-2"><a href=""></a>  <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb16-3"><a href=""></a>  <span class="at">var_n     =</span> <span class="st">"n"</span>,</span>
+<span id="cb16-4"><a href=""></a>  <span class="at">levels    =</span> <span class="cn">NULL</span></span>
+<span id="cb16-5"><a href=""></a>)<span class="sc">$</span>estimates</span>
+<span id="cb16-6"><a href=""></a></span>
+<span id="cb16-7"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_sin, </span>
+<span id="cb16-8"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/02.theta_modelo_pobreza.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="con-benchmarking-usa-n2" class="slide level2">
+<h2>CON benchmarking (usa n2)</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a>theta_modelo_con <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb17-2"><a href=""></a>  <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb17-3"><a href=""></a>  <span class="at">var_n     =</span> <span class="st">"n2"</span>,</span>
+<span id="cb17-4"><a href=""></a>  <span class="at">levels    =</span> <span class="cn">NULL</span></span>
+<span id="cb17-5"><a href=""></a>)<span class="sc">$</span>estimates</span>
+<span id="cb17-6"><a href=""></a></span>
+<span id="cb17-7"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_con, </span>
+<span id="cb17-8"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/03.theta_modelo_pobreza_con.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="resultado-de-la-estimación-nacional" class="slide level2">
+<h2>Resultado de la estimación nacional</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Estimación nacional de pobreza (MCMC)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">lci</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">uci</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Metodo</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0.1071</td>
+<td style="text-align: right;">0e+00</td>
+<td style="text-align: right;">0.1071</td>
+<td style="text-align: right;">0.1071</td>
+<td style="text-align: left;">Con benchmarking</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">0.1099</td>
+<td style="text-align: right;">8e-04</td>
+<td style="text-align: right;">0.1084</td>
+<td style="text-align: right;">0.1115</td>
+<td style="text-align: left;">Sin benchmarking</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="estimación-por-dam-sin-benchmarking" class="slide level2">
+<h2>Estimación por DAM <em>SIN benchmarking</em></h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a>theta_modelo_sin <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb18-2"><a href=""></a>  <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb18-3"><a href=""></a>  <span class="at">var_n     =</span> <span class="st">"n"</span>,</span>
+<span id="cb18-4"><a href=""></a>  <span class="at">levels    =</span> <span class="st">"dam"</span></span>
+<span id="cb18-5"><a href=""></a>)<span class="sc">$</span>estimates</span>
+<span id="cb18-6"><a href=""></a></span>
+<span id="cb18-7"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_sin, </span>
+<span id="cb18-8"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/04.theta_modelo_pobreza_sin_dam.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="estimación-por-dam-con-benchmarking" class="slide level2">
+<h2>Estimación por DAM <em>CON benchmarking</em></h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href=""></a>theta_modelo_con <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb19-2"><a href=""></a>  <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb19-3"><a href=""></a>  <span class="at">var_n     =</span> <span class="st">"n2"</span>,</span>
+<span id="cb19-4"><a href=""></a>  <span class="at">levels    =</span> <span class="st">"dam"</span></span>
+<span id="cb19-5"><a href=""></a>)<span class="sc">$</span>estimates</span>
+<span id="cb19-6"><a href=""></a></span>
+<span id="cb19-7"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_con, </span>
+<span id="cb19-8"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/05.theta_modelo_pobreza_con_dam.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="resultado-de-la-estimación-dam" class="slide level2">
+<h2>Resultado de la estimación DAM</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>Estimación por DAM (MCMC)</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate_con</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd_con</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate_sin</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd_sin</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: right;">0.1036</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1069</td>
+<td style="text-align: right;">0.0031</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">02</td>
+<td style="text-align: right;">0.0856</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.0835</td>
+<td style="text-align: right;">0.0029</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">03</td>
+<td style="text-align: right;">0.1111</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1192</td>
+<td style="text-align: right;">0.0040</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">04</td>
+<td style="text-align: right;">0.1598</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1668</td>
+<td style="text-align: right;">0.0039</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">05</td>
+<td style="text-align: right;">0.0975</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.0960</td>
+<td style="text-align: right;">0.0021</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">06</td>
+<td style="text-align: right;">0.1124</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1165</td>
+<td style="text-align: right;">0.0027</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">07</td>
+<td style="text-align: right;">0.1297</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1362</td>
+<td style="text-align: right;">0.0030</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">08</td>
+<td style="text-align: right;">0.1397</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1455</td>
+<td style="text-align: right;">0.0025</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">09</td>
+<td style="text-align: right;">0.1714</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1751</td>
+<td style="text-align: right;">0.0032</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">10</td>
+<td style="text-align: right;">0.1262</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1241</td>
+<td style="text-align: right;">0.0032</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">11</td>
+<td style="text-align: right;">0.0550</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.0536</td>
+<td style="text-align: right;">0.0033</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">12</td>
+<td style="text-align: right;">0.0357</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.0393</td>
+<td style="text-align: right;">0.0025</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">13</td>
+<td style="text-align: right;">0.0820</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.0855</td>
+<td style="text-align: right;">0.0014</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">14</td>
+<td style="text-align: right;">0.1213</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1172</td>
+<td style="text-align: right;">0.0031</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">15</td>
+<td style="text-align: right;">0.1035</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1095</td>
+<td style="text-align: right;">0.0038</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">16</td>
+<td style="text-align: right;">0.1507</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.1565</td>
+<td style="text-align: right;">0.0043</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="resultado-de-la-estimación-dam-1" class="slide level2">
+<h2>Resultado de la estimación DAM</h2>
+<div class="cell" data-layout-align="center">
+<div class="cell-output-display">
+<div class="quarto-figure quarto-figure-center">
+<figure>
+<p><img data-src="img/02_calib_nac_dam.png" class="quarto-figure quarto-figure-center" width="1000" height="650"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="estimaciones-desagregadas-por-dam-área" class="slide level2">
+<h2>Estimaciones desagregadas por DAM – área</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href=""></a>theta_modelo_sin_dam_area  <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb20-2"><a href=""></a>    <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb20-3"><a href=""></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>),</span>
+<span id="cb20-4"><a href=""></a>    <span class="at">ci_level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb20-5"><a href=""></a>    <span class="at">var_n =</span> <span class="st">"n"</span></span>
+<span id="cb20-6"><a href=""></a>)<span class="sc">$</span>estimates <span class="sc">%&gt;%</span> </span>
+<span id="cb20-7"><a href=""></a>    <span class="fu">transmute</span>(dam, area, <span class="at">estimate_sin =</span> estimate, <span class="at">sd_sin =</span> sd)</span>
+<span id="cb20-8"><a href=""></a></span>
+<span id="cb20-9"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_sin_dam_area, </span>
+<span id="cb20-10"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/06.theta_modelo_pobreza_sin_dam_area.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="estimaciones-desagregadas-por-dam-área-1" class="slide level2">
+<h2>Estimaciones desagregadas por DAM – área</h2>
+<div class="callout callout-tip callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<p><strong>Código en R</strong></p>
+</div>
+<div class="callout-content">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href=""></a>theta_modelo_con_dam_area  <span class="ot">&lt;-</span> <span class="fu">calc_theta</span>(</span>
+<span id="cb21-2"><a href=""></a>    <span class="at">result_list =</span> poststrat_df_iter2,</span>
+<span id="cb21-3"><a href=""></a>    <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">"dam"</span>, <span class="st">"area"</span>),</span>
+<span id="cb21-4"><a href=""></a>    <span class="at">ci_level =</span> <span class="fl">0.95</span>,</span>
+<span id="cb21-5"><a href=""></a>    <span class="at">var_n =</span> <span class="st">"n2"</span></span>
+<span id="cb21-6"><a href=""></a>)<span class="sc">$</span>estimates <span class="sc">%&gt;%</span> </span>
+<span id="cb21-7"><a href=""></a>    <span class="fu">transmute</span>(dam, area, <span class="at">estimate_con =</span> estimate, <span class="at">sd_con =</span> sd)</span>
+<span id="cb21-8"><a href=""></a></span>
+<span id="cb21-9"><a href=""></a><span class="fu">saveRDS</span>(theta_modelo_con_dam_area,</span>
+<span id="cb21-10"><a href=""></a>        <span class="st">"../Recursos/Modelo_unidad/07.theta_modelo_pobreza_con_dam_area.rds"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="estimaciones-desagregadas-por-dam-área-2" class="slide level2">
+<h2>Estimaciones desagregadas por DAM – área</h2>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<caption>DAM × Área</caption>
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">area</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate_sin</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd_sin</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimate_con</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">sd_con</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">0.1029</td>
+<td style="text-align: right;">0.0086</td>
+<td style="text-align: right;">0.1006</td>
+<td style="text-align: right;">0.0074</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.1071</td>
+<td style="text-align: right;">0.0030</td>
+<td style="text-align: right;">0.1038</td>
+<td style="text-align: right;">0.0005</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">02</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">0.0520</td>
+<td style="text-align: right;">0.0040</td>
+<td style="text-align: right;">0.0534</td>
+<td style="text-align: right;">0.0035</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">02</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.0855</td>
+<td style="text-align: right;">0.0030</td>
+<td style="text-align: right;">0.0876</td>
+<td style="text-align: right;">0.0002</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">03</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">0.1164</td>
+<td style="text-align: right;">0.0065</td>
+<td style="text-align: right;">0.1067</td>
+<td style="text-align: right;">0.0056</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">03</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.1195</td>
+<td style="text-align: right;">0.0041</td>
+<td style="text-align: right;">0.1115</td>
+<td style="text-align: right;">0.0006</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">04</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">0.1476</td>
+<td style="text-align: right;">0.0042</td>
+<td style="text-align: right;">0.1404</td>
+<td style="text-align: right;">0.0031</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">04</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.1713</td>
+<td style="text-align: right;">0.0042</td>
+<td style="text-align: right;">0.1644</td>
+<td style="text-align: right;">0.0008</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">05</td>
+<td style="text-align: left;">0</td>
+<td style="text-align: right;">0.1041</td>
+<td style="text-align: right;">0.0038</td>
+<td style="text-align: right;">0.1066</td>
+<td style="text-align: right;">0.0043</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">05</td>
+<td style="text-align: left;">1</td>
+<td style="text-align: right;">0.0952</td>
+<td style="text-align: right;">0.0022</td>
+<td style="text-align: right;">0.0966</td>
+<td style="text-align: right;">0.0004</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<section id="gracias" class="title-slide slide level1 center">
+<h1>¡Gracias!</h1>
+
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="img/logoCepal.jpg" class="slide-logo"></p>
+<div class="footer footer-default">
+
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="Benchmarking2_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="Benchmarking2_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="Benchmarking2_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="Benchmarking2_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1500,
+
+        height: 1000,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

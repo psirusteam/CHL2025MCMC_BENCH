@@ -1,0 +1,396 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking del Ingreso Medio en un Modelo de Unidad"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+# bibliography: references.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(sampling)
+```
+
+## Introducción
+
+En esta presentación se desarrolla paso a paso el proceso de **benchmarking para la tasa de pobreza** utilizando un modelo de unidad, asegurando que las predicciones ajustadas respeten:
+
+1. La tasa directa nacional
+2. Las tasas directas por dominio (DAM)
+
+El procedimiento se basa en la **calibración logística** (`method = "logit"`) implementada en `calib()` del paquete `sampling`.
+
+
+
+## Objetivo del Benchmarking
+
+Buscamos factores de calibración $g_k$ tales que:
+
+- Coherencia nacional
+
+$$
+\sum_k g_k n_k = N_{tot}
+$$
+
+$$
+\sum_k g_k n_k p^{pred}_k = N_{tot} \cdot \hat{P}^{DIR}_{NAC}
+$$
+
+- Coherencia por dominio
+
+$$
+\sum_{k \in d} g_k n_k = N_d
+$$
+
+$$
+\sum_{k \in d} g_k n_k p^{pred}_k = N_d \cdot \hat{P}^{DIR}_d
+$$
+
+
+## Estructura del ejemplo
+
+Se construyen **16 post-estratos** a partir de:
+
+* 4 DAM
+* 2 sexos
+* 2 áreas
+
+Cada celda incluye:
+
+* tamaño poblacional $n_k$
+* predicción modelo-basada de pobreza $p^{pred}_k$
+
+
+## Post-estratos
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+dam  <- rep(c("A","B","C","D"), each = 4)
+sexo <- rep(c("H","H","M","M"), times = 4)
+area <- rep(c("U","R"), each = 2, times = 4)
+
+post <- data.frame(
+  k = 1:16,
+  dam, sexo, area
+)
+
+post$n_k <- c(623,466,428,717,
+              770,598,569,765,
+              486,606,780,384,
+              576,661,737,793)
+
+post$p_pred <- c(0.264,0.383,0.430,0.214,
+                 0.346,0.188,0.230,0.266,
+                 0.154,0.265,0.411,0.252,
+                 0.295,0.330,0.298,0.206)
+```
+
+:::
+
+
+## Ejemplo de Post-estratos
+
+```{r, echo=FALSE}
+post %>% head(12) %>% tba()
+```
+
+
+## Benchmarking Nacional
+
+Tasa directa nacional de pobreza:
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+Pobreza_dir <- c(
+  den = sum(post$n_k),
+  num = 0.30 * sum(post$n_k))
+```
+:::
+
+
+
+## Matriz $X_s$
+
+$$
+Xs =
+\begin{bmatrix}
+1 & p^{pred}_1 \\
+1 & p^{pred}_2 \\
+\vdots & \vdots \\
+1 & p^{pred}_{16}
+\end{bmatrix}
+$$
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+X_den <- rep(1, nrow(post))
+Xs <- cbind(Den = X_den, Num = X_den * post$p_pred)
+```
+
+:::
+
+## Matriz $X_s$
+
+```{r, echo=FALSE}
+Xs %>% head(12) %>% tba()
+```
+
+
+
+## Calibración Nacional
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+gk <- calib(
+  Xs    = Xs,
+  d     = post$n_k,
+  total = Pobreza_dir,
+  method = "logit"
+)
+gk
+```
+
+:::
+
+
+
+## Pobreza calibrada nacionalmente
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+post$p_bench <- gk * post$p_pred
+post$tot_pobreza_bench <- post$p_bench * post$n_k
+```
+
+:::
+
+
+## Validación nacional
+
+```{r, echo=FALSE}
+data.frame(
+  tot_pobreza_bench  = sum(post$tot_pobreza_bench),  
+  Pobreza_dir = Pobreza_dir[2], 
+  diff = Pobreza_dir[2] - sum(post$tot_pobreza_bench)) %>% tba()
+```
+
+---
+
+## Benchmarking por DAM
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+pobreza_dir_dam <- data.frame(
+  dam = c("A","B","C","D"),
+  pobreza_dir = c(0.33, 0.28, 0.25, 0.30)
+)
+
+pobreza_dir_dam <- pobreza_dir_dam %>%
+  left_join(post %>% group_by(dam) %>% summarise(N_dam = sum(n_k))) %>%
+  mutate(tot_pobreza_dir = pobreza_dir * N_dam)
+```
+
+:::
+
+
+## Totales por DAM
+
+```{r, echo=FALSE}
+pobreza_dir_dam %>% tba()
+```
+
+
+
+## Matriz indicadora por DAM
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+X_dam <- model.matrix(~ dam - 1, data = post)
+colnames(X_dam) <- c("A","B","C","D")
+```
+
+:::
+
+
+## Matriz Xs completa
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+Xs <- cbind(
+  Num_DAM = X_dam * post$p_pred,
+  Den_DAM = X_dam
+)
+```
+
+:::
+
+## Matriz $X_s$
+
+```{r, echo=FALSE}
+Xs %>% head(12) %>% tba()
+```
+
+
+
+## Totales ordenados según Xs
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+totales_dam <- c(
+  pobreza_dir_dam$tot_pobreza_dir,
+  pobreza_dir_dam$N_dam
+)
+
+names(totales_dam) <- c(
+  paste0("Num_DAM_", pobreza_dir_dam$dam),
+  paste0("Den_DAM_", pobreza_dir_dam$dam)
+)
+```
+
+:::
+
+
+
+## Calibración por DAM
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+gk2 <- calib(
+  Xs    = Xs,
+  d     = post$n_k,
+  total = totales_dam,
+  method = "logit"
+)
+gk2 
+```
+
+:::
+
+
+## Valores ajustados por DAM
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+post$p_bench <- gk2 * post$p_pred
+post$tot_pobreza_bench <- post$p_bench * post$n_k
+```
+
+:::
+
+
+
+## Validación por DAM
+
+```{r, echo=FALSE}
+validacion <- post  %>% 
+  group_by(dam) %>%
+  summarise(
+    tot_pobreza_bench = sum(tot_pobreza_bench)
+  ) %>% 
+ inner_join(pobreza_dir_dam) %>% 
+ mutate(
+    diff = tot_pobreza_bench - tot_pobreza_dir
+ )
+validacion %>% tba()
+```
+
+
+
+## Tasas ajustadas por DAM
+
+```{r, echo=FALSE}
+pobreza_dam <- post %>%
+  group_by(dam) %>%
+  summarise(
+    pobreza_bench_dam = sum(tot_pobreza_bench) / sum(n_k)
+  )
+pobreza_dam %>% tba()
+```
+
+
+
+## Conclusiones
+
+* El método garantiza coherencia directa–modelo a nivel nacional y por DAM.
+* La calibración logit permite imponer múltiples restricciones simultáneamente.
+* $X_s$ define completamente la estructura del benchmark.
+* El método se extiende fácilmente a modelos MCMC, multinomiales y continuos.
+
+
+
+# Gracias
