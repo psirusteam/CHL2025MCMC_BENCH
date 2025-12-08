@@ -17,8 +17,56 @@ La capacitación aborda los fundamentos teóricos y prácticos de los modelos de
 
 ## Agenda de trabajo
 
-| Día | Fecha | Temas principales | Actividades |
-|----|----|----|----|
-| **Martes** | 9 de diciembre | \- Agenda 2030 y Objetivos de Desarrollo Sostenible <br> - Introducción a los modelos SAE <br> - Modelos de área <br> - Modelos de unidad | Exposición teórica y ejercicios introductorios |
-| **Miércoles** | 10 de diciembre | \- Modelos de área para pobreza y desempleo <br> - Modelos de unidad para pobreza y desempleo <br> - Prácticas computacionales | Desarrollo de ejercicios aplicados |
-| **Jueves** | 11 de diciembre | \- Introducción a los métodos MCMC <br> - Benchmarking para modelos de área <br> - Prácticas computacionales | Ejercicios en R y discusión de resultados |
++---------------+-----------------+----------------------------+------------------------------------------------+
+| Día           | Fecha           | Temas principales          | Actividades                                    |
++===============+=================+============================+================================================+
+| **Martes**    | 9 de diciembre  | -   Ingreso área           | Exposición teórica y ejercicios introductorios |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
+|               |                 |                            |                                                |
+|               |                 | -   Ingreso unidad         |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
++---------------+-----------------+----------------------------+------------------------------------------------+
+| **Miércoles** | 10 de diciembre | -   Pobreza área           | Desarrollo de ejercicios aplicados             |
+|               |                 |                            |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
+|               |                 |                            |                                                |
+|               |                 |                            |                                                |
+|               |                 | -   Pobreza unidad         |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
++---------------+-----------------+----------------------------+------------------------------------------------+
+| **Jueves**    | 11 de diciembre | -   Mercado laboral área   | Ejercicios en R y discusión de resultados      |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
+|               |                 |                            |                                                |
+|               |                 | -   Mercado laboral unidad |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Modelo             |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 1     |                                                |
+|               |                 |                            |                                                |
+|               |                 |     -   Benchmarking 2     |                                                |
++---------------+-----------------+----------------------------+------------------------------------------------+
