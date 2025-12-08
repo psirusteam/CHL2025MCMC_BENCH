@@ -1,0 +1,612 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Modelo de unidad para el ingreso medio"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+# bibliography: references.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+library(rstan)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+```
+
+
+
+## Introducción
+
+* En la inferencia Bayesiana para estimación de áreas pequeñas (SAE), los métodos de Monte Carlo por Cadenas de Markov (MCMC) permiten aproximar distribuciones posteriores complejas.  
+
+* Estos métodos se emplean para modelos con:
+  - Estructura jerárquica.  
+  - Supuestos de distribución no estándar.  
+
+* La validez de los estimadores depende de la convergencia y eficiencia de las cadenas.
+
+
+# Modelo de unidad
+
+## Modelo de unidad para la estimación del ingreso medio
+
+Uno de los primeros problemas a los que debemos enfrentarnos es la estimación del *ingreso medio*, la cual en una variable no simétrica que toma valores en los positivos. Sin embargo, empleando los métodos Bayesiano es posible obtener estimaciones de esta sin realizar una transformación 
+
+
+## Obejtivo
+
+- Estimar el **ingreso medio** de las personas en cada dominio $d$:
+
+$$
+\bar{Y}_d = \frac{\sum_{U_d}y_{di}}{N_d}
+$$
+- Donde $y_{di}$ es el ingreso de cada persona $i$ en el dominio $d$ y $U_d$ es la población del dominio.
+
+## Descomposición muestral
+
+- Separando la población en la **muestra** $s_d$ y el **complemento fuera de muestra** $s_d^c$:
+
+
+$$
+\begin{equation*}
+\bar{Y}_d =  \frac{\sum_{s_d}y_{di} + \sum_{s^c_d}y_{di}}{N_d} 
+\end{equation*}
+$$
+
+- Esto muestra que el ingreso medio del dominio depende tanto de los datos observados como de los no observados.
+
+## Estimador bajo modelo de unidad (I)
+
+- Sustituimos los valores fuera de muestra por predicciones del modelo:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{s_d}y_{di} + \sum_{s^c_d}\hat{y}_{di}}{N_d}
+$$
+
+- Donde
+
+$$
+\hat{y}_{di} = E_{\mathscr{M}}\left(y_{di} \mid \mathbf{x}_d, \boldsymbol{\beta}\right)
+$$
+
+y $\mathscr{M}$ es la medida de probabilidad inducida por el modelamiento.
+
+## Estimador bajo modelo de unidad (II)
+
+- Asumiendo que no se puede tener un vínculo entre encuesta y censo, entonces es posible usar el siguiente predictor:
+
+$$
+\hat{\bar{Y}}_d = \frac{\sum_{i \in U_d} \hat{y}_{di}}{N_d}
+$$
+
+
+
+## Modelo Bayesiano (I)
+
+- Para predecir el ingreso medio en personas no observadas, se asume el siguiente modelo jerárquico:
+
+$$
+\begin{eqnarray*}
+Y_{di} &\sim & N\left(\mu_{di},\sigma_e^{2}\right)\\
+\mu_{di}&=&\boldsymbol{x}_{di}^{T}\boldsymbol{\beta}+u_{d}+e_{di} 
+\end{eqnarray*}
+$$
+
+- Donde:  
+  - $Y_{di}$ = ingreso de la $i$-ésima persona en el dominio $d$  
+  - $\mathbf{x}_{di}$ = covariables observadas  
+  - $\boldsymbol{\beta}$ = vector de coeficientes fijos  
+  - $u_d$ = efecto aleatorio del dominio $d$  
+  - $e_{di}$ = error individual
+
+
+## Modelo Bayesiano (II)
+
+- Supuestos de los componentes aleatorios:
+
+$$
+u_d \sim N(0, \sigma_u^2), \quad
+e_{di} \sim N(0, \sigma_e^2)
+$$
+
+- Los efectos aleatorios permiten capturar la **heterogeneidad entre dominios** y la variabilidad individual dentro de cada dominio.  
+
+- Esto convierte el modelo en un **modelo lineal jerárquico normal** aplicado a unidades.
+
+## Modelo Bayesiano (III)
+
+- Distribuciones previas **no informativas** usadas para la inferencia Bayesiana:
+
+$$
+\beta_k \sim N(0, 1000), \quad
+\sigma_e^2 \sim IG(0.0001, 0.0001)
+$$
+
+- El proceso de predicción del ingreso medio en dominios no observados se realiza mediante **MCMC**, combinando la información muestral y la estructura del modelo jerárquico.  
+- Esta aproximación permite:  
+  - Propagar la incertidumbre de los parámetros.  
+  - Obtener predicciones consistentes a nivel de unidad y dominio.
+
+
+## Proceso de estimación en `R` (I)
+
+::: {.callout-tip}
+### Librerías principales utilizadas:
+```{r}
+# Interprete de STAN en R
+library(rstan)
+library(rstanarm)
+# Manejo de bases de datos.
+library(tidyverse)
+# Gráficas de los modelos. 
+library(bayesplot)
+library(patchwork)
+# Organizar la presentación de las tablas
+library(kableExtra)
+library(printr)
+source("../Recurso/data/Modelo_unidad/funciones/funciones_mrp.R")
+```
+:::
+
+## Proceso de estimación en `R` (II) {.scroll-container}
+
+- Funciones desarrolladas para simplificar la metodología (archivo `funciones_mrp.R`):
+
+1. **plot_interaction**:  
+   - Crea diagramas de líneas para estudiar la interacción entre variables.
+   - Útil para detectar solapamientos y decidir si incluir interacción en el modelo.
+
+2. **Plot_Compare**:  
+   - Valida la homologación entre censo y encuesta.
+   - Compara proporciones de variables homogéneas entre ambos conjuntos de datos.
+
+3. **Aux_Agregado**:  
+   - Genera estimaciones a diferentes niveles de agregación.
+   - Especialmente útil en procesos repetitivos o cuando se requiere análisis por dominios.
+
+**Las funciones están diseñada específicamente  para este  proceso**
+
+
+## Encuesta de hogares
+
+Los datos empleados en esta ocasión corresponden a la ultima encuesta de hogares, la cual ha sido estandarizada por *CEPAL* y se encuentra disponible en *BADEHOG*
+
+
+```{r, echo = FALSE, eval=FALSE}
+encuesta <- readRDS("../Recurso/data/encuesta2017CHL.Rds")
+
+encuesta_mrp <- encuesta %>% 
+  transmute(
+    dam =  haven::as_factor(dam_ee ,levels = "values"),
+    dam2 =  haven::as_factor(comuna,levels = "values"),
+    dam = str_pad(dam, width = 2, pad = "0"),
+    dam2 = str_pad(dam2, width = 5, pad = "0"), 
+    upm = `_upm`,
+    estrato = `_estrato`,
+  ingreso = ingcorte,lp,li,
+    logingreso = log(ingcorte + 1),
+  area = case_when(area_ee == 1 ~ "1", TRUE ~ "0"),
+  sexo = as.character(sexo),
+
+  anoest = case_when(
+    edad < 6 | is.na(anoest)   ~ "98"  , #No aplica
+    anoest == 99 ~ "99", #NS/NR
+    anoest == 0  ~ "1", # Sin educacion
+    anoest %in% c(1:6) ~ "2",       # 1 - 6
+    anoest %in% c(7:12) ~ "3",      # 7 - 12
+    anoest > 12 ~ "4",      # mas de 12
+    TRUE ~ "Error"  ),
+
+  edad = case_when(
+    edad < 15 ~ "1",
+    edad < 30 ~ "2",
+    edad < 45 ~ "3",
+    edad < 65 ~ "4",
+    TRUE ~ "5"),
+
+  etnia = case_when(
+    etnia_ee == 1 ~ "1", # Indigena
+    etnia_ee == 2 ~ "2",
+     TRUE ~ "3"), # Otro
+ fep = `_feh`
+) 
+
+saveRDS(encuesta_mrp, "../Recurso/data/Modelo_unidad/encuesta_mrp.rds")
+```
+
+
+```{r, echo=FALSE}
+encuesta_mrp <- readRDS("../Recurso/data/Modelo_unidad/encuesta_mrp.rds")
+tba(encuesta_mrp %>% head(10)) 
+```
+
+
+## Variables de la encuesta
+
+-   *dam*: Corresponde al código asignado a la división administrativa mayor del país.
+
+-   *dam2*: Corresponde al código asignado a la segunda división administrativa del país.
+
+-   *lp* y *li* lineas de pobreza y pobreza extrema definidas por CEPAL. 
+
+-   *área* división geográfica (Urbano y Rural). 
+
+-   *sexo* Hombre y Mujer. 
+
+-   *etnia* En estas variable se definen tres grupos:  afrodescendientes, indígenas y Otros. 
+
+-   *anoest* Años de escolaridad  
+
+-   *edad* Rangos de edad 
+
+-   *fep* Factor de expansión por persona
+
+
+## Validación de encuesta frente al censo.
+
+```{r, eval=FALSE, echo=FALSE}
+library(survey)
+library(srvyr)
+library(patchwork)
+censo_dam2 <- readRDS("../Recurso/data/Modelo_unidad/censo_dam2.rds")
+
+p1_dam <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "dam")
+p1_anotes <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "anoest")
+p1_edad <- Plot_Compare(dat_encuesta = encuesta_mrp,
+             dat_censo = censo_dam2,
+             by = "edad")
+p1 <- (p1_dam )/(p1_anotes + p1_edad)
+
+ggsave(plot = p1 + theme_light(),
+       filename = "img/plot_comp.png",
+       scale = 3)
+
+```
+
+```{r echo=FALSE,fig.align='center'}
+knitr::include_graphics("img/plot_comp.png")
+```
+
+## Información Auxiliar (I)
+
+- La información auxiliar proviene de:
+  - **Censo de población**
+  - **Imágenes satelitales**
+
+- Variables estandarizadas (ejemplo):
+  - Luces nocturnas  
+  - Cobertura de cultivos y urbano  
+  - Modificación humana  
+  - Accesibilidad a hospitales  
+
+## Información Auxiliar (II)
+
+```{r, echo=FALSE}
+statelevel_predictors_df <-
+  readRDS("../Recurso/data/Modelo_unidad/statelevel_predictors_df_dam2.rds") %>% 
+    mutate_at(.vars = c("luces_nocturnas",
+                      "cubrimiento_cultivo",
+                      "cubrimiento_urbano",
+                      "modificacion_humana",
+                      "accesibilidad_hospitales",
+                      "accesibilidad_hosp_caminado"),
+            function(x) as.numeric(scale(x)))
+tba(statelevel_predictors_df  %>%  head(5))
+```
+
+
+## Niveles de Agregación
+
+- De la literatura y simulaciones se concluye que:  
+  - Las predicciones con muestra sin agregar y agregada convergen a la media del dominio.  
+  - Usar muestra agregada reduce el tiempo computacional para la convergencia MCMC.  
+
+- Variables de agregación seleccionadas: dam2 (división administrativa menor),  área, sexo,   anoest (años de estudio), edad y etnia
+
+
+## Encuesta Agregada
+
+- Construcción de la base de datos agregada:
+
+```{r, echo=FALSE}
+byAgrega <- c("dam2",  "area", "sexo",   "anoest", "edad",   "etnia")
+
+encuesta_df_agg <-
+  encuesta_mrp %>%                    # Encuesta  
+  group_by_at(all_of(byAgrega)) %>%   # Agrupar por el listado de variables
+  summarise(n = n(),                  # Número de observaciones
+  # Ingreso medio de las personas con características similares.           
+             logingreso = mean(logingreso), 
+            .groups = "drop") %>%     
+  arrange(desc(n))                    # Ordenar la base.
+
+tba(encuesta_df_agg %>% head(8))
+```
+
+## Unión con la información auxiliar
+
+- Finalmente, se unifica con la información auxiliar:
+
+::: {.callout-tip}
+### Código de R
+```{r}
+encuesta_df_agg <- inner_join(encuesta_df_agg, statelevel_predictors_df)
+```
+:::
+
+```{r, echo=FALSE}
+tba(encuesta_df_agg %>% head(8))
+```
+
+
+## Definición del Modelo Multinivel
+
+- Se utiliza un **modelo jerárquico bayesiano** para el ingreso medio:
+$$
+\begin{align*}
+\log(Y_{di}) &\sim (1 \mid dam2) + (1 \mid edad) + (1 \mid etnia) \\ 
+& + \beta_0 + \beta_1\times edad + \beta_2\times sexo + \beta_3\times tasa\_desocupacion \\
+             &+ \beta_4\times luces\_nocturnas + \beta_5\times cubrimiento\_cultivo \\
+             &+ \beta_6\times cubrimiento\_urbano + \beta_7\times modificacion\_humana
+\end{align*}
+$$
+
+- Estimado con `stan_lmer` (`rstanarm`).  
+- Efecto aleatorio: $u_d$ por dominio (`dam2`).  
+- Covariables: demográficas y satelitales.  
+
+
+
+## Proceso de estimación en `R` (I)
+
+::: {.callout-tip}
+### Código de R 
+```{r, eval = FALSE}
+options(MC.cores=parallel::detectCores()) # Permite procesar en paralelo. 
+fit <- stan_lmer(
+  logingreso ~                               # Ingreso medio (Y)
+    (1 | dam2) +                          # Efecto aleatorio (ud)
+    (1 | edad) +
+    (1 | etnia) +
+    sexo  +                               # Efecto fijo (Variables X)
+    edad2 +    edad3+     edad4 +    edad5 +
+    tasa_desocupacion + luces_nocturnas + cubrimiento_cultivo +
+    cubrimiento_urbano +  modificacion_humana  ,
+    weights = n,            # Número de observaciones. 
+    data = encuesta_df_agg, # Encuesta agregada 
+    verbose = TRUE,         # Muestre el avance del proceso
+    chains = 4,             # Número de cadenas.
+    iter = 2000              # Número de realizaciones de la cadena
+                )
+saveRDS(fit, file = "../Recurso/data/Modelo_unidad/fit_ingresos.rds")
+```
+:::
+
+
+## Proceso de estimación en `R` (II)
+::: {.callout-tip}
+### Código de R 
+```{r, eval=FALSE}
+fit <- readRDS( "../Recurso/data/Modelo_unidad/fit_ingresos.rds")
+```
+:::
+
+```{r, echo=FALSE}
+# saveRDS(coef(fit)$dam2, "../Recurso/data/Modelo_unidad/01_tab_coef_dam2.rds")
+tab_coef_dam2 <- readRDS("../Recurso/data/Modelo_unidad/01_tab_coef_dam2.rds")
+tba(tab_coef_dam2 %>% head(5))
+```
+
+
+## Validación del Modelo (I)
+
+- Comparación de densidades observadas vs predichas:
+
+::: {.callout-tip}
+### Código de R 
+
+```{r,eval=FALSE}
+library(posterior)
+library(bayesplot)
+encuesta_mrp2 <- inner_join(encuesta_mrp, statelevel_predictors_df)
+y_pred_B <- posterior_epred(fit, newdata = encuesta_mrp2)
+rowsrandom <- sample(nrow(y_pred_B), 100)
+y_pred2 <- y_pred_B[rowsrandom, ]
+
+p1 <-  ppc_dens_overlay(y = as.numeric(encuesta_mrp2$logingreso),
+                 y_pred2)/
+ppc_dens_overlay(y = exp(as.numeric(encuesta_mrp2$logingreso))-1,
+                 (exp(y_pred2)-1)) + xlim(0, 1500000) 
+
+ggsave(filename = "img/Ingreso.PNG", plot = p1)
+```
+:::
+
+
+## Validación del Modelo (II)
+
+
+```{r echo=FALSE, fig.align="center"}
+knitr::include_graphics("Img/Ingreso.PNG")
+```
+
+
+## Validación del Modelo (III)
+
+
+```{r, eval=FALSE, echo = FALSE}
+p1 <- (mcmc_dens_chains(fit,pars = "sigma") +
+    mcmc_areas(fit,pars = "sigma"))/
+  mcmc_trace(fit,pars = "sigma")
+
+ggsave(filename = "img/Ingreso1.PNG", plot = p1)
+```
+
+
+- Convergencia de parámetros:  
+  - Gráficos de densidad, áreas posteriores y trazas MCMC.  
+
+```{r echo=FALSE, out.width = "900px", fig.align="center"}
+knitr::include_graphics("img/Ingreso1.PNG")
+```
+
+## Efectos de Covariables
+
+```{r, eval=FALSE, echo = FALSE}
+var_names <- c(
+  "edad2",
+  "edad3",
+  "edad4",
+  "edad5",
+  "sexo2",
+  "luces_nocturnas",
+  "cubrimiento_urbano",
+  "cubrimiento_cultivo",
+  "modificacion_humana"
+)
+p1 <- mcmc_areas(fit, pars = var_names)
+
+ggsave(filename = "img/Ingreso2.PNG", plot = p1)
+```
+- Distribución posterior de parámetros seleccionados:  
+  - Edad, sexo, luces nocturnas, cobertura y modificación humana.  
+
+```{r echo=FALSE, out.width = "900px", out.height="500px",fig.align='center'}
+knitr::include_graphics("img/Ingreso2.PNG")
+```
+
+## MCMC 
+
+```{r, eval=FALSE, echo=FALSE}
+p1 <- mcmc_trace(fit,pars = var_names)
+
+ggsave(filename = "img/Ingreso3.PNG", plot = p1)
+```
+
+```{r echo=FALSE, out.width = "900px", out.height="600px",fig.align='center'}
+knitr::include_graphics("img/Ingreso3.PNG")
+```
+
+## Predicción del ingreso medio  
+
+::: {.callout-tip}
+### Código de R 
+
+```{r, eval=FALSE}
+perdidos <- anti_join(censo_dam2, 
+                      statelevel_predictors_df, by = "dam2") %>%
+  select(dam, dam2)
+
+poststrat <- censo_dam2 %>% anti_join(perdidos)
+
+poststrat <- inner_join(poststrat, statelevel_predictors_df)
+
+draw_predict <- posterior_epred(fit, newdata = poststrat)
+
+censo_pred <- poststrat %>% select(names(censo_dam2)) %>% 
+  mutate(
+  loging_Pred =  colMeans(draw_predict),
+  ingres_pred = colMeans(exp(draw_predict)-1)
+)
+saveRDS(censo_pred, file = "../Recurso/data/Modelo_unidad/censo_pred.rds")
+```
+:::
+
+## Estimación del ingreso nacional
+
+::: {.callout-tip}
+### Código de R 
+
+```{r}
+censo_pred <- readRDS( "../Recurso/data/Modelo_unidad/censo_pred.rds")
+tab_nac <- censo_pred %>% summarise(
+  loging_Pred = weighted.mean(loging_Pred, n),
+  ingres_pred = weighted.mean(ingres_pred, n)
+)
+```
+:::
+
+```{r, echo=FALSE}
+tba(tab_nac)
+```
+
+## Estimación del ingreso por sexo 
+
+::: {.callout-tip}
+### Código de R 
+
+```{r}
+tab_sexo_nac <- censo_pred %>% group_by(sexo) %>% summarise(
+  loging_Pred = weighted.mean(loging_Pred, n),
+  ingres_pred = weighted.mean(ingres_pred, n)
+)
+```
+:::
+
+
+```{r, echo=FALSE}
+tba(tab_sexo_nac)
+```
+
+## Estimación del ingreso por dam 
+
+::: {.callout-tip}
+### Código de R 
+
+```{r}
+tab_dam <- censo_pred %>% group_by(dam) %>% summarise(
+  loging_Pred = weighted.mean(loging_Pred, n),
+  ingres_pred = weighted.mean(ingres_pred, n)
+)
+```
+:::
+
+
+```{r, echo=FALSE}
+tba(tab_dam %>% head(8)) 
+```
+
+# ¡Gracias! 
