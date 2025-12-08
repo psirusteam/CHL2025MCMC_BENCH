@@ -1,0 +1,5 @@
+model_FH_normal.rds
+model_FH_normal_loging.rds
+poststrat_df_iter_ingreso_dam.rds
+poststrat_df_iter_ingreso_nacional.rds
+epred_mat.rds
