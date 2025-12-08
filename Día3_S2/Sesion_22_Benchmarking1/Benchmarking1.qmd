@@ -1,0 +1,807 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking en el Mercado del trabajo en un Modelo de Unidad"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+# bibliography: references.bib
+editor: 
+  markdown: 
+    wrap: 72
+---
+
+
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  cache = FALSE
+)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+library(magrittr)
+library(sampling)
+
+```
+
+## Objetivo del benchmarking multinomial
+
+En este ejemplo se presenta, paso a paso, el procedimiento de **benchmarking multinomial** para las categorías:
+
+* $O$: Ocupado
+* $D$: Desocupado
+* $I$: Inactivo
+
+A partir de predicciones de un **modelo de unidad** (por post-estratos), se busca ajustar las tasas:
+
+* Tasa de Ocupación (TO)
+* Tasa de Desocupación (TD)
+* Tasa de Participación (TP)
+
+## Cosistencia
+
+1. **Coherencia multinomial**
+
+   $$
+   p_O + p_D + p_I = 1
+   $$
+
+2. **Coherencia con los totales directos por dominio (DAM):**
+
+   $$
+   TO_d^{bench} \approx TO_d^{DIR}, \qquad TD_d^{bench} \approx TD_d^{DIR}.
+   $$
+
+3. **Coherencia funcional:**
+
+   $$
+   TP^{bench} = \frac{O^{bench} + D^{bench}}{N}
+   = \frac{TO^{bench}}{1 - TD^{bench}}.
+   $$
+
+## Notación básica
+
+Sea $k$ un post-estrato definido por el cruce:
+
+* Dominio $d$ (DAM)
+* Área (urbano/rural)
+* Sexo
+
+Con:
+
+* $n_k$: tamaño poblacional del post-estrato (k).
+* $p_{O,k}; p_{D,k}; p_{I,k}$: probabilidades de Ocupado, Desocupado e Inactivo en el post-estrato (k).
+* $TO_k, TD_k, TP_k$: tasas derivadas de estas probabilidades.
+
+## Dominio $d$:
+
+* $N_d = \sum_{k \in d} n_k$: población del dominio.
+
+* $p_{O,d}^{DIR}, p_{D,d}^{DIR}$: tasas directas de Ocupación y Desocupación.
+
+* Totales directos:
+
+  $$
+  T_{O,d}^{DIR} = N_d , p_{O,d}^{DIR}, \qquad
+  T_{D,d}^{DIR} = N_d , p_{D,d}^{DIR}.
+  $$
+
+## Datos de post-estratos (modelo de unidad)
+
+Trabajamos con 16 post-estratos:
+
+* 4 DAM: A, B, C, D
+* 2 áreas: U (urbano), R (rural)
+* 2 sexos: H (hombre), M (mujer)
+
+El modelo de unidad entrega, por cada post-estrato, predicciones para:
+
+* TD_pred: tasa de Desocupación
+* TO_pred: tasa de Ocupación
+* TP_pred: tasa de Participación (redundante dado TO y TD)
+
+
+## Ejemplo 
+
+```{r, echo=FALSE}
+post <- tribble(
+  ~dam, ~area, ~sexo, ~n_k,      ~TD_pred, ~TO_pred, ~TP_pred,
+  "A", "U", "H", 623, 0.05, 0.72, 0.76,
+  "A", "U", "M", 466, 0.07, 0.41, 0.44,
+  "A", "R", "H", 428, 0.07, 0.70, 0.75,
+  "A", "R", "M", 717, 0.09, 0.47, 0.51,
+  "B", "U", "H", 770, 0.06, 0.74, 0.79,
+  "B", "U", "M", 598, 0.09, 0.44, 0.48,
+  "B", "U", "H", 569, 0.08, 0.68, 0.74,
+  "B", "R", "M", 765, 0.11, 0.43, 0.48,
+  "C", "U", "H", 486, 0.06, 0.62, 0.66,
+  "C", "U", "M", 606, 0.09, 0.37, 0.40,
+  "C", "R", "H", 780, 0.09, 0.65, 0.71,
+  "C", "R", "M", 384, 0.11, 0.41, 0.46,
+  "D", "U", "H", 576, 0.08, 0.55, 0.61,
+  "D", "U", "M", 661, 0.11, 0.31, 0.35,
+  "D", "R", "H", 737, 0.11, 0.60, 0.68,
+  "D", "R", "M", 793, 0.14, 0.37, 0.43
+)
+```
+
+
+```{r, echo=FALSE}
+post  %>%  head(8) %>% tba("Ejemplo de post-estratos")
+```
+
+
+## Reconstrucción coherente de probabilidades O–D–I
+
+El modelo entrega $TO_k$ y $TD_k$. A partir de ellos se reconstruyen probabilidades coherentes:
+
+$$
+p_{O,k} = TO_k,
+$$
+
+$$
+TD_k = \frac{p_{D,k}}{p_{O,k} + p_{D,k}}
+\quad \Rightarrow \quad
+p_{D,k} = TD_k \cdot \frac{p_{O,k}}{1 - TD_k},
+$$
+
+$$
+p_{I,k} = 1 - p_{O,k} - p_{D,k}.
+$$
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+post <- post  %>% 
+  mutate(
+    p_O = TO_pred,
+    p_D = TD_pred * p_O / (1 - TD_pred),
+    p_I = 1 - p_O - p_D
+  )
+
+# Chequeo de coherencia multinomial
+all(abs(post$p_O + post$p_D + post$p_I - 1) < 1e-10)
+```
+:::
+
+
+
+## Tasas directas por DAM
+
+La estimación directa (encuesta) entrega, para cada DAM:
+
+* $p_{O,d}^{DIR}$: tasa de Ocupación directa
+* $p_{D,d}^{DIR}$: tasa de Desocupación directa
+
+La tasa de Inactividad directa se define como:
+
+$$
+p_{I,d}^{DIR} = 1 - p_{O,d}^{DIR} - p_{D,d}^{DIR}.
+$$
+
+
+::: {.callout-tip}
+
+### Código en `R`
+
+
+```{r}
+directos_dam <- data.frame(
+  dam    = c("A","B","C","D"),
+  pO_dir = c(0.58, 0.56, 0.52, 0.49),  # TO directa
+  pD_dir = c(0.05, 0.06, 0.06, 0.07)   # TD directa
+) %>% 
+  mutate(pI_dir = 1 - pO_dir - pD_dir)
+```
+:::
+
+
+## Totales directos por DAM
+
+Por cada dominio (d):
+
+$$
+N_d = \sum_{k \in d} n_k
+$$
+
+$$
+T_{O,d}^{DIR} = N_d \cdot p_{O,d}^{DIR}
+,\quad
+T_{D,d}^{DIR} = N_d \cdot p_{D,d}^{DIR}
+$$
+
+Y:
+
+$$
+T_{TP,d}^{DIR} = N_d \cdot (p_{O,d}^{DIR} + p_{D,d}^{DIR}).
+$$
+
+## Totales directos por DAM
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+# Población por DAM (modelo de unidad)
+N_dam <- post  %>% 
+  group_by(dam)  %>% 
+  summarise(N_dam = sum(n_k), .groups = "drop")
+
+directos_dam <- directos_dam  %>% 
+  left_join(N_dam, by = "dam")  %>% 
+  mutate(
+    Num_TO_dir = pO_dir * N_dam,            # Ocupados directos
+    Num_TD_dir = pD_dir * N_dam,            # Desocupados directos
+    Num_TP_dir = (pO_dir + pD_dir) * N_dam, # PEA directa
+    Den_TD_dir = (pO_dir + pD_dir) * N_dam  # Denominador de TD
+  )
+
+directos_dam  %>%  tba("Totales directos por DAM")
+```
+:::
+
+
+## Totales nacionales
+
+A nivel nacional:
+
+$$
+N_{\text{tot}} = \sum_d N_d, \quad
+T_O^{DIR} = \sum_d T_{O,d}^{DIR}, \quad
+T_D^{DIR} = \sum_d T_{D,d}^{DIR}.
+$$
+
+::: {.callout-tip}
+
+### Código en `R`
+
+
+```{r}
+N_tot     <- sum(directos_dam$N_dam)
+NumO_tot  <- sum(directos_dam$Num_TO_dir)
+NumD_tot  <- sum(directos_dam$Num_TD_dir)
+DenTD_tot <- sum(directos_dam$Den_TD_dir)
+NumTP_tot <- sum(directos_dam$Num_TP_dir)
+
+c(N_tot = N_tot,  NumO_tot = NumO_tot,  NumD_tot = NumD_tot,
+  DenTD_tot = DenTD_tot,  NumTP_tot = NumTP_tot)
+```
+:::
+
+
+
+## Benchmarking nacional de TO
+
+Queremos hallar factores de calibración (g_k) tales que:
+
+$$
+\sum_k g_k n_k = N_{\text{tot}},
+\quad
+\sum_k g_k n_k , TO_k = T_O^{DIR}.
+$$
+
+Es decir, que la **tasa nacional de Ocupación benchmarkeada** coincida con la directa.
+
+## Matriz de diseño
+
+Sea:
+
+$$
+X_{k}^{(den)} = 1,
+\qquad
+X_{k}^{(num)} = TO_k.
+$$
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+# Matrices para TO nacional
+X_nat_TO  <- model.matrix(~ 1, data = post)      # columna de unos
+Xs_nat_TO <- X_nat_TO * post$TO_pred            # numerador
+
+colnames(X_nat_TO)  <- "den_nat_TO"
+colnames(Xs_nat_TO) <- "num_nat_TO"
+
+Xdummy_nat_TO <- cbind(X_nat_TO, Xs_nat_TO)
+```
+:::
+
+## Calibración de los $gk$ para TO
+
+::: {.callout-tip}
+
+### Código en `R`
+
+
+```{r}
+tot_nat_TO <- c(N_tot, NumO_tot)
+names(tot_nat_TO) <- colnames(Xdummy_nat_TO)
+
+gk_TO_nat <- calib(
+  Xs    = Xdummy_nat_TO,
+  d     = post$n_k,
+  total = tot_nat_TO,
+  method = "logit"
+)
+
+# Asignar TO calibrado nacionalmente
+post$TO_bench_nat <- gk_TO_nat * post$TO_pred
+```
+:::
+
+
+## Validación de TO nacional
+
+La tasa de Ocupación nacional ajustada debe igualar:
+
+$$
+TO_{\text{nat}}^{bench} =
+\frac{\sum_k g_k n_k , TO_k}{\sum_k g_k n_k}
+\approx
+\frac{T_O^{DIR}}{N_{\text{tot}}}
+= TO_{\text{nat}}^{DIR}.
+$$
+
+::: {.callout-tip}
+
+### Código en `R`
+
+
+```{r}
+TO_nat_model  <- weighted.mean(post$TO_bench_nat, post$n_k)
+TO_nat_direct <- NumO_tot / N_tot
+
+c(TO_nat_model = TO_nat_model,
+  TO_nat_direct = TO_nat_direct,
+  diff = TO_nat_model - TO_nat_direct)
+```
+:::
+
+
+## Benchmarking nacional de TD
+
+Recordemos que:
+
+$$
+TD_k = \frac{p_{D,k}}{p_{O,k} + p_{D,k}}.
+$$
+
+Para calibrar TD a nivel nacional, se trabaja con el numerador y denominador:
+
+$$
+X_{k}^{(den)} = p_{O,k} + p_{D,k},
+\quad
+X_{k}^{(num)} = p_{D,k}.
+$$
+
+Las restricciones deseadas son:
+
+$$
+\sum_k g_k n_k X_{k}^{(den)} = T_O^{DIR} + T_D^{DIR},
+\quad
+\sum_k g_k n_k X_{k}^{(num)} = T_D^{DIR}.
+$$
+
+## Totaltes directos y Matriz diseño   
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+X_nat_TD_den <- model.matrix(~ 1, data = post) * (post$p_O + post$p_D)
+X_nat_TD_num <- model.matrix(~ 1, data = post) *  post$p_D
+
+colnames(X_nat_TD_den) <- "den_nat_TD"
+colnames(X_nat_TD_num) <- "num_nat_TD"
+
+Xdummy_nat_TD <- cbind(X_nat_TD_den, X_nat_TD_num)
+
+tot_nat_TD <- c(DenTD_tot, NumD_tot)
+names(tot_nat_TD) <- colnames(Xdummy_nat_TD)
+```
+:::
+
+
+## Calibración de los $gk$ para TD
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+gk_TD_nat <- calib(
+  Xs    = Xdummy_nat_TD,
+  d     = post$n_k,
+  total = tot_nat_TD,
+  method = "logit"
+)
+
+post$TD_bench_nat <- gk_TD_nat * post$TD_pred
+```
+:::
+
+## Validación de TD nacional
+
+La tasa nacional de Desocupación ajustada debe cumplir:
+
+$$
+TD_{\text{nat}}^{bench} =
+\frac{\sum_k g_k n_k p_{D,k}}{\sum_k g_k n_k (p_{O,k} + p_{D,k})}
+\approx
+\frac{T_D^{DIR}}{T_O^{DIR} + T_D^{DIR}}.
+$$
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+TD_nat_model <- weighted.mean(post$TD_bench_nat,
+                              w = post$n_k * (post$p_O + post$p_D))
+TD_nat_direct <- NumD_tot / DenTD_tot
+
+c(TD_nat_model = TD_nat_model,
+  TD_nat_direct = TD_nat_direct,
+  diff = TD_nat_model - TD_nat_direct)
+```
+
+:::
+
+
+
+## TP nacional coherente
+
+A partir de las tasas ajustadas $TO_k^{bench}$ y $TD_k^{bench}$ se define:
+
+$$
+TP_k^{bench} =
+\frac{TO_k^{bench}}{1 - TD_k^{bench}}.
+$$
+
+La tasa de participación nacional ajustada es:
+
+$$
+TP_{\text{nat}}^{bench} =
+\frac{\sum_k n_k , TP_k^{bench}}{\sum_k n_k}
+\approx
+\frac{T_O^{DIR} + T_D^{DIR}}{N_{\text{tot}}}.
+$$
+
+## TP nacional coherente
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+post$TP_bench_nat <- post$TO_bench_nat / (1 - post$TD_bench_nat)
+
+TP_nat_model  <- weighted.mean(post$TP_bench_nat, post$n_k)
+TP_nat_direct <- NumTP_tot / N_tot
+
+c(TP_nat_model = TP_nat_model,
+  TP_nat_direct = TP_nat_direct,
+  diff = TP_nat_model - TP_nat_direct)
+```
+:::
+
+
+## Benchmarking por DAM: TO
+
+Ahora pasamos a la calibración por dominio (dam).
+Se construye una matriz de dummies por dominio:
+
+$$
+X_{kd}^{(den)} =
+\begin{cases}
+1 & \text{si } k \in d, \
+0 & \text{en otro caso.}
+\end{cases}
+$$
+
+Para TO, se define:
+
+$$
+X_{kd}^{(num)} = X_{kd}^{(den)} \cdot TO_k.
+$$
+
+Las restricciones son, para cada (d):
+
+$$
+\sum_k g_k n_k X_{kd}^{(den)} = N_d,
+\quad
+\sum_k g_k n_k X_{kd}^{(num)} = T_{O,d}^{DIR}.
+$$
+
+## Matriz diseño para TO
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+X_dam_TO  <- model.matrix(~ dam - 1, data = post)          # 4 columnas: A,B,C,D
+Xs_dam_TO <- X_dam_TO * post$TO_pred
+
+colnames(X_dam_TO)  <- paste0("den_", colnames(X_dam_TO))
+colnames(Xs_dam_TO) <- paste0("num_", colnames(Xs_dam_TO))
+
+Xdummy_TO_dam <- cbind(X_dam_TO, Xs_dam_TO)
+```
+:::
+
+## Calibración de para T0
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+tot_TO_dam <- c(directos_dam$N_dam, directos_dam$Num_TO_dir)
+names(tot_TO_dam) <- colnames(Xdummy_TO_dam)
+
+gk_TO_dam <- calib(
+  Xs    = Xdummy_TO_dam,
+  d     = post$n_k,
+  total = tot_TO_dam,
+  method = "logit"
+)
+
+post$TO_bench_dam <- gk_TO_dam * post$TO_pred
+```
+:::
+
+
+
+## Validación de TO por DAM
+
+La tasa de Ocupación benchmarkeada por dominio debe satisfacer:
+
+$$
+TO_d^{bench} =
+\frac{\sum_{k \in d} g_k n_k , TO_k}
+{\sum_{k \in d} g_k n_k}
+\approx
+p_{O,d}^{DIR}.
+$$
+
+## Validación de TO por DAM
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+TO_bench_dam <- (
+  colSums(Xs_dam_TO * post$n_k * gk_TO_dam) /
+    colSums(X_dam_TO  * post$n_k * gk_TO_dam)
+)
+
+TO_dir_dam <- directos_dam$Num_TO_dir / directos_dam$N_dam
+
+cbind(
+  dam          = directos_dam$dam,
+  TO_bench_dam = TO_bench_dam,
+  TO_dir_dam   = TO_dir_dam,
+  diff         = TO_bench_dam - TO_dir_dam
+)  %>%  tba("Validación TO por DAM")
+```
+:::
+
+
+
+## Benchmarking por DAM: TD
+
+Para la TD se trabaja con:
+
+* Numerador: (p_{D,k})
+* Denominador: (p_{O,k} + p_{D,k})
+
+En cada dominio (d):
+
+$$
+X_{kd}^{(num)} = X_{kd}^{(den)} \cdot p_{D,k},
+\quad
+X_{kd}^{(den)} = X_{kd}^{(den)} \cdot (p_{O,k} + p_{D,k}).
+$$
+
+Las restricciones por dominio son:
+
+$$
+\sum_k g_k n_k X_{kd}^{(den)} = T_{O,d}^{DIR} + T_{D,d}^{DIR},
+$$
+
+$$
+\sum_k g_k n_k X_{kd}^{(num)} = T_{D,d}^{DIR}.
+$$
+
+## Matriz diseño para TD
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+X_dam_TD_num <- model.matrix(~ dam - 1, data = post) * post$p_D
+X_dam_TD_den <- model.matrix(~ dam - 1, data = post) * (post$p_O + post$p_D)
+
+colnames(X_dam_TD_num) <- paste0("num_", colnames(X_dam_TD_num))
+colnames(X_dam_TD_den) <- paste0("den_", colnames(X_dam_TD_den))
+
+Xdummy_TD_dam <- cbind(X_dam_TD_den, X_dam_TD_num)
+```
+:::
+
+## Calibración para TD
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+tot_TD_dam <- c(directos_dam$Den_TD_dir, directos_dam$Num_TD_dir)
+names(tot_TD_dam) <- colnames(Xdummy_TD_dam)
+
+gk_TD_dam <- calib(
+  Xs    = Xdummy_TD_dam,
+  d     = post$n_k,
+  total = tot_TD_dam,
+  method = "logit"
+)
+
+post$TD_bench_dam <- gk_TD_dam * post$TD_pred
+```
+:::
+
+
+
+## Validación de TD por DAM
+
+$$
+TD_d^{bench} =
+\frac{\sum_{k \in d} g_k n_k , p_{D,k}}
+{\sum_{k \in d} g_k n_k (p_{O,k}+p_{D,k})}
+\approx
+p_{D,d}^{DIR}.
+$$
+
+
+::: {.callout-tip}
+
+### Código en `R`
+
+```{r}
+TD_bench_dam <- (
+  colSums(X_dam_TD_num * post$n_k * gk_TD_dam) /
+    colSums(X_dam_TD_den * post$n_k * gk_TD_dam)
+)
+
+TD_dir_dam <- directos_dam$Num_TD_dir / directos_dam$Den_TD_dir
+
+cbind(
+  dam          = directos_dam$dam,
+  TD_bench_dam = TD_bench_dam,
+  TD_dir_dam   = TD_dir_dam,
+  diff         = TD_bench_dam - TD_dir_dam
+)  %>%  tba("Validación TD por DAM")
+```
+:::
+
+
+
+## TP por DAM coherente
+
+Finalmente, la tasa de Participación benchmarkeada por dominio se obtiene como:
+
+$$
+TP_{k,d}^{bench} =
+\frac{TO_{k,d}^{bench}}{1 - TD_{k,d}^{bench}}.
+$$
+
+A nivel de dominio:
+
+$$
+TP_d^{bench} =
+\frac{\sum_{k \in d} n_k TP_{k,d}^{bench}}{N_d}.
+$$
+
+## TP por DAM coherente
+
+::: {.callout-tip}
+
+### Código en `R`
+```{r}
+post$TP_bench_dam <- post$TO_bench_dam / (1 - post$TD_bench_dam)
+
+TP_bench_dam <- post  %>% 
+  group_by(dam)  %>% 
+  summarise(
+    TP_bench_dam = weighted.mean(TP_bench_dam, w = n_k),
+    .groups = "drop"
+  )
+```
+:::
+
+## TP por DAM coherente
+
+::: {.callout-tip}
+
+### Código en `R`
+```{r}
+TP_dir_dam <- directos_dam  %>% 
+  transmute(
+    dam,
+    TP_dir_dam = Num_TP_dir / N_dam
+  )
+
+TP_comp <- TP_bench_dam  %>% 
+  left_join(TP_dir_dam, by = "dam")  %>% 
+  mutate(diff = TP_bench_dam - TP_dir_dam)
+
+TP_comp  %>%  tba("Validación TP por DAM")
+```
+:::
+
+
+
+## Conclusiones
+
+* El benchmarking multinomial permite ajustar simultáneamente:
+
+  * TO (Ocupación)
+  * TD (Desocupación)
+  * y derivar un TP coherente.
+
+* La calibración se formula sobre **numeradores y denominadores** de cada tasa:
+
+  * $T_O^{DIR}, T_D^{DIR}, N_d$.
+
+* La estructura multinomial $p_O + p_D + p_I = 1$ se preserva mediante la reconstrucción de $p_D$ e $p_I$.
+
+* El procedimiento es directamente extensible a:
+
+  * Modelos jerárquicos
+  * Cadenas MCMC (benchmark por iteración)
+  * Estimación en áreas pequeñas.
+
+
+
+# Gracias
+
