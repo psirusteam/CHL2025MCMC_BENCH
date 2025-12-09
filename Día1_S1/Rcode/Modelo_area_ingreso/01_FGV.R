@@ -10,7 +10,7 @@ library(scales)
 # 1. Base 
 #------------------------------------------
 resultado_dir <- 
-  readRDS("Recursos/Día1/Recurso/data/Modelo_area/ingreso/estimacion_dir.rds")
+  readRDS("Día1_S1/Recurso/data/Modelo_area/ingreso/estimacion_dir.rds")
 
 
 base_fgv <- resultado_dir %>%

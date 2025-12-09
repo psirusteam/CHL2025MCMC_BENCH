@@ -220,12 +220,13 @@ resumen <- df_all %>%
     .groups = "drop"
   )
 
-head(resumen, 10) %>% inner_join(estimacionesPre) %>% arrange(mean) %>% tba()
+head(resumen, 10) %>% 
+  inner_join(estimacionesPre) %>% arrange(mean) %>% tba()
 
 ################################################################################
 ## 13. BENCHMARKING ALTERNATIVO LOGIT (FUNCIÓN EXTERNA)
 ################################################################################
-source("Benchmarking_area.R")
+source("Día1_S1/Sesion_13_Benchmarking2/Benchmarking_area.R")
 
 res_logit <- Benchmarking_area(
   temp_draws      = temp_draws,
