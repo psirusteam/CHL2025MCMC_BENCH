@@ -71,28 +71,28 @@ $$
 
 ## Modelo básico de estimación
 
-Los verdaderos valores del ingreso medio $\mu_d$ no son observables, por lo que se emplean estimadores directos provenientes de encuestas de hogares:
+Los verdaderos valores del ingreso medio $\theta_d$ no son observables, por lo que se emplean estimadores directos provenientes de encuestas de hogares:
 
 $$
-\hat{\mu}^{DIR}_d = \mu_d + e_d,\quad e_d \stackrel{ind}{\sim} (0,\sigma^2_{e_d})
+\hat{\theta}^{DIR}_d = \theta_d + e_d,\quad e_d \stackrel{ind}{\sim} (0,\sigma^2_{e_d})
 $$
 
 Sustituyendo en el modelo de Fay–Herriot se obtiene:
 
 $$
-\hat{\mu}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
+\hat{\theta}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
 $$
 
 donde $\sigma^2_{e_d}$ representa la **varianza del error de muestreo** estimada a partir de la encuesta (usando linealización o bootstrap).
 
 ## Estimador BLUP bajo el modelo FH
 
-El *mejor predictor lineal insesgado (BLUP)* de $\mu_d$ se define como:
+El *mejor predictor lineal insesgado (BLUP)* de $\theta_d$ se define como:
 
 $$
-\tilde{\mu}^{FH}_d = \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}} + \tilde{u}_d,
+\tilde{\theta}^{FH}_d = \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}} + \tilde{u}_d,
 \quad 
-\tilde{u}_d = \gamma_d(\hat{\mu}^{DIR}_d - \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}})
+\tilde{u}_d = \gamma_d(\hat{\theta}^{DIR}_d - \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}})
 $$
 
 donde
@@ -105,17 +105,17 @@ El parámetro $\gamma_d$ actúa como *factor de ponderación*. Si la varianza de
 
 ## Aplicación al Ingreso Medio
 
-Sea $\mu_d$ el ingreso promedio per cápita en el dominio $d$.  
+Sea $\theta_d$ el ingreso promedio per cápita en el dominio $d$.  
 El modelo de área se define como:
 
 $$
-\hat{\mu}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
+\hat{\theta}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
 $$
 
 Se asume normalidad en la distribución muestral del estimador directo (justificado por el Teorema del Límite Central):
 
 $$
-\hat{\mu}^{DIR}_d \mid u_d \sim N(\boldsymbol{x}_d^{T}\boldsymbol{\beta}+u_d, \sigma^2_{e_d}), \quad 
+\hat{\theta}^{DIR}_d \mid u_d \sim N(\boldsymbol{x}_d^{T}\boldsymbol{\beta}+u_d, \sigma^2_{e_d}), \quad 
 u_d \sim N(0, \sigma_u^2)
 $$
 
@@ -127,10 +127,10 @@ $$
 
 ## Predictor bayesiano y forma cerrada
 
-El *predictor óptimo* del ingreso medio $\mu_d$ es el valor esperado condicional:
+El *predictor óptimo* del ingreso medio $\theta_d$ es el valor esperado condicional:
 
 $$
-E(\mu_d|\hat{\mu}^{DIR}_d) = \gamma_d\hat{\mu}^{DIR}_d + (1-\gamma_d)\boldsymbol{x}_d^{T}\boldsymbol{\beta}
+E(\theta_d|\hat{\theta}^{DIR}_d) = \gamma_d\hat{\theta}^{DIR}_d + (1-\gamma_d)\boldsymbol{x}_d^{T}\boldsymbol{\beta}
 $$
 
 con
@@ -147,7 +147,7 @@ Este predictor suaviza las estimaciones directas extremas causadas por tamaños 
 
   - La precisión depende del equilibrio entre la varianza del área ($\sigma_u^2$) y la varianza de muestreo ($\sigma_{e_d}^2$).
 
-  - **Nota práctica:** Aunque aquí presentamos el modelo sobre el ingreso directo, en la práctica es común modelar el logaritmo del ingreso ($\log(\hat{\mu}_d)$) para satisfacer mejor los supuestos de normalidad de los residuos y el efecto aleatorio.
+  - **Nota práctica:** Aunque aquí presentamos el modelo sobre el ingreso directo, en la práctica es común modelar el logaritmo del ingreso ($\log(\hat{\theta}_d)$) para satisfacer mejor los supuestos de normalidad de los residuos y el efecto aleatorio.
 
 # Estimación del modelo de área en `Stan`
 

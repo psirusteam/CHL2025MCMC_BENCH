@@ -245,23 +245,23 @@ u_d \stackrel{ind}{\sim} (0,\sigma_u^2)
 </section>
 <section id="modelo-básico-de-estimación" class="slide level2">
 <h2>Modelo básico de estimación</h2>
-<p>Los verdaderos valores del ingreso medio <span class="math inline">\(\mu_d\)</span> no son observables, por lo que se emplean estimadores directos provenientes de encuestas de hogares:</p>
+<p>Los verdaderos valores del ingreso medio <span class="math inline">\(\theta_d\)</span> no son observables, por lo que se emplean estimadores directos provenientes de encuestas de hogares:</p>
 <p><span class="math display">\[
-\hat{\mu}^{DIR}_d = \mu_d + e_d,\quad e_d \stackrel{ind}{\sim} (0,\sigma^2_{e_d})
+\hat{\theta}^{DIR}_d = \theta_d + e_d,\quad e_d \stackrel{ind}{\sim} (0,\sigma^2_{e_d})
 \]</span></p>
 <p>Sustituyendo en el modelo de Fay–Herriot se obtiene:</p>
 <p><span class="math display">\[
-\hat{\mu}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
+\hat{\theta}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
 \]</span></p>
 <p>donde <span class="math inline">\(\sigma^2_{e_d}\)</span> representa la <strong>varianza del error de muestreo</strong> estimada a partir de la encuesta (usando linealización o bootstrap).</p>
 </section>
 <section id="estimador-blup-bajo-el-modelo-fh" class="slide level2">
 <h2>Estimador BLUP bajo el modelo FH</h2>
-<p>El <em>mejor predictor lineal insesgado (BLUP)</em> de <span class="math inline">\(\mu_d\)</span> se define como:</p>
+<p>El <em>mejor predictor lineal insesgado (BLUP)</em> de <span class="math inline">\(\theta_d\)</span> se define como:</p>
 <p><span class="math display">\[
-\tilde{\mu}^{FH}_d = \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}} + \tilde{u}_d,
+\tilde{\theta}^{FH}_d = \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}} + \tilde{u}_d,
 \quad
-\tilde{u}_d = \gamma_d(\hat{\mu}^{DIR}_d - \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}})
+\tilde{u}_d = \gamma_d(\hat{\theta}^{DIR}_d - \boldsymbol{x}_d^{T}\tilde{\boldsymbol{\beta}})
 \]</span></p>
 <p>donde</p>
 <p><span class="math display">\[
@@ -271,14 +271,14 @@ u_d \stackrel{ind}{\sim} (0,\sigma_u^2)
 </section>
 <section id="aplicación-al-ingreso-medio" class="slide level2">
 <h2>Aplicación al Ingreso Medio</h2>
-<p>Sea <span class="math inline">\(\mu_d\)</span> el ingreso promedio per cápita en el dominio <span class="math inline">\(d\)</span>.<br>
+<p>Sea <span class="math inline">\(\theta_d\)</span> el ingreso promedio per cápita en el dominio <span class="math inline">\(d\)</span>.<br>
 El modelo de área se define como:</p>
 <p><span class="math display">\[
-\hat{\mu}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
+\hat{\theta}^{DIR}_d = \boldsymbol{x}_d^{T}\boldsymbol{\beta} + u_d + e_d
 \]</span></p>
 <p>Se asume normalidad en la distribución muestral del estimador directo (justificado por el Teorema del Límite Central):</p>
 <p><span class="math display">\[
-\hat{\mu}^{DIR}_d \mid u_d \sim N(\boldsymbol{x}_d^{T}\boldsymbol{\beta}+u_d, \sigma^2_{e_d}), \quad
+\hat{\theta}^{DIR}_d \mid u_d \sim N(\boldsymbol{x}_d^{T}\boldsymbol{\beta}+u_d, \sigma^2_{e_d}), \quad
 u_d \sim N(0, \sigma_u^2)
 \]</span></p>
 <p>Para la estimación bayesiana, asignamos distribuciones previas (priors) a <span class="math inline">\(\boldsymbol{\beta}\)</span> y <span class="math inline">\(\sigma_u^2\)</span>:</p>
@@ -288,9 +288,9 @@ u_d \sim N(0, \sigma_u^2)
 </section>
 <section id="predictor-bayesiano-y-forma-cerrada" class="slide level2">
 <h2>Predictor bayesiano y forma cerrada</h2>
-<p>El <em>predictor óptimo</em> del ingreso medio <span class="math inline">\(\mu_d\)</span> es el valor esperado condicional:</p>
+<p>El <em>predictor óptimo</em> del ingreso medio <span class="math inline">\(\theta_d\)</span> es el valor esperado condicional:</p>
 <p><span class="math display">\[
-E(\mu_d|\hat{\mu}^{DIR}_d) = \gamma_d\hat{\mu}^{DIR}_d + (1-\gamma_d)\boldsymbol{x}_d^{T}\boldsymbol{\beta}
+E(\theta_d|\hat{\theta}^{DIR}_d) = \gamma_d\hat{\theta}^{DIR}_d + (1-\gamma_d)\boldsymbol{x}_d^{T}\boldsymbol{\beta}
 \]</span></p>
 <p>con</p>
 <p><span class="math display">\[
@@ -303,7 +303,7 @@ E(\mu_d|\hat{\mu}^{DIR}_d) = \gamma_d\hat{\mu}^{DIR}_d + (1-\gamma_d)\boldsymbol
 <ul>
 <li><p>El modelo de Fay–Herriot mejora la eficiencia de las estimaciones del ingreso en municipios o dominios con pocos datos.</p></li>
 <li><p>La precisión depende del equilibrio entre la varianza del área (<span class="math inline">\(\sigma_u^2\)</span>) y la varianza de muestreo (<span class="math inline">\(\sigma_{e_d}^2\)</span>).</p></li>
-<li><p><strong>Nota práctica:</strong> Aunque aquí presentamos el modelo sobre el ingreso directo, en la práctica es común modelar el logaritmo del ingreso (<span class="math inline">\(\log(\hat{\mu}_d)\)</span>) para satisfacer mejor los supuestos de normalidad de los residuos y el efecto aleatorio.</p></li>
+<li><p><strong>Nota práctica:</strong> Aunque aquí presentamos el modelo sobre el ingreso directo, en la práctica es común modelar el logaritmo del ingreso (<span class="math inline">\(\log(\hat{\theta}_d)\)</span>) para satisfacer mejor los supuestos de normalidad de los residuos y el efecto aleatorio.</p></li>
 </ul>
 </section>
 <section>
