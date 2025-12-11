@@ -10,7 +10,7 @@
   <meta name="generator" content="quarto-1.7.32">
 
   <meta name="author" content="Andrés Gutierrez - Stalyn Guerrero">
-  <meta name="dcterms.date" content="2025-12-05">
+  <meta name="dcterms.date" content="2025-12-11">
   <title>Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -213,7 +213,7 @@ Andrés Gutierrez - Stalyn Guerrero
     </div>
 </div>
 
-  <p class="date">2025-12-05</p>
+  <p class="date">2025-12-11</p>
 </section>
 <section id="introducción-al-benchmarking" class="slide level2">
 <h2>Introducción al <em>benchmarking</em></h2>
@@ -852,43 +852,2166 @@ N_d = \sum_{i \in U_d} 1,
 </div>
 <div class="callout-content">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_iter)) {</span>
-<span id="cb11-2"><a href=""></a>  <span class="co"># Nombre de la columna que contiene los draws de esta iteración</span></span>
-<span id="cb11-3"><a href=""></a>  iter_name <span class="ot">&lt;-</span> iter_cols[i]</span>
-<span id="cb11-4"><a href=""></a>  </span>
-<span id="cb11-5"><a href=""></a>  <span class="co"># Matriz Xs = [Den_DAM, Num_DAM]</span></span>
-<span id="cb11-6"><a href=""></a>  <span class="co"># Den_DAM: indicador por dominio</span></span>
-<span id="cb11-7"><a href=""></a>  <span class="co"># Num_DAM: indicador por dominio * predicción del modelo en esta iteración</span></span>
-<span id="cb11-8"><a href=""></a>  Xs <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
-<span id="cb11-9"><a href=""></a>    <span class="at">Den_DAM =</span> X_dam,</span>
-<span id="cb11-10"><a href=""></a>    <span class="at">Num_DAM =</span> X_dam <span class="sc">*</span> temp_draws[[iter_name]]</span>
-<span id="cb11-11"><a href=""></a>  )</span>
-<span id="cb11-12"><a href=""></a> <span class="co"># Asignación ordenada de nombres según 'totales'</span></span>
-<span id="cb11-13"><a href=""></a>  <span class="fu">colnames</span>(Xs) <span class="ot">&lt;-</span> <span class="fu">names</span>(totales)</span>
-<span id="cb11-14"><a href=""></a> <span class="co"># Benchmarking mediante calibración lineal</span></span>
-<span id="cb11-15"><a href=""></a>gk <span class="ot">&lt;-</span> <span class="fu">calib</span>(</span>
-<span id="cb11-16"><a href=""></a>      <span class="at">Xs    =</span> Xs,</span>
-<span id="cb11-17"><a href=""></a>      <span class="at">total =</span> totales,</span>
-<span id="cb11-18"><a href=""></a>      <span class="at">d     =</span> estimacionesPre<span class="sc">$</span>total_pp,</span>
-<span id="cb11-19"><a href=""></a>      <span class="at">method =</span> <span class="st">"linear"</span></span>
-<span id="cb11-20"><a href=""></a>     )</span>
-<span id="cb11-21"><a href=""></a></span>
-<span id="cb11-22"><a href=""></a>  <span class="co"># Si gk es NULL, saltar esta iteración</span></span>
-<span id="cb11-23"><a href=""></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(gk)) <span class="cf">next</span></span>
-<span id="cb11-24"><a href=""></a><span class="co"># Se almacena el resultado calibrado para esta iteración.</span></span>
-<span id="cb11-25"><a href=""></a>  lista_res[[i]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb11-26"><a href=""></a>    <span class="at">iter    =</span> i,</span>
-<span id="cb11-27"><a href=""></a>    <span class="at">dam2    =</span> estimacionesPre<span class="sc">$</span>dam2,</span>
-<span id="cb11-28"><a href=""></a>    <span class="at">y_bench =</span> gk <span class="sc">*</span> estimacionesPre<span class="sc">$</span>estimacion_normal</span>
-<span id="cb11-29"><a href=""></a>  )</span>
-<span id="cb11-30"><a href=""></a>}</span>
-<span id="cb11-31"><a href=""></a></span>
-<span id="cb11-32"><a href=""></a>lista_res <span class="ot">&lt;-</span> <span class="fu">compact</span>(lista_res)</span>
-<span id="cb11-33"><a href=""></a><span class="fu">length</span>(lista_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href=""></a>i <span class="ot">=</span> <span class="dv">1</span></span>
+<span id="cb11-2"><a href=""></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_len</span>(n_iter)) {</span>
+<span id="cb11-3"><a href=""></a>  <span class="co"># Nombre de la columna que contiene los draws de esta iteración</span></span>
+<span id="cb11-4"><a href=""></a>  iter_name <span class="ot">&lt;-</span> iter_cols[i]</span>
+<span id="cb11-5"><a href=""></a>  </span>
+<span id="cb11-6"><a href=""></a>  <span class="co"># Matriz Xs = [Den_DAM, Num_DAM]</span></span>
+<span id="cb11-7"><a href=""></a>  <span class="co"># Den_DAM: indicador por dominio</span></span>
+<span id="cb11-8"><a href=""></a>  <span class="co"># Num_DAM: indicador por dominio * predicción del modelo en esta iteración</span></span>
+<span id="cb11-9"><a href=""></a>  Xs <span class="ot">&lt;-</span> <span class="fu">cbind</span>(</span>
+<span id="cb11-10"><a href=""></a>    <span class="at">Den_DAM =</span> X_dam,</span>
+<span id="cb11-11"><a href=""></a>    <span class="at">Num_DAM =</span> X_dam <span class="sc">*</span> temp_draws[[iter_name]]</span>
+<span id="cb11-12"><a href=""></a>  )</span>
+<span id="cb11-13"><a href=""></a> <span class="co"># Asignación ordenada de nombres según 'totales'</span></span>
+<span id="cb11-14"><a href=""></a>  <span class="fu">colnames</span>(Xs) <span class="ot">&lt;-</span> <span class="fu">names</span>(totales)</span>
+<span id="cb11-15"><a href=""></a> <span class="co"># Benchmarking mediante calibración lineal</span></span>
+<span id="cb11-16"><a href=""></a>gk <span class="ot">&lt;-</span> <span class="fu">calib</span>(</span>
+<span id="cb11-17"><a href=""></a>      <span class="at">Xs    =</span> Xs,</span>
+<span id="cb11-18"><a href=""></a>      <span class="at">total =</span> totales,</span>
+<span id="cb11-19"><a href=""></a>      <span class="at">d     =</span> estimacionesPre<span class="sc">$</span>total_pp,</span>
+<span id="cb11-20"><a href=""></a>      <span class="at">method =</span> <span class="st">"linear"</span></span>
+<span id="cb11-21"><a href=""></a>     )</span>
+<span id="cb11-22"><a href=""></a></span>
+<span id="cb11-23"><a href=""></a>  <span class="co"># Si gk es NULL, saltar esta iteración</span></span>
+<span id="cb11-24"><a href=""></a>  <span class="cf">if</span> (<span class="fu">is.null</span>(gk)) <span class="cf">next</span></span>
+<span id="cb11-25"><a href=""></a><span class="cf">if</span>(<span class="fu">round</span>( <span class="fu">sum</span>(<span class="fu">colSums</span>(gk<span class="sc">*</span>estimacionesPre<span class="sc">$</span>total_pp<span class="sc">*</span>Xs) <span class="sc">-</span>totales),<span class="dv">5</span>) <span class="sc">&lt;</span> <span class="fl">0.000001</span>){</span>
+<span id="cb11-26"><a href=""></a>  <span class="fu">cat</span>(iter_name, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb11-27"><a href=""></a>}</span>
+<span id="cb11-28"><a href=""></a><span class="co"># Se almacena el resultado calibrado para esta iteración.</span></span>
+<span id="cb11-29"><a href=""></a>  lista_res[[i]] <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb11-30"><a href=""></a>    <span class="at">iter    =</span> i,</span>
+<span id="cb11-31"><a href=""></a>    <span class="at">dam2    =</span> estimacionesPre<span class="sc">$</span>dam2,</span>
+<span id="cb11-32"><a href=""></a>    <span class="at">n    =</span> estimacionesPre<span class="sc">$</span>total_pp,</span>
+<span id="cb11-33"><a href=""></a>    <span class="at">yk =</span> temp_draws[[iter_name]], </span>
+<span id="cb11-34"><a href=""></a>    <span class="at">gk =</span> gk</span>
+<span id="cb11-35"><a href=""></a>  )</span>
+<span id="cb11-36"><a href=""></a></span>
+<span id="cb11-37"><a href=""></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iter_1 
+iter_2 
+iter_3 
+iter_4 
+iter_5 
+iter_6 
+iter_7 
+iter_8 
+iter_9 
+iter_10 
+iter_11 
+iter_12 
+iter_13 
+iter_14 
+iter_15 
+iter_16 
+iter_17 
+iter_18 
+iter_19 
+iter_20 
+iter_21 
+iter_22 
+iter_23 
+iter_24 
+iter_25 
+iter_26 
+iter_27 
+iter_28 
+iter_29 
+iter_30 
+iter_31 
+iter_32 
+iter_33 
+iter_34 
+iter_35 
+iter_36 
+iter_37 
+iter_38 
+iter_39 
+iter_40 
+iter_41 
+iter_42 
+iter_43 
+iter_44 
+iter_45 
+iter_46 
+iter_47 
+iter_48 
+iter_49 
+iter_50 
+iter_51 
+iter_52 
+iter_53 
+iter_54 
+iter_55 
+iter_56 
+iter_57 
+iter_58 
+iter_59 
+iter_60 
+iter_61 
+iter_62 
+iter_63 
+iter_64 
+iter_65 
+iter_66 
+iter_67 
+iter_68 
+iter_69 
+iter_70 
+iter_71 
+iter_72 
+iter_73 
+iter_74 
+iter_75 
+iter_76 
+iter_77 
+iter_78 
+iter_79 
+iter_80 
+iter_81 
+iter_82 
+iter_83 
+iter_84 
+iter_85 
+iter_86 
+iter_87 
+iter_88 
+iter_89 
+iter_90 
+iter_91 
+iter_92 
+iter_93 
+iter_94 
+iter_95 
+iter_96 
+iter_97 
+iter_98 
+iter_99 
+iter_100 
+iter_101 
+iter_102 
+iter_103 
+iter_104 
+iter_105 
+iter_106 
+iter_107 
+iter_108 
+iter_109 
+iter_110 
+iter_111 
+iter_112 
+iter_113 
+iter_114 
+iter_115 
+iter_116 
+iter_117 
+iter_118 
+iter_119 
+iter_120 
+iter_121 
+iter_122 
+iter_123 
+iter_124 
+iter_125 
+iter_126 
+iter_127 
+iter_128 
+iter_129 
+iter_130 
+iter_131 
+iter_132 
+iter_133 
+iter_134 
+iter_135 
+iter_136 
+iter_137 
+iter_138 
+iter_139 
+iter_140 
+iter_141 
+iter_142 
+iter_143 
+iter_144 
+iter_145 
+iter_146 
+iter_147 
+iter_148 
+iter_149 
+iter_150 
+iter_151 
+iter_152 
+iter_153 
+iter_154 
+iter_155 
+iter_156 
+iter_157 
+iter_158 
+iter_159 
+iter_160 
+iter_161 
+iter_162 
+iter_163 
+iter_164 
+iter_165 
+iter_166 
+iter_167 
+iter_168 
+iter_169 
+iter_170 
+iter_171 
+iter_172 
+iter_173 
+iter_174 
+iter_175 
+iter_176 
+iter_177 
+iter_178 
+iter_179 
+iter_180 
+iter_181 
+iter_182 
+iter_183 
+iter_184 
+iter_185 
+iter_186 
+iter_187 
+iter_188 
+iter_189 
+iter_190 
+iter_191 
+iter_192 
+iter_193 
+iter_194 
+iter_195 
+iter_196 
+iter_197 
+iter_198 
+iter_199 
+iter_200 
+iter_201 
+iter_202 
+iter_203 
+iter_204 
+iter_205 
+iter_206 
+iter_207 
+iter_208 
+iter_209 
+iter_210 
+iter_211 
+iter_212 
+iter_213 
+iter_214 
+iter_215 
+iter_216 
+iter_217 
+iter_218 
+iter_219 
+iter_220 
+iter_221 
+iter_222 
+iter_223 
+iter_224 
+iter_225 
+iter_226 
+iter_227 
+iter_228 
+iter_229 
+iter_230 
+iter_231 
+iter_232 
+iter_233 
+iter_234 
+iter_235 
+iter_236 
+iter_237 
+iter_238 
+iter_239 
+iter_240 
+iter_241 
+iter_242 
+iter_243 
+iter_244 
+iter_245 
+iter_246 
+iter_247 
+iter_248 
+iter_249 
+iter_250 
+iter_251 
+iter_252 
+iter_253 
+iter_254 
+iter_255 
+iter_256 
+iter_257 
+iter_258 
+iter_259 
+iter_260 
+iter_261 
+iter_262 
+iter_263 
+iter_264 
+iter_265 
+iter_266 
+iter_267 
+iter_268 
+iter_269 
+iter_270 
+iter_271 
+iter_272 
+iter_273 
+iter_274 
+iter_275 
+iter_276 
+iter_277 
+iter_278 
+iter_279 
+iter_280 
+iter_281 
+iter_282 
+iter_283 
+iter_284 
+iter_285 
+iter_286 
+iter_287 
+iter_288 
+iter_289 
+iter_290 
+iter_291 
+iter_292 
+iter_293 
+iter_294 
+iter_295 
+iter_296 
+iter_297 
+iter_298 
+iter_299 
+iter_300 
+iter_301 
+iter_302 
+iter_303 
+iter_304 
+iter_305 
+iter_306 
+iter_307 
+iter_308 
+iter_309 
+iter_310 
+iter_311 
+iter_312 
+iter_313 
+iter_314 
+iter_315 
+iter_316 
+iter_317 
+iter_318 
+iter_319 
+iter_320 
+iter_321 
+iter_322 
+iter_323 
+iter_324 
+iter_325 
+iter_326 
+iter_327 
+iter_328 
+iter_329 
+iter_330 
+iter_331 
+iter_332 
+iter_333 
+iter_334 
+iter_335 
+iter_336 
+iter_337 
+iter_338 
+iter_339 
+iter_340 
+iter_341 
+iter_342 
+iter_343 
+iter_344 
+iter_345 
+iter_346 
+iter_347 
+iter_348 
+iter_349 
+iter_350 
+iter_351 
+iter_352 
+iter_353 
+iter_354 
+iter_355 
+iter_356 
+iter_357 
+iter_358 
+iter_359 
+iter_360 
+iter_361 
+iter_362 
+iter_363 
+iter_364 
+iter_365 
+iter_366 
+iter_367 
+iter_368 
+iter_369 
+iter_370 
+iter_371 
+iter_372 
+iter_373 
+iter_374 
+iter_375 
+iter_376 
+iter_377 
+iter_378 
+iter_379 
+iter_380 
+iter_381 
+iter_382 
+iter_383 
+iter_384 
+iter_385 
+iter_386 
+iter_387 
+iter_388 
+iter_389 
+iter_390 
+iter_391 
+iter_392 
+iter_393 
+iter_394 
+iter_395 
+iter_396 
+iter_397 
+iter_398 
+iter_399 
+iter_400 
+iter_401 
+iter_402 
+iter_403 
+iter_404 
+iter_405 
+iter_406 
+iter_407 
+iter_408 
+iter_409 
+iter_410 
+iter_411 
+iter_412 
+iter_413 
+iter_414 
+iter_415 
+iter_416 
+iter_417 
+iter_418 
+iter_419 
+iter_420 
+iter_421 
+iter_422 
+iter_423 
+iter_424 
+iter_425 
+iter_426 
+iter_427 
+iter_428 
+iter_429 
+iter_430 
+iter_431 
+iter_432 
+iter_433 
+iter_434 
+iter_435 
+iter_436 
+iter_437 
+iter_438 
+iter_439 
+iter_440 
+iter_441 
+iter_442 
+iter_443 
+iter_444 
+iter_445 
+iter_446 
+iter_447 
+iter_448 
+iter_449 
+iter_450 
+iter_451 
+iter_452 
+iter_453 
+iter_454 
+iter_455 
+iter_456 
+iter_457 
+iter_458 
+iter_459 
+iter_460 
+iter_461 
+iter_462 
+iter_463 
+iter_464 
+iter_465 
+iter_466 
+iter_467 
+iter_468 
+iter_469 
+iter_470 
+iter_471 
+iter_472 
+iter_473 
+iter_474 
+iter_475 
+iter_476 
+iter_477 
+iter_478 
+iter_479 
+iter_480 
+iter_481 
+iter_482 
+iter_483 
+iter_484 
+iter_485 
+iter_486 
+iter_487 
+iter_488 
+iter_489 
+iter_490 
+iter_491 
+iter_492 
+iter_493 
+iter_494 
+iter_495 
+iter_496 
+iter_497 
+iter_498 
+iter_499 
+iter_500 
+iter_501 
+iter_502 
+iter_503 
+iter_504 
+iter_505 
+iter_506 
+iter_507 
+iter_508 
+iter_509 
+iter_510 
+iter_511 
+iter_512 
+iter_513 
+iter_514 
+iter_515 
+iter_516 
+iter_517 
+iter_518 
+iter_519 
+iter_520 
+iter_521 
+iter_522 
+iter_523 
+iter_524 
+iter_525 
+iter_526 
+iter_527 
+iter_528 
+iter_529 
+iter_530 
+iter_531 
+iter_532 
+iter_533 
+iter_534 
+iter_535 
+iter_536 
+iter_537 
+iter_538 
+iter_539 
+iter_540 
+iter_541 
+iter_542 
+iter_543 
+iter_544 
+iter_545 
+iter_546 
+iter_547 
+iter_548 
+iter_549 
+iter_550 
+iter_551 
+iter_552 
+iter_553 
+iter_554 
+iter_555 
+iter_556 
+iter_557 
+iter_558 
+iter_559 
+iter_560 
+iter_561 
+iter_562 
+iter_563 
+iter_564 
+iter_565 
+iter_566 
+iter_567 
+iter_568 
+iter_569 
+iter_570 
+iter_571 
+iter_572 
+iter_573 
+iter_574 
+iter_575 
+iter_576 
+iter_577 
+iter_578 
+iter_579 
+iter_580 
+iter_581 
+iter_582 
+iter_583 
+iter_584 
+iter_585 
+iter_586 
+iter_587 
+iter_588 
+iter_589 
+iter_590 
+iter_591 
+iter_592 
+iter_593 
+iter_594 
+iter_595 
+iter_596 
+iter_597 
+iter_598 
+iter_599 
+iter_600 
+iter_601 
+iter_602 
+iter_603 
+iter_604 
+iter_605 
+iter_606 
+iter_607 
+iter_608 
+iter_609 
+iter_610 
+iter_611 
+iter_612 
+iter_613 
+iter_614 
+iter_615 
+iter_616 
+iter_617 
+iter_618 
+iter_619 
+iter_620 
+iter_621 
+iter_622 
+iter_623 
+iter_624 
+iter_625 
+iter_626 
+iter_627 
+iter_628 
+iter_629 
+iter_630 
+iter_631 
+iter_632 
+iter_633 
+iter_634 
+iter_635 
+iter_636 
+iter_637 
+iter_638 
+iter_639 
+iter_640 
+iter_641 
+iter_642 
+iter_643 
+iter_644 
+iter_645 
+iter_646 
+iter_647 
+iter_648 
+iter_649 
+iter_650 
+iter_651 
+iter_652 
+iter_653 
+iter_654 
+iter_655 
+iter_656 
+iter_657 
+iter_658 
+iter_659 
+iter_660 
+iter_661 
+iter_662 
+iter_663 
+iter_664 
+iter_665 
+iter_666 
+iter_667 
+iter_668 
+iter_669 
+iter_670 
+iter_671 
+iter_672 
+iter_673 
+iter_674 
+iter_675 
+iter_676 
+iter_677 
+iter_678 
+iter_679 
+iter_680 
+iter_681 
+iter_682 
+iter_683 
+iter_684 
+iter_685 
+iter_686 
+iter_687 
+iter_688 
+iter_689 
+iter_690 
+iter_691 
+iter_692 
+iter_693 
+iter_694 
+iter_695 
+iter_696 
+iter_697 
+iter_698 
+iter_699 
+iter_700 
+iter_701 
+iter_702 
+iter_703 
+iter_704 
+iter_705 
+iter_706 
+iter_707 
+iter_708 
+iter_709 
+iter_710 
+iter_711 
+iter_712 
+iter_713 
+iter_714 
+iter_715 
+iter_716 
+iter_717 
+iter_718 
+iter_719 
+iter_720 
+iter_721 
+iter_722 
+iter_723 
+iter_724 
+iter_725 
+iter_726 
+iter_727 
+iter_728 
+iter_729 
+iter_730 
+iter_731 
+iter_732 
+iter_733 
+iter_734 
+iter_735 
+iter_736 
+iter_737 
+iter_738 
+iter_739 
+iter_740 
+iter_741 
+iter_742 
+iter_743 
+iter_744 
+iter_745 
+iter_746 
+iter_747 
+iter_748 
+iter_749 
+iter_750 
+iter_751 
+iter_752 
+iter_753 
+iter_754 
+iter_755 
+iter_756 
+iter_757 
+iter_758 
+iter_759 
+iter_760 
+iter_761 
+iter_762 
+iter_763 
+iter_764 
+iter_765 
+iter_766 
+iter_767 
+iter_768 
+iter_769 
+iter_770 
+iter_771 
+iter_772 
+iter_773 
+iter_774 
+iter_775 
+iter_776 
+iter_777 
+iter_778 
+iter_779 
+iter_780 
+iter_781 
+iter_782 
+iter_783 
+iter_784 
+iter_785 
+iter_786 
+iter_787 
+iter_788 
+iter_789 
+iter_790 
+iter_791 
+iter_792 
+iter_793 
+iter_794 
+iter_795 
+iter_796 
+iter_797 
+iter_798 
+iter_799 
+iter_800 
+iter_801 
+iter_802 
+iter_803 
+iter_804 
+iter_805 
+iter_806 
+iter_807 
+iter_808 
+iter_809 
+iter_810 
+iter_811 
+iter_812 
+iter_813 
+iter_814 
+iter_815 
+iter_816 
+iter_817 
+iter_818 
+iter_819 
+iter_820 
+iter_821 
+iter_822 
+iter_823 
+iter_824 
+iter_825 
+iter_826 
+iter_827 
+iter_828 
+iter_829 
+iter_830 
+iter_831 
+iter_832 
+iter_833 
+iter_834 
+iter_835 
+iter_836 
+iter_837 
+iter_838 
+iter_839 
+iter_840 
+iter_841 
+iter_842 
+iter_843 
+iter_844 
+iter_845 
+iter_846 
+iter_847 
+iter_848 
+iter_849 
+iter_850 
+iter_851 
+iter_852 
+iter_853 
+iter_854 
+iter_855 
+iter_856 
+iter_857 
+iter_858 
+iter_859 
+iter_860 
+iter_861 
+iter_862 
+iter_863 
+iter_864 
+iter_865 
+iter_866 
+iter_867 
+iter_868 
+iter_869 
+iter_870 
+iter_871 
+iter_872 
+iter_873 
+iter_874 
+iter_875 
+iter_876 
+iter_877 
+iter_878 
+iter_879 
+iter_880 
+iter_881 
+iter_882 
+iter_883 
+iter_884 
+iter_885 
+iter_886 
+iter_887 
+iter_888 
+iter_889 
+iter_890 
+iter_891 
+iter_892 
+iter_893 
+iter_894 
+iter_895 
+iter_896 
+iter_897 
+iter_898 
+iter_899 
+iter_900 
+iter_901 
+iter_902 
+iter_903 
+iter_904 
+iter_905 
+iter_906 
+iter_907 
+iter_908 
+iter_909 
+iter_910 
+iter_911 
+iter_912 
+iter_913 
+iter_914 
+iter_915 
+iter_916 
+iter_917 
+iter_918 
+iter_919 
+iter_920 
+iter_921 
+iter_922 
+iter_923 
+iter_924 
+iter_925 
+iter_926 
+iter_927 
+iter_928 
+iter_929 
+iter_930 
+iter_931 
+iter_932 
+iter_933 
+iter_934 
+iter_935 
+iter_936 
+iter_937 
+iter_938 
+iter_939 
+iter_940 
+iter_941 
+iter_942 
+iter_943 
+iter_944 
+iter_945 
+iter_946 
+iter_947 
+iter_948 
+iter_949 
+iter_950 
+iter_951 
+iter_952 
+iter_953 
+iter_954 
+iter_955 
+iter_956 
+iter_957 
+iter_958 
+iter_959 
+iter_960 
+iter_961 
+iter_962 
+iter_963 
+iter_964 
+iter_965 
+iter_966 
+iter_967 
+iter_968 
+iter_969 
+iter_970 
+iter_971 
+iter_972 
+iter_973 
+iter_974 
+iter_975 
+iter_976 
+iter_977 
+iter_978 
+iter_979 
+iter_980 
+iter_981 
+iter_982 
+iter_983 
+iter_984 
+iter_985 
+iter_986 
+iter_987 
+iter_988 
+iter_989 
+iter_990 
+iter_991 
+iter_992 
+iter_993 
+iter_994 
+iter_995 
+iter_996 
+iter_997 
+iter_998 
+iter_999 
+iter_1000 
+iter_1001 
+iter_1002 
+iter_1003 
+iter_1004 
+iter_1005 
+iter_1006 
+iter_1007 
+iter_1008 
+iter_1009 
+iter_1010 
+iter_1011 
+iter_1012 
+iter_1013 
+iter_1014 
+iter_1015 
+iter_1016 
+iter_1017 
+iter_1018 
+iter_1019 
+iter_1020 
+iter_1021 
+iter_1022 
+iter_1023 
+iter_1024 
+iter_1025 
+iter_1026 
+iter_1027 
+iter_1028 
+iter_1029 
+iter_1030 
+iter_1031 
+iter_1032 
+iter_1033 
+iter_1034 
+iter_1035 
+iter_1036 
+iter_1037 
+iter_1038 
+iter_1039 
+iter_1040 
+iter_1041 
+iter_1042 
+iter_1043 
+iter_1044 
+iter_1045 
+iter_1046 
+iter_1047 
+iter_1048 
+iter_1049 
+iter_1050 
+iter_1051 
+iter_1052 
+iter_1053 
+iter_1054 
+iter_1055 
+iter_1056 
+iter_1057 
+iter_1058 
+iter_1059 
+iter_1060 
+iter_1061 
+iter_1062 
+iter_1063 
+iter_1064 
+iter_1065 
+iter_1066 
+iter_1067 
+iter_1068 
+iter_1069 
+iter_1070 
+iter_1071 
+iter_1072 
+iter_1073 
+iter_1074 
+iter_1075 
+iter_1076 
+iter_1077 
+iter_1078 
+iter_1079 
+iter_1080 
+iter_1081 
+iter_1082 
+iter_1083 
+iter_1084 
+iter_1085 
+iter_1086 
+iter_1087 
+iter_1088 
+iter_1089 
+iter_1090 
+iter_1091 
+iter_1092 
+iter_1093 
+iter_1094 
+iter_1095 
+iter_1096 
+iter_1097 
+iter_1098 
+iter_1099 
+iter_1100 
+iter_1101 
+iter_1102 
+iter_1103 
+iter_1104 
+iter_1105 
+iter_1106 
+iter_1107 
+iter_1108 
+iter_1109 
+iter_1110 
+iter_1111 
+iter_1112 
+iter_1113 
+iter_1114 
+iter_1115 
+iter_1116 
+iter_1117 
+iter_1118 
+iter_1119 
+iter_1120 
+iter_1121 
+iter_1122 
+iter_1123 
+iter_1124 
+iter_1125 
+iter_1126 
+iter_1127 
+iter_1128 
+iter_1129 
+iter_1130 
+iter_1131 
+iter_1132 
+iter_1133 
+iter_1134 
+iter_1135 
+iter_1136 
+iter_1137 
+iter_1138 
+iter_1139 
+iter_1140 
+iter_1141 
+iter_1142 
+iter_1143 
+iter_1144 
+iter_1145 
+iter_1146 
+iter_1147 
+iter_1148 
+iter_1149 
+iter_1150 
+iter_1151 
+iter_1152 
+iter_1153 
+iter_1154 
+iter_1155 
+iter_1156 
+iter_1157 
+iter_1158 
+iter_1159 
+iter_1160 
+iter_1161 
+iter_1162 
+iter_1163 
+iter_1164 
+iter_1165 
+iter_1166 
+iter_1167 
+iter_1168 
+iter_1169 
+iter_1170 
+iter_1171 
+iter_1172 
+iter_1173 
+iter_1174 
+iter_1175 
+iter_1176 
+iter_1177 
+iter_1178 
+iter_1179 
+iter_1180 
+iter_1181 
+iter_1182 
+iter_1183 
+iter_1184 
+iter_1185 
+iter_1186 
+iter_1187 
+iter_1188 
+iter_1189 
+iter_1190 
+iter_1191 
+iter_1192 
+iter_1193 
+iter_1194 
+iter_1195 
+iter_1196 
+iter_1197 
+iter_1198 
+iter_1199 
+iter_1200 
+iter_1201 
+iter_1202 
+iter_1203 
+iter_1204 
+iter_1205 
+iter_1206 
+iter_1207 
+iter_1208 
+iter_1209 
+iter_1210 
+iter_1211 
+iter_1212 
+iter_1213 
+iter_1214 
+iter_1215 
+iter_1216 
+iter_1217 
+iter_1218 
+iter_1219 
+iter_1220 
+iter_1221 
+iter_1222 
+iter_1223 
+iter_1224 
+iter_1225 
+iter_1226 
+iter_1227 
+iter_1228 
+iter_1229 
+iter_1230 
+iter_1231 
+iter_1232 
+iter_1233 
+iter_1234 
+iter_1235 
+iter_1236 
+iter_1237 
+iter_1238 
+iter_1239 
+iter_1240 
+iter_1241 
+iter_1242 
+iter_1243 
+iter_1244 
+iter_1245 
+iter_1246 
+iter_1247 
+iter_1248 
+iter_1249 
+iter_1250 
+iter_1251 
+iter_1252 
+iter_1253 
+iter_1254 
+iter_1255 
+iter_1256 
+iter_1257 
+iter_1258 
+iter_1259 
+iter_1260 
+iter_1261 
+iter_1262 
+iter_1263 
+iter_1264 
+iter_1265 
+iter_1266 
+iter_1267 
+iter_1268 
+iter_1269 
+iter_1270 
+iter_1271 
+iter_1272 
+iter_1273 
+iter_1274 
+iter_1275 
+iter_1276 
+iter_1277 
+iter_1278 
+iter_1279 
+iter_1280 
+iter_1281 
+iter_1282 
+iter_1283 
+iter_1284 
+iter_1285 
+iter_1286 
+iter_1287 
+iter_1288 
+iter_1289 
+iter_1290 
+iter_1291 
+iter_1292 
+iter_1293 
+iter_1294 
+iter_1295 
+iter_1296 
+iter_1297 
+iter_1298 
+iter_1299 
+iter_1300 
+iter_1301 
+iter_1302 
+iter_1303 
+iter_1304 
+iter_1305 
+iter_1306 
+iter_1307 
+iter_1308 
+iter_1309 
+iter_1310 
+iter_1311 
+iter_1312 
+iter_1313 
+iter_1314 
+iter_1315 
+iter_1316 
+iter_1317 
+iter_1318 
+iter_1319 
+iter_1320 
+iter_1321 
+iter_1322 
+iter_1323 
+iter_1324 
+iter_1325 
+iter_1326 
+iter_1327 
+iter_1328 
+iter_1329 
+iter_1330 
+iter_1331 
+iter_1332 
+iter_1333 
+iter_1334 
+iter_1335 
+iter_1336 
+iter_1337 
+iter_1338 
+iter_1339 
+iter_1340 
+iter_1341 
+iter_1342 
+iter_1343 
+iter_1344 
+iter_1345 
+iter_1346 
+iter_1347 
+iter_1348 
+iter_1349 
+iter_1350 
+iter_1351 
+iter_1352 
+iter_1353 
+iter_1354 
+iter_1355 
+iter_1356 
+iter_1357 
+iter_1358 
+iter_1359 
+iter_1360 
+iter_1361 
+iter_1362 
+iter_1363 
+iter_1364 
+iter_1365 
+iter_1366 
+iter_1367 
+iter_1368 
+iter_1369 
+iter_1370 
+iter_1371 
+iter_1372 
+iter_1373 
+iter_1374 
+iter_1375 
+iter_1376 
+iter_1377 
+iter_1378 
+iter_1379 
+iter_1380 
+iter_1381 
+iter_1382 
+iter_1383 
+iter_1384 
+iter_1385 
+iter_1386 
+iter_1387 
+iter_1388 
+iter_1389 
+iter_1390 
+iter_1391 
+iter_1392 
+iter_1393 
+iter_1394 
+iter_1395 
+iter_1396 
+iter_1397 
+iter_1398 
+iter_1399 
+iter_1400 
+iter_1401 
+iter_1402 
+iter_1403 
+iter_1404 
+iter_1405 
+iter_1406 
+iter_1407 
+iter_1408 
+iter_1409 
+iter_1410 
+iter_1411 
+iter_1412 
+iter_1413 
+iter_1414 
+iter_1415 
+iter_1416 
+iter_1417 
+iter_1418 
+iter_1419 
+iter_1420 
+iter_1421 
+iter_1422 
+iter_1423 
+iter_1424 
+iter_1425 
+iter_1426 
+iter_1427 
+iter_1428 
+iter_1429 
+iter_1430 
+iter_1431 
+iter_1432 
+iter_1433 
+iter_1434 
+iter_1435 
+iter_1436 
+iter_1437 
+iter_1438 
+iter_1439 
+iter_1440 
+iter_1441 
+iter_1442 
+iter_1443 
+iter_1444 
+iter_1445 
+iter_1446 
+iter_1447 
+iter_1448 
+iter_1449 
+iter_1450 
+iter_1451 
+iter_1452 
+iter_1453 
+iter_1454 
+iter_1455 
+iter_1456 
+iter_1457 
+iter_1458 
+iter_1459 
+iter_1460 
+iter_1461 
+iter_1462 
+iter_1463 
+iter_1464 
+iter_1465 
+iter_1466 
+iter_1467 
+iter_1468 
+iter_1469 
+iter_1470 
+iter_1471 
+iter_1472 
+iter_1473 
+iter_1474 
+iter_1475 
+iter_1476 
+iter_1477 
+iter_1478 
+iter_1479 
+iter_1480 
+iter_1481 
+iter_1482 
+iter_1483 
+iter_1484 
+iter_1485 
+iter_1486 
+iter_1487 
+iter_1488 
+iter_1489 
+iter_1490 
+iter_1491 
+iter_1492 
+iter_1493 
+iter_1494 
+iter_1495 
+iter_1496 
+iter_1497 
+iter_1498 
+iter_1499 
+iter_1500 
+iter_1501 
+iter_1502 
+iter_1503 
+iter_1504 
+iter_1505 
+iter_1506 
+iter_1507 
+iter_1508 
+iter_1509 
+iter_1510 
+iter_1511 
+iter_1512 
+iter_1513 
+iter_1514 
+iter_1515 
+iter_1516 
+iter_1517 
+iter_1518 
+iter_1519 
+iter_1520 
+iter_1521 
+iter_1522 
+iter_1523 
+iter_1524 
+iter_1525 
+iter_1526 
+iter_1527 
+iter_1528 
+iter_1529 
+iter_1530 
+iter_1531 
+iter_1532 
+iter_1533 
+iter_1534 
+iter_1535 
+iter_1536 
+iter_1537 
+iter_1538 
+iter_1539 
+iter_1540 
+iter_1541 
+iter_1542 
+iter_1543 
+iter_1544 
+iter_1545 
+iter_1546 
+iter_1547 
+iter_1548 
+iter_1549 
+iter_1550 
+iter_1551 
+iter_1552 
+iter_1553 
+iter_1554 
+iter_1555 
+iter_1556 
+iter_1557 
+iter_1558 
+iter_1559 
+iter_1560 
+iter_1561 
+iter_1562 
+iter_1563 
+iter_1564 
+iter_1565 
+iter_1566 
+iter_1567 
+iter_1568 
+iter_1569 
+iter_1570 
+iter_1571 
+iter_1572 
+iter_1573 
+iter_1574 
+iter_1575 
+iter_1576 
+iter_1577 
+iter_1578 
+iter_1579 
+iter_1580 
+iter_1581 
+iter_1582 
+iter_1583 
+iter_1584 
+iter_1585 
+iter_1586 
+iter_1587 
+iter_1588 
+iter_1589 
+iter_1590 
+iter_1591 
+iter_1592 
+iter_1593 
+iter_1594 
+iter_1595 
+iter_1596 
+iter_1597 
+iter_1598 
+iter_1599 
+iter_1600 
+iter_1601 
+iter_1602 
+iter_1603 
+iter_1604 
+iter_1605 
+iter_1606 
+iter_1607 
+iter_1608 
+iter_1609 
+iter_1610 
+iter_1611 
+iter_1612 
+iter_1613 
+iter_1614 
+iter_1615 
+iter_1616 
+iter_1617 
+iter_1618 
+iter_1619 
+iter_1620 
+iter_1621 
+iter_1622 
+iter_1623 
+iter_1624 
+iter_1625 
+iter_1626 
+iter_1627 
+iter_1628 
+iter_1629 
+iter_1630 
+iter_1631 
+iter_1632 
+iter_1633 
+iter_1634 
+iter_1635 
+iter_1636 
+iter_1637 
+iter_1638 
+iter_1639 
+iter_1640 
+iter_1641 
+iter_1642 
+iter_1643 
+iter_1644 
+iter_1645 
+iter_1646 
+iter_1647 
+iter_1648 
+iter_1649 
+iter_1650 
+iter_1651 
+iter_1652 
+iter_1653 
+iter_1654 
+iter_1655 
+iter_1656 
+iter_1657 
+iter_1658 
+iter_1659 
+iter_1660 
+iter_1661 
+iter_1662 
+iter_1663 
+iter_1664 
+iter_1665 
+iter_1666 
+iter_1667 
+iter_1668 
+iter_1669 
+iter_1670 
+iter_1671 
+iter_1672 
+iter_1673 
+iter_1674 
+iter_1675 
+iter_1676 
+iter_1677 
+iter_1678 
+iter_1679 
+iter_1680 
+iter_1681 
+iter_1682 
+iter_1683 
+iter_1684 
+iter_1685 
+iter_1686 
+iter_1687 
+iter_1688 
+iter_1689 
+iter_1690 
+iter_1691 
+iter_1692 
+iter_1693 
+iter_1694 
+iter_1695 
+iter_1696 
+iter_1697 
+iter_1698 
+iter_1699 
+iter_1700 
+iter_1701 
+iter_1702 
+iter_1703 
+iter_1704 
+iter_1705 
+iter_1706 
+iter_1707 
+iter_1708 
+iter_1709 
+iter_1710 
+iter_1711 
+iter_1712 
+iter_1713 
+iter_1714 
+iter_1715 
+iter_1716 
+iter_1717 
+iter_1718 
+iter_1719 
+iter_1720 
+iter_1721 
+iter_1722 
+iter_1723 
+iter_1724 
+iter_1725 
+iter_1726 
+iter_1727 
+iter_1728 
+iter_1729 
+iter_1730 
+iter_1731 
+iter_1732 
+iter_1733 
+iter_1734 
+iter_1735 
+iter_1736 
+iter_1737 
+iter_1738 
+iter_1739 
+iter_1740 
+iter_1741 
+iter_1742 
+iter_1743 
+iter_1744 
+iter_1745 
+iter_1746 
+iter_1747 
+iter_1748 
+iter_1749 
+iter_1750 
+iter_1751 
+iter_1752 
+iter_1753 
+iter_1754 
+iter_1755 
+iter_1756 
+iter_1757 
+iter_1758 
+iter_1759 
+iter_1760 
+iter_1761 
+iter_1762 
+iter_1763 
+iter_1764 
+iter_1765 
+iter_1766 
+iter_1767 
+iter_1768 
+iter_1769 
+iter_1770 
+iter_1771 
+iter_1772 
+iter_1773 
+iter_1774 
+iter_1775 
+iter_1776 
+iter_1777 
+iter_1778 
+iter_1779 
+iter_1780 
+iter_1781 
+iter_1782 
+iter_1783 
+iter_1784 
+iter_1785 
+iter_1786 
+iter_1787 
+iter_1788 
+iter_1789 
+iter_1790 
+iter_1791 
+iter_1792 
+iter_1793 
+iter_1794 
+iter_1795 
+iter_1796 
+iter_1797 
+iter_1798 
+iter_1799 
+iter_1800 
+iter_1801 
+iter_1802 
+iter_1803 
+iter_1804 
+iter_1805 
+iter_1806 
+iter_1807 
+iter_1808 
+iter_1809 
+iter_1810 
+iter_1811 
+iter_1812 
+iter_1813 
+iter_1814 
+iter_1815 
+iter_1816 
+iter_1817 
+iter_1818 
+iter_1819 
+iter_1820 
+iter_1821 
+iter_1822 
+iter_1823 
+iter_1824 
+iter_1825 
+iter_1826 
+iter_1827 
+iter_1828 
+iter_1829 
+iter_1830 
+iter_1831 
+iter_1832 
+iter_1833 
+iter_1834 
+iter_1835 
+iter_1836 
+iter_1837 
+iter_1838 
+iter_1839 
+iter_1840 
+iter_1841 
+iter_1842 
+iter_1843 
+iter_1844 
+iter_1845 
+iter_1846 
+iter_1847 
+iter_1848 
+iter_1849 
+iter_1850 
+iter_1851 
+iter_1852 
+iter_1853 
+iter_1854 
+iter_1855 
+iter_1856 
+iter_1857 
+iter_1858 
+iter_1859 
+iter_1860 
+iter_1861 
+iter_1862 
+iter_1863 
+iter_1864 
+iter_1865 
+iter_1866 
+iter_1867 
+iter_1868 
+iter_1869 
+iter_1870 
+iter_1871 
+iter_1872 
+iter_1873 
+iter_1874 
+iter_1875 
+iter_1876 
+iter_1877 
+iter_1878 
+iter_1879 
+iter_1880 
+iter_1881 
+iter_1882 
+iter_1883 
+iter_1884 
+iter_1885 
+iter_1886 
+iter_1887 
+iter_1888 
+iter_1889 
+iter_1890 
+iter_1891 
+iter_1892 
+iter_1893 
+iter_1894 
+iter_1895 
+iter_1896 
+iter_1897 
+iter_1898 
+iter_1899 
+iter_1900 
+iter_1901 
+iter_1902 
+iter_1903 
+iter_1904 
+iter_1905 
+iter_1906 
+iter_1907 
+iter_1908 
+iter_1909 
+iter_1910 
+iter_1911 
+iter_1912 
+iter_1913 
+iter_1914 
+iter_1915 
+iter_1916 
+iter_1917 
+iter_1918 
+iter_1919 
+iter_1920 
+iter_1921 
+iter_1922 
+iter_1923 
+iter_1924 
+iter_1925 
+iter_1926 
+iter_1927 
+iter_1928 
+iter_1929 
+iter_1930 
+iter_1931 
+iter_1932 
+iter_1933 
+iter_1934 
+iter_1935 
+iter_1936 
+iter_1937 
+iter_1938 
+iter_1939 
+iter_1940 
+iter_1941 
+iter_1942 
+iter_1943 
+iter_1944 
+iter_1945 
+iter_1946 
+iter_1947 
+iter_1948 
+iter_1949 
+iter_1950 
+iter_1951 
+iter_1952 
+iter_1953 
+iter_1954 
+iter_1955 
+iter_1956 
+iter_1957 
+iter_1958 
+iter_1959 
+iter_1960 
+iter_1961 
+iter_1962 
+iter_1963 
+iter_1964 
+iter_1965 
+iter_1966 
+iter_1967 
+iter_1968 
+iter_1969 
+iter_1970 
+iter_1971 
+iter_1972 
+iter_1973 
+iter_1974 
+iter_1975 
+iter_1976 
+iter_1977 
+iter_1978 
+iter_1979 
+iter_1980 
+iter_1981 
+iter_1982 
+iter_1983 
+iter_1984 
+iter_1985 
+iter_1986 
+iter_1987 
+iter_1988 
+iter_1989 
+iter_1990 
+iter_1991 
+iter_1992 
+iter_1993 
+iter_1994 
+iter_1995 
+iter_1996 
+iter_1997 
+iter_1998 
+iter_1999 
+iter_2000 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a>lista_res <span class="ot">&lt;-</span> <span class="fu">compact</span>(lista_res)</span>
+<span id="cb13-2"><a href=""></a><span class="fu">length</span>(lista_res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 2000</code></pre>
 </div>
 </div>
+<div class="cell">
+<div class="cell-output-display">
+<table class="table table-striped lightable-classic caption-top" data-quarto-postprocess="true" style="width: auto !important; margin-left: auto; margin-right: auto; font-family: Arial Narrow; width: auto !important; margin-left: auto; margin-right: auto;">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">dam</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimacion_normal</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">estimacion_normal_bench</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">theta_dir</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">01</td>
+<td style="text-align: right;">0.1013</td>
+<td style="text-align: right;">0.1036</td>
+<td style="text-align: right;">0.1036</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">02</td>
+<td style="text-align: right;">0.1098</td>
+<td style="text-align: right;">0.0856</td>
+<td style="text-align: right;">0.0856</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">03</td>
+<td style="text-align: right;">0.1007</td>
+<td style="text-align: right;">0.1111</td>
+<td style="text-align: right;">0.1111</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">04</td>
+<td style="text-align: right;">0.1439</td>
+<td style="text-align: right;">0.1598</td>
+<td style="text-align: right;">0.1598</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">05</td>
+<td style="text-align: right;">0.0924</td>
+<td style="text-align: right;">0.0975</td>
+<td style="text-align: right;">0.0975</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">06</td>
+<td style="text-align: right;">0.0939</td>
+<td style="text-align: right;">0.1124</td>
+<td style="text-align: right;">0.1124</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">07</td>
+<td style="text-align: right;">0.1263</td>
+<td style="text-align: right;">0.1297</td>
+<td style="text-align: right;">0.1297</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">08</td>
+<td style="text-align: right;">0.1390</td>
+<td style="text-align: right;">0.1397</td>
+<td style="text-align: right;">0.1397</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">09</td>
+<td style="text-align: right;">0.1682</td>
+<td style="text-align: right;">0.1714</td>
+<td style="text-align: right;">0.1714</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">10</td>
+<td style="text-align: right;">0.1298</td>
+<td style="text-align: right;">0.1262</td>
+<td style="text-align: right;">0.1262</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<section id="validación-de-resultados" class="slide level2">
+<h2>Validación de resultados</h2>
+
+<img data-src="Benchmarking2_files/figure-revealjs/unnamed-chunk-17-1.png" width="960" class="r-stretch"><h4 id="validación-de-la-calibración">Validación de la calibración</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href=""></a>lista_res <span class="sc">%&gt;%</span></span>
+<span id="cb15-2"><a href=""></a>  <span class="fu">map_df</span>(<span class="sc">~</span>.x <span class="sc">%&gt;%</span> </span>
+<span id="cb15-3"><a href=""></a>  <span class="fu">mutate</span>(<span class="at">dam =</span> <span class="fu">str_sub</span>(dam2,<span class="dv">1</span>,<span class="dv">2</span>)) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-4"><a href=""></a>  <span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-5"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">bench =</span> <span class="fu">weighted.mean</span>(yk,n<span class="sc">*</span>gk) ) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-6"><a href=""></a>  <span class="fu">inner_join</span>(directoDam) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-7"><a href=""></a>  <span class="fu">transmute</span>(dam, bench, <span class="at">diff =</span>   bench <span class="sc">-</span> theta_dir)</span>
+<span id="cb15-8"><a href=""></a>) <span class="sc">%&gt;%</span> <span class="fu">bind_rows</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb15-9"><a href=""></a><span class="fu">group_by</span>(dam) <span class="sc">%&gt;%</span> </span>
+<span id="cb15-10"><a href=""></a>  <span class="fu">summarise</span>(<span class="at">bench_sd =</span> <span class="fu">round</span>(<span class="fu">sd</span>(bench), <span class="dv">5</span>), </span>
+<span id="cb15-11"><a href=""></a>            <span class="at">diff =</span> <span class="fu">round</span>(<span class="fu">mean</span>(diff),<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 16 × 3
+   dam   bench_sd  diff
+   &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt;
+ 1 01           0     0
+ 2 02           0     0
+ 3 03           0     0
+ 4 04           0     0
+ 5 05           0     0
+ 6 06           0     0
+ 7 07           0     0
+ 8 08           0     0
+ 9 09           0     0
+10 10           0     0
+11 11           0     0
+12 12           0     0
+13 13           0     0
+14 14           0     0
+15 15           0     0
+16 16           0     0</code></pre>
+</div>
+</div>
+</section>
 </div>
 </div>
 </div>
@@ -915,20 +3038,20 @@ N_d = \sum_{i \in U_d} 1,
 </div>
 <div class="callout-content">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href=""></a><span class="co"># Unir resultados de todas las iteraciones MCMC</span></span>
-<span id="cb13-2"><a href=""></a>df_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(lista_res)</span>
-<span id="cb13-3"><a href=""></a></span>
-<span id="cb13-4"><a href=""></a><span class="co"># Resumen final por dominio: media, sd, IC95% y CVE</span></span>
-<span id="cb13-5"><a href=""></a>resumen <span class="ot">&lt;-</span> df_all <span class="sc">%&gt;%</span></span>
-<span id="cb13-6"><a href=""></a>  <span class="fu">group_by</span>(dam2) <span class="sc">%&gt;%</span></span>
-<span id="cb13-7"><a href=""></a>  <span class="fu">summarise</span>(</span>
-<span id="cb13-8"><a href=""></a>    <span class="at">mean =</span> <span class="fu">mean</span>(y_bench, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),                 <span class="co"># posterior mean</span></span>
-<span id="cb13-9"><a href=""></a>    <span class="at">sd   =</span> <span class="fu">sd</span>(y_bench, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),                   <span class="co"># posterior sd</span></span>
-<span id="cb13-10"><a href=""></a>    <span class="at">lci  =</span> <span class="fu">quantile</span>(y_bench, <span class="fl">0.025</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),       <span class="co"># 2.5%</span></span>
-<span id="cb13-11"><a href=""></a>    <span class="at">uci  =</span> <span class="fu">quantile</span>(y_bench, <span class="fl">0.975</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),       <span class="co"># 97.5%</span></span>
-<span id="cb13-12"><a href=""></a>    <span class="at">cve  =</span>( sd <span class="sc">/</span> mean)<span class="sc">*</span><span class="dv">100</span>,                                    <span class="co"># coeficiente de variación</span></span>
-<span id="cb13-13"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
-<span id="cb13-14"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href=""></a><span class="co"># Unir resultados de todas las iteraciones MCMC</span></span>
+<span id="cb17-2"><a href=""></a>df_all <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(lista_res) <span class="sc">%&gt;%</span> <span class="fu">mutate</span>(<span class="at">y_bench =</span>gk<span class="sc">*</span>yk)</span>
+<span id="cb17-3"><a href=""></a></span>
+<span id="cb17-4"><a href=""></a><span class="co"># Resumen final por dominio: media, sd, IC95% y CVE</span></span>
+<span id="cb17-5"><a href=""></a>resumen <span class="ot">&lt;-</span> df_all <span class="sc">%&gt;%</span></span>
+<span id="cb17-6"><a href=""></a>   <span class="fu">group_by</span>(dam2) <span class="sc">%&gt;%</span></span>
+<span id="cb17-7"><a href=""></a>  <span class="fu">summarise</span>(</span>
+<span id="cb17-8"><a href=""></a>    <span class="at">mean =</span> <span class="fu">mean</span>(y_bench, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),                 <span class="co"># posterior mean</span></span>
+<span id="cb17-9"><a href=""></a>    <span class="at">sd   =</span> <span class="fu">sd</span>(y_bench, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),                   <span class="co"># posterior sd</span></span>
+<span id="cb17-10"><a href=""></a>    <span class="at">lci  =</span> <span class="fu">quantile</span>(y_bench, <span class="fl">0.025</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),       <span class="co"># 2.5%</span></span>
+<span id="cb17-11"><a href=""></a>    <span class="at">uci  =</span> <span class="fu">quantile</span>(y_bench, <span class="fl">0.975</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),       <span class="co"># 97.5%</span></span>
+<span id="cb17-12"><a href=""></a>    <span class="at">cve  =</span>( sd <span class="sc">/</span> mean)<span class="sc">*</span><span class="dv">100</span>,                                    <span class="co"># coeficiente de variación</span></span>
+<span id="cb17-13"><a href=""></a>    <span class="at">.groups =</span> <span class="st">"drop"</span></span>
+<span id="cb17-14"><a href=""></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -955,33 +3078,33 @@ N_d = \sum_{i \in U_d} 1,
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">02102</td>
-<td style="text-align: right;">0.0148</td>
-<td style="text-align: right;">0.0045</td>
-<td style="text-align: right;">0.0076</td>
-<td style="text-align: right;">0.0254</td>
-<td style="text-align: right;">30.2243</td>
+<td style="text-align: right;">0.0150</td>
+<td style="text-align: right;">0.0200</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0728</td>
+<td style="text-align: right;">133.6134</td>
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.0129</td>
 <td style="text-align: right;">13467</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01402</td>
-<td style="text-align: right;">0.0362</td>
-<td style="text-align: right;">0.0104</td>
-<td style="text-align: right;">0.0121</td>
-<td style="text-align: right;">0.0549</td>
-<td style="text-align: right;">28.5897</td>
+<td style="text-align: right;">0.0369</td>
+<td style="text-align: right;">0.0415</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.1422</td>
+<td style="text-align: right;">112.3905</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0351</td>
 <td style="text-align: right;">1250</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">01403</td>
-<td style="text-align: right;">0.0466</td>
-<td style="text-align: right;">0.0120</td>
-<td style="text-align: right;">0.0196</td>
-<td style="text-align: right;">0.0704</td>
-<td style="text-align: right;">25.7448</td>
+<td style="text-align: right;">0.0472</td>
+<td style="text-align: right;">0.0499</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.1545</td>
+<td style="text-align: right;">105.6426</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0444</td>
 <td style="text-align: right;">1728</td>
@@ -989,79 +3112,79 @@ N_d = \sum_{i \in U_d} 1,
 <tr class="even">
 <td style="text-align: left;">01401</td>
 <td style="text-align: right;">0.0617</td>
-<td style="text-align: right;">0.0113</td>
-<td style="text-align: right;">0.0351</td>
-<td style="text-align: right;">0.0833</td>
-<td style="text-align: right;">18.3048</td>
+<td style="text-align: right;">0.0363</td>
+<td style="text-align: right;">0.0076</td>
+<td style="text-align: right;">0.1379</td>
+<td style="text-align: right;">58.7575</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0587</td>
 <td style="text-align: right;">15711</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">01404</td>
-<td style="text-align: right;">0.0621</td>
-<td style="text-align: right;">0.0115</td>
-<td style="text-align: right;">0.0352</td>
-<td style="text-align: right;">0.0843</td>
-<td style="text-align: right;">18.5207</td>
+<td style="text-align: right;">0.0623</td>
+<td style="text-align: right;">0.0372</td>
+<td style="text-align: right;">0.0062</td>
+<td style="text-align: right;">0.1404</td>
+<td style="text-align: right;">59.7702</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0591</td>
 <td style="text-align: right;">2730</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01101</td>
-<td style="text-align: right;">0.0790</td>
-<td style="text-align: right;">0.0074</td>
-<td style="text-align: right;">0.0627</td>
-<td style="text-align: right;">0.0922</td>
-<td style="text-align: right;">9.3557</td>
+<td style="text-align: right;">0.0794</td>
+<td style="text-align: right;">0.0128</td>
+<td style="text-align: right;">0.0549</td>
+<td style="text-align: right;">0.1058</td>
+<td style="text-align: right;">16.1095</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0753</td>
 <td style="text-align: right;">191468</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">02101</td>
-<td style="text-align: right;">0.0896</td>
-<td style="text-align: right;">0.0037</td>
-<td style="text-align: right;">0.0808</td>
-<td style="text-align: right;">0.0959</td>
-<td style="text-align: right;">4.1441</td>
+<td style="text-align: right;">0.0894</td>
+<td style="text-align: right;">0.0093</td>
+<td style="text-align: right;">0.0701</td>
+<td style="text-align: right;">0.1073</td>
+<td style="text-align: right;">10.4360</td>
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.0929</td>
 <td style="text-align: right;">361873</td>
 </tr>
 <tr class="even">
+<td style="text-align: left;">02103</td>
+<td style="text-align: right;">0.1133</td>
+<td style="text-align: right;">0.3827</td>
+<td style="text-align: right;">-0.7034</td>
+<td style="text-align: right;">0.9066</td>
+<td style="text-align: right;">337.6423</td>
+<td style="text-align: left;">02</td>
+<td style="text-align: right;">0.4854</td>
+<td style="text-align: right;">10186</td>
+</tr>
+<tr class="odd">
 <td style="text-align: left;">01405</td>
-<td style="text-align: right;">0.1286</td>
-<td style="text-align: right;">0.0373</td>
-<td style="text-align: right;">0.0355</td>
-<td style="text-align: right;">0.1996</td>
-<td style="text-align: right;">29.0031</td>
+<td style="text-align: right;">0.1207</td>
+<td style="text-align: right;">0.0971</td>
+<td style="text-align: right;">0.0006</td>
+<td style="text-align: right;">0.3586</td>
+<td style="text-align: right;">80.3795</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.1306</td>
 <td style="text-align: right;">9296</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td style="text-align: left;">01107</td>
-<td style="text-align: right;">0.1714</td>
-<td style="text-align: right;">0.0335</td>
-<td style="text-align: right;">0.1125</td>
-<td style="text-align: right;">0.2458</td>
-<td style="text-align: right;">19.5358</td>
+<td style="text-align: right;">0.1694</td>
+<td style="text-align: right;">0.0240</td>
+<td style="text-align: right;">0.1220</td>
+<td style="text-align: right;">0.2165</td>
+<td style="text-align: right;">14.1839</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.1626</td>
 <td style="text-align: right;">108375</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">02103</td>
-<td style="text-align: right;">0.1779</td>
-<td style="text-align: right;">0.4151</td>
-<td style="text-align: right;">-0.6171</td>
-<td style="text-align: right;">0.9820</td>
-<td style="text-align: right;">233.3500</td>
-<td style="text-align: left;">02</td>
-<td style="text-align: right;">0.4854</td>
-<td style="text-align: right;">10186</td>
 </tr>
 </tbody>
 </table>
@@ -1080,17 +3203,219 @@ N_d = \sum_{i \in U_d} 1,
 </div>
 <div class="callout-content">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href=""></a><span class="fu">source</span>(<span class="st">"Benchmarking_area.R"</span>)</span>
-<span id="cb14-2"><a href=""></a>res_logit <span class="ot">&lt;-</span> <span class="fu">Benchmarking_area</span>(</span>
-<span id="cb14-3"><a href=""></a>  <span class="at">temp_draws     =</span> temp_draws,</span>
-<span id="cb14-4"><a href=""></a>  <span class="at">X_dam          =</span> X_dam,</span>
-<span id="cb14-5"><a href=""></a>  <span class="at">totales        =</span> totales,</span>
-<span id="cb14-6"><a href=""></a>  <span class="at">estimacionesPre =</span> estimacionesPre,</span>
-<span id="cb14-7"><a href=""></a>  <span class="at">n_iter         =</span> <span class="dv">2000</span>,</span>
-<span id="cb14-8"><a href=""></a>  <span class="at">calib_method   =</span> <span class="st">"linear"</span>,</span>
-<span id="cb14-9"><a href=""></a>  <span class="at">parallel       =</span> <span class="cn">FALSE</span>,</span>
-<span id="cb14-10"><a href=""></a>  <span class="at">n_cores        =</span> <span class="dv">4</span></span>
-<span id="cb14-11"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href=""></a><span class="fu">source</span>(<span class="st">"Benchmarking_area.R"</span>)</span>
+<span id="cb18-2"><a href=""></a>res_logit <span class="ot">&lt;-</span> <span class="fu">Benchmarking_area</span>(</span>
+<span id="cb18-3"><a href=""></a>  <span class="at">temp_draws     =</span> temp_draws,</span>
+<span id="cb18-4"><a href=""></a>  <span class="at">X_dam          =</span> X_dam,</span>
+<span id="cb18-5"><a href=""></a>  <span class="at">totales        =</span> totales,</span>
+<span id="cb18-6"><a href=""></a>  <span class="at">estimacionesPre =</span> estimacionesPre,</span>
+<span id="cb18-7"><a href=""></a>  <span class="at">n_iter         =</span> <span class="dv">200</span>,</span>
+<span id="cb18-8"><a href=""></a>  <span class="at">calib_method   =</span> <span class="st">"linear"</span>,</span>
+<span id="cb18-9"><a href=""></a>  <span class="at">parallel       =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb18-10"><a href=""></a>  <span class="at">n_cores        =</span> <span class="dv">4</span></span>
+<span id="cb18-11"><a href=""></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>iter_1 
+iter_2 
+iter_3 
+iter_4 
+iter_5 
+iter_6 
+iter_7 
+iter_8 
+iter_9 
+iter_10 
+iter_11 
+iter_12 
+iter_13 
+iter_14 
+iter_15 
+iter_16 
+iter_17 
+iter_18 
+iter_19 
+iter_20 
+iter_21 
+iter_22 
+iter_23 
+iter_24 
+iter_25 
+iter_26 
+iter_27 
+iter_28 
+iter_29 
+iter_30 
+iter_31 
+iter_32 
+iter_33 
+iter_34 
+iter_35 
+iter_36 
+iter_37 
+iter_38 
+iter_39 
+iter_40 
+iter_41 
+iter_42 
+iter_43 
+iter_44 
+iter_45 
+iter_46 
+iter_47 
+iter_48 
+iter_49 
+iter_50 
+iter_51 
+iter_52 
+iter_53 
+iter_54 
+iter_55 
+iter_56 
+iter_57 
+iter_58 
+iter_59 
+iter_60 
+iter_61 
+iter_62 
+iter_63 
+iter_64 
+iter_65 
+iter_66 
+iter_67 
+iter_68 
+iter_69 
+iter_70 
+iter_71 
+iter_72 
+iter_73 
+iter_74 
+iter_75 
+iter_76 
+iter_77 
+iter_78 
+iter_79 
+iter_80 
+iter_81 
+iter_82 
+iter_83 
+iter_84 
+iter_85 
+iter_86 
+iter_87 
+iter_88 
+iter_89 
+iter_90 
+iter_91 
+iter_92 
+iter_93 
+iter_94 
+iter_95 
+iter_96 
+iter_97 
+iter_98 
+iter_99 
+iter_100 
+iter_101 
+iter_102 
+iter_103 
+iter_104 
+iter_105 
+iter_106 
+iter_107 
+iter_108 
+iter_109 
+iter_110 
+iter_111 
+iter_112 
+iter_113 
+iter_114 
+iter_115 
+iter_116 
+iter_117 
+iter_118 
+iter_119 
+iter_120 
+iter_121 
+iter_122 
+iter_123 
+iter_124 
+iter_125 
+iter_126 
+iter_127 
+iter_128 
+iter_129 
+iter_130 
+iter_131 
+iter_132 
+iter_133 
+iter_134 
+iter_135 
+iter_136 
+iter_137 
+iter_138 
+iter_139 
+iter_140 
+iter_141 
+iter_142 
+iter_143 
+iter_144 
+iter_145 
+iter_146 
+iter_147 
+iter_148 
+iter_149 
+iter_150 
+iter_151 
+iter_152 
+iter_153 
+iter_154 
+iter_155 
+iter_156 
+iter_157 
+iter_158 
+iter_159 
+iter_160 
+iter_161 
+iter_162 
+iter_163 
+iter_164 
+iter_165 
+iter_166 
+iter_167 
+iter_168 
+iter_169 
+iter_170 
+iter_171 
+iter_172 
+iter_173 
+iter_174 
+iter_175 
+iter_176 
+iter_177 
+iter_178 
+iter_179 
+iter_180 
+iter_181 
+iter_182 
+iter_183 
+iter_184 
+iter_185 
+iter_186 
+iter_187 
+iter_188 
+iter_189 
+iter_190 
+iter_191 
+iter_192 
+iter_193 
+iter_194 
+iter_195 
+iter_196 
+iter_197 
+iter_198 
+iter_199 
+iter_200 </code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1117,120 +3442,120 @@ N_d = \sum_{i \in U_d} 1,
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">02102</td>
-<td style="text-align: right;">0.0148</td>
-<td style="text-align: right;">0.0045</td>
-<td style="text-align: right;">0.0076</td>
-<td style="text-align: right;">0.0254</td>
-<td style="text-align: right;">30.2243</td>
+<td style="text-align: right;">0.0124</td>
+<td style="text-align: right;">0.0173</td>
+<td style="text-align: right;">0.0000</td>
+<td style="text-align: right;">0.0560</td>
+<td style="text-align: right;">138.8376</td>
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.0129</td>
 <td style="text-align: right;">13467</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01402</td>
-<td style="text-align: right;">0.0362</td>
-<td style="text-align: right;">0.0104</td>
-<td style="text-align: right;">0.0121</td>
-<td style="text-align: right;">0.0549</td>
-<td style="text-align: right;">28.5897</td>
+<td style="text-align: right;">0.0415</td>
+<td style="text-align: right;">0.0421</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.1476</td>
+<td style="text-align: right;">101.4365</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0351</td>
 <td style="text-align: right;">1250</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">01403</td>
-<td style="text-align: right;">0.0466</td>
-<td style="text-align: right;">0.0120</td>
-<td style="text-align: right;">0.0196</td>
-<td style="text-align: right;">0.0704</td>
-<td style="text-align: right;">25.7448</td>
+<td style="text-align: right;">0.0513</td>
+<td style="text-align: right;">0.0499</td>
+<td style="text-align: right;">0.0001</td>
+<td style="text-align: right;">0.1615</td>
+<td style="text-align: right;">97.2880</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0444</td>
 <td style="text-align: right;">1728</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01401</td>
-<td style="text-align: right;">0.0617</td>
-<td style="text-align: right;">0.0113</td>
-<td style="text-align: right;">0.0351</td>
-<td style="text-align: right;">0.0833</td>
-<td style="text-align: right;">18.3048</td>
+<td style="text-align: right;">0.0609</td>
+<td style="text-align: right;">0.0329</td>
+<td style="text-align: right;">0.0078</td>
+<td style="text-align: right;">0.1277</td>
+<td style="text-align: right;">54.0044</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0587</td>
 <td style="text-align: right;">15711</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">01404</td>
-<td style="text-align: right;">0.0621</td>
-<td style="text-align: right;">0.0115</td>
-<td style="text-align: right;">0.0352</td>
-<td style="text-align: right;">0.0843</td>
-<td style="text-align: right;">18.5207</td>
+<td style="text-align: right;">0.0645</td>
+<td style="text-align: right;">0.0336</td>
+<td style="text-align: right;">0.0057</td>
+<td style="text-align: right;">0.1229</td>
+<td style="text-align: right;">52.0487</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0591</td>
 <td style="text-align: right;">2730</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01101</td>
-<td style="text-align: right;">0.0790</td>
-<td style="text-align: right;">0.0074</td>
-<td style="text-align: right;">0.0627</td>
-<td style="text-align: right;">0.0922</td>
-<td style="text-align: right;">9.3557</td>
+<td style="text-align: right;">0.0798</td>
+<td style="text-align: right;">0.0123</td>
+<td style="text-align: right;">0.0540</td>
+<td style="text-align: right;">0.1025</td>
+<td style="text-align: right;">15.4136</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.0753</td>
 <td style="text-align: right;">191468</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">02101</td>
-<td style="text-align: right;">0.0896</td>
-<td style="text-align: right;">0.0037</td>
-<td style="text-align: right;">0.0808</td>
-<td style="text-align: right;">0.0959</td>
-<td style="text-align: right;">4.1441</td>
+<td style="text-align: right;">0.0879</td>
+<td style="text-align: right;">0.0096</td>
+<td style="text-align: right;">0.0672</td>
+<td style="text-align: right;">0.1043</td>
+<td style="text-align: right;">10.8907</td>
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.0929</td>
 <td style="text-align: right;">361873</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">01405</td>
-<td style="text-align: right;">0.1286</td>
-<td style="text-align: right;">0.0373</td>
-<td style="text-align: right;">0.0355</td>
-<td style="text-align: right;">0.1996</td>
-<td style="text-align: right;">29.0031</td>
+<td style="text-align: right;">0.1258</td>
+<td style="text-align: right;">0.0869</td>
+<td style="text-align: right;">0.0032</td>
+<td style="text-align: right;">0.3160</td>
+<td style="text-align: right;">69.0291</td>
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.1306</td>
 <td style="text-align: right;">9296</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">01107</td>
-<td style="text-align: right;">0.1714</td>
-<td style="text-align: right;">0.0335</td>
-<td style="text-align: right;">0.1125</td>
-<td style="text-align: right;">0.2458</td>
-<td style="text-align: right;">19.5358</td>
-<td style="text-align: left;">01</td>
-<td style="text-align: right;">0.1626</td>
-<td style="text-align: right;">108375</td>
-</tr>
-<tr class="even">
 <td style="text-align: left;">02103</td>
-<td style="text-align: right;">0.1779</td>
-<td style="text-align: right;">0.4151</td>
-<td style="text-align: right;">-0.6171</td>
-<td style="text-align: right;">0.9820</td>
-<td style="text-align: right;">233.3500</td>
+<td style="text-align: right;">0.1554</td>
+<td style="text-align: right;">0.3933</td>
+<td style="text-align: right;">-0.5540</td>
+<td style="text-align: right;">1.0308</td>
+<td style="text-align: right;">253.1620</td>
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.4854</td>
 <td style="text-align: right;">10186</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">01107</td>
+<td style="text-align: right;">0.1683</td>
+<td style="text-align: right;">0.0224</td>
+<td style="text-align: right;">0.1283</td>
+<td style="text-align: right;">0.2148</td>
+<td style="text-align: right;">13.3151</td>
+<td style="text-align: left;">01</td>
+<td style="text-align: right;">0.1626</td>
+<td style="text-align: right;">108375</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 </section>
-<section id="validación-de-resultados" class="slide level2">
+<section id="validación-de-resultados-1" class="slide level2">
 <h2>Validación de resultados</h2>
 <div class="cell">
 <div class="cell-output-display">
@@ -1247,61 +3572,61 @@ N_d = \sum_{i \in U_d} 1,
 <tr class="odd">
 <td style="text-align: left;">01</td>
 <td style="text-align: right;">0.1042</td>
-<td style="text-align: right;">0.1043</td>
+<td style="text-align: right;">0.1088</td>
 <td style="text-align: right;">0.1036</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">02</td>
 <td style="text-align: right;">0.0932</td>
-<td style="text-align: right;">0.0872</td>
+<td style="text-align: right;">0.0826</td>
 <td style="text-align: right;">0.0856</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">03</td>
 <td style="text-align: right;">0.1064</td>
-<td style="text-align: right;">0.1098</td>
+<td style="text-align: right;">0.1106</td>
 <td style="text-align: right;">0.1111</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">04</td>
 <td style="text-align: right;">0.1543</td>
-<td style="text-align: right;">0.1586</td>
+<td style="text-align: right;">0.1635</td>
 <td style="text-align: right;">0.1598</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">05</td>
 <td style="text-align: right;">0.0914</td>
-<td style="text-align: right;">0.0951</td>
+<td style="text-align: right;">0.0996</td>
 <td style="text-align: right;">0.0975</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">06</td>
 <td style="text-align: right;">0.1099</td>
-<td style="text-align: right;">0.1117</td>
+<td style="text-align: right;">0.1142</td>
 <td style="text-align: right;">0.1124</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">07</td>
 <td style="text-align: right;">0.1333</td>
-<td style="text-align: right;">0.1315</td>
+<td style="text-align: right;">0.1300</td>
 <td style="text-align: right;">0.1297</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">08</td>
 <td style="text-align: right;">0.1474</td>
-<td style="text-align: right;">0.1420</td>
+<td style="text-align: right;">0.1458</td>
 <td style="text-align: right;">0.1397</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">09</td>
 <td style="text-align: right;">0.1555</td>
-<td style="text-align: right;">0.1661</td>
+<td style="text-align: right;">0.1790</td>
 <td style="text-align: right;">0.1714</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">10</td>
 <td style="text-align: right;">0.1322</td>
-<td style="text-align: right;">0.1289</td>
+<td style="text-align: right;">0.1344</td>
 <td style="text-align: right;">0.1262</td>
 </tr>
 </tbody>
@@ -1309,10 +3634,10 @@ N_d = \sum_{i \in U_d} 1,
 </div>
 </div>
 </section>
-<section id="validación-de-resultados-1" class="slide level2">
+<section id="validación-de-resultados-2" class="slide level2">
 <h2>Validación de resultados</h2>
 
-<img data-src="Benchmarking2_files/figure-revealjs/unnamed-chunk-21-1.png" width="960" class="r-stretch"></section>
+<img data-src="Benchmarking2_files/figure-revealjs/unnamed-chunk-24-1.png" width="960" class="r-stretch"></section>
 <section id="gracias" class="title-slide slide level1 center">
 <h1>Gracias</h1>
 

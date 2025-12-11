@@ -76,7 +76,7 @@ gk <- calib(
   Xs = Xs,         # Restricciones
   total = Pobreza_dir,  # Totales directos que deben cumplirse
   d = N_mpio,      # Pesos iniciales (tamaños poblacionales)
-  method = "logit" # Método recomendado para tasas
+  method = "linear" # Método recomendado para tasas
 )
 
 gk
@@ -120,6 +120,9 @@ df_plot <- tibble(dominio = paste0("d", 1:4),
                   modelo  = y_pred,
                   bench   = y_bench)
 df_plot
+
+plot(df_plot$modelo, df_plot$bench)
+
 
 df_plot <-  df_plot %>%  pivot_longer(
   cols = c(modelo, bench),

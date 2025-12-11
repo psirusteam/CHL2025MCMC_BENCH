@@ -112,19 +112,19 @@ Benchmarking_area <- function(temp_draws,
       return(NULL)
     }
     
-    # Ingreso calibrado por dominio (puede ser negativo, se revisa)
-    y_bench <- gk * estimacionesPre$estimacion_normal
-    
-    if (any(y_bench < 0, na.rm = TRUE)) {
-      warning("Valores negativos en y_bench en la iteración ", i, 
-              ". Revise el modelo o el método de calibración.")
+    if(round(sum(colSums(gk * estimacionesPre$total_pp * Xs) - totales), 5) < 0.000001) {
+      cat(iter_name, "\n")
     }
+    
+   
     
     data.frame(
       iter    = i,
       dam2    = estimacionesPre$dam2,
-      y_bench = y_bench
-    )
+      n    = estimacionesPre$total_pp,
+      yk = temp_draws[[iter_name]], 
+      gk = gk
+    ) %>% mutate(y_bench =gk*yk)
   }
   
   #-----------------------------------------------------------
@@ -162,7 +162,7 @@ Benchmarking_area <- function(temp_draws,
   #-----------------------------------------------------------
   # 3. Combinar iteraciones
   #-----------------------------------------------------------
-  df_all <- bind_rows(lista_res)
+  df_all <- bind_rows(lista_res) 
   
   #-----------------------------------------------------------
   # 4. Resumen por DAM

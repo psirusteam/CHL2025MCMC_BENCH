@@ -292,12 +292,15 @@ benchmark_mcmc_multinomial <- function(
 resumir_bench_multinomial <- function(
     res_bench,
     group_vars = c("dam"),
-    vars = c("Ocupado_Bench", "Desocupado_Bench", "Inactivo_Bench"),
+    vars = "Ocupado_pred",
+    n = "N_mpio",
+    gk = "gk_ocupado",
     ci_level = 0.95
 ){
   library(dplyr)
   library(tidyr)
   library(purrr)
+  library(rlang)
   
   resultados_iter <- res_bench$resultados_iter
   
@@ -307,32 +310,47 @@ resumir_bench_multinomial <- function(
   
   alpha <- 1 - ci_level
   
-  # Pasar lista de data frames a formato largo: iter × grupo × categoria
-  draws_long <- map2_dfr(
-    .x = seq_along(resultados_iter),
-    .y = resultados_iter,
-    ~ .y %>%
-      # Nos quedamos solo con las variables de agrupación + tasas ajustadas
-      select(all_of(group_vars), all_of(vars)) %>%
-      mutate(iter = .x) %>%
-      pivot_longer(
-        cols = all_of(vars),
-        names_to = "categoria",
-        values_to = "value"
+  # Si la columna gk no existe en las iteraciones, crearla = 1
+  resultados_iter <- map(resultados_iter, function(df){
+    if (!(gk %in% names(df))) {
+      df <- df %>% mutate(!!gk := 1)
+    }
+    df
+  })
+  
+  # Convertir a formato largo: agregar ID de iteración
+  draws_long <- map2_df(
+    resultados_iter,
+    .y = seq_along(resultados_iter),
+    ~ .x %>%
+      mutate(iter = .y) %>%
+      group_by(across(all_of(group_vars))) %>%
+      summarise(
+        value = weighted.mean(
+          .data[[vars]],
+          .data[[n]] * .data[[gk]],
+          na.rm = TRUE
+        ),
+        categoria = vars,
+        iter = unique(iter),
+        .groups = "drop"
       )
   )
   
-  # Resumen por dominio y categoría
-  resumen <- draws_long %>%
+  # Resumen final por dominio y categoría multivariada
+  resumen <- 
+    draws_long %>%
     group_by(across(all_of(c(group_vars, "categoria")))) %>%
     summarise(
       estimate = mean(value, na.rm = TRUE),
       sd       = sd(value,   na.rm = TRUE),
       cve      = 100 * sd / estimate,
-      lci      = quantile(value, probs = alpha/2,          na.rm = TRUE),
-      uci      = quantile(value, probs = 1 - alpha/2,      na.rm = TRUE),
+      lci      = quantile(value, probs = alpha/2,     na.rm = TRUE),
+      uci      = quantile(value, probs = 1 - alpha/2, na.rm = TRUE),
       .groups  = "drop"
     )
   
   return(resumen)
 }
+
+

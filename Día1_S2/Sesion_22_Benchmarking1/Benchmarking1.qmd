@@ -384,7 +384,7 @@ gk2 <- calib(
   Xs    = Xs,
   d     = post$n_k,
   total = totales,
-  method = "logit"
+  method = "linear"
 )
 gk2 
 ```

@@ -195,7 +195,7 @@ for (i in seq_len(n_iter)) {
   lista_res[[i]] <- data.frame(
     iter    = i,
     dam2    = estimacionesPre$dam2,
-    y_bench = gk * estimacionesPre$estimacion_normal
+    y_bench = gk * temp_draws[[iter_name]]
   )
 }
 

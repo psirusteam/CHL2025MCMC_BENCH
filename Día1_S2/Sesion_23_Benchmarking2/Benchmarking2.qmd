@@ -394,6 +394,8 @@ temp_post %>% group_by(Nacional) %>%
     prom_calib_03 = weighted.mean(yk, n2) 
   )
 
+
+
 ```
 :::
 
@@ -516,7 +518,7 @@ poststrat_df_iter <- benchmarking(
   encuesta_sta = encuesta_mrp %>%
     mutate(Nacional = "01", yk = ingreso),
   names_cov = "Nacional",
-  metodo = "logit", 
+  metodo = "linear", 
   show_plot = FALSE
 )
 poststrat_df_iter
@@ -527,6 +529,22 @@ saveRDS(poststrat_df_iter_nacional,
 
 ```
 :::
+
+
+## Validación 
+
+```{r}
+poststrat_df_iter_nacional <- readRDS("../Recurso/data/Modelo_unidad/poststrat_df_iter_ingreso_nacional.rds")
+
+encuesta_mrp %>% group_by(Nacional) %>% 
+  summarise(bench = weighted.mean(ingreso,fep) )
+
+poststrat_df_iter_nacional[[4]] %>% group_by(Nacional) %>% 
+  summarise(bench = weighted.mean(yk,n2) )
+  
+```
+
+
 
 ## Función para la estimación agregada 
 

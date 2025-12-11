@@ -414,6 +414,7 @@ Para cada iteración del modelo:
 ### Código de `R`
 
 ```{r}
+i = 1
 for (i in seq_len(n_iter)) {
   # Nombre de la columna que contiene los draws de esta iteración
   iter_name <- iter_cols[i]
@@ -437,20 +438,119 @@ gk <- calib(
 
   # Si gk es NULL, saltar esta iteración
   if (is.null(gk)) next
+if(round( sum(colSums(gk*estimacionesPre$total_pp*Xs) -totales),5) < 0.000001){
+  cat(iter_name, "\n")
+}
 # Se almacena el resultado calibrado para esta iteración.
   lista_res[[i]] <- data.frame(
     iter    = i,
     dam2    = estimacionesPre$dam2,
-    y_bench = gk * estimacionesPre$estimacion_normal
+    n    = estimacionesPre$total_pp,
+    yk = temp_draws[[iter_name]], 
+    gk = gk
   )
+
 }
 
 lista_res <- compact(lista_res)
 length(lista_res)
+```
+
+
+
+```{r, echo=FALSE}
+tab_resul <- inner_join(lista_res[[10]] , estimacionesPre, by = "dam2") %>%
+  mutate(dam = str_sub(dam2, 1,2), 
+         estimacion_normal = NULL) %>% 
+  group_by(dam) %>%
+  summarise(
+    estimacion_normal_bench = weighted.mean(yk, n*gk),
+    estimacion_normal = weighted.mean(yk, n)
+  ) %>%
+  inner_join(directoDam, by = "dam") %>% data.frame()
+tab_resul %>% head(10) %>%
+  select(dam, estimacion_normal, estimacion_normal_bench, theta_dir) %>% tba()
+
+```
+
+## Validación de resultados 
+
+```{r, echo=FALSE}
+df_long <- tab_resul %>% 
+  pivot_longer(
+    cols = c(estimacion_normal, 
+             estimacion_normal_bench, 
+             theta_dir),
+    names_to = "tipo",
+    values_to = "estimacion"
+  )
+
+# Gráfico
+ggplot(df_long, aes(x = dam, y = estimacion, color = tipo, group = tipo)) +
+    geom_line(aes(y = theta_dir_low), linetype  = 2) +
+  geom_line(aes(y = theta_dir_upp),  linetype  = 2) +
+   geom_point(aes(color = tipo, shape = tipo), size = 2) +
+  scale_color_manual(
+    values = c(
+      "estimacion_normal" = "blue",
+      "estimacion_normal_bench" = "red",
+      "theta_dir" = "black"
+    ),
+    labels = c(
+      "estimacion_normal" = "Modelo (Normal)",
+      "estimacion_normal_bench" = "Modelo Benchmarked",
+      "theta_dir" = "Estimación Directa"
+    )
+  ) +
+  labs(
+    title = "Comparación de Estimaciones por DAM",
+    x = "DAM",
+    y = "Estimación",
+    color = "Tipo de Estimación", 
+    shape = "Tipo de Estimación"
+  ) +
+  scale_shape_manual(
+    values = c(
+      "estimacion_normal" = 16,
+      "estimacion_normal_bench" = 17,
+      "theta_dir" = 20
+    ),
+    labels = c(
+      "estimacion_normal" = "Modelo (Normal)",
+      "estimacion_normal_bench" = "Modelo Benchmarked",
+      "theta_dir" = "Estimación Directa"
+    )
+  )+
+  theme_minimal(base_size = 13) +
+  theme(
+    legend.position = "bottom",
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+
+```
+
+#### Validación de la calibración 
+
+```{r}
+
+lista_res %>%
+  map_df(~.x %>% 
+  mutate(dam = str_sub(dam2,1,2)) %>% 
+  group_by(dam) %>% 
+  summarise(bench = weighted.mean(yk,n*gk) ) %>% 
+  inner_join(directoDam) %>% 
+  transmute(dam, bench, diff =   bench - theta_dir)
+) %>% bind_rows() %>% 
+group_by(dam) %>% 
+  summarise(bench_sd = round(sd(bench), 5), 
+            diff = round(mean(diff),5))
+
 
 ```
 
 :::
+
 
 
 ## Estimaciones con Benchmarking
@@ -471,11 +571,11 @@ Luego, para cada dominio DAM2, se calcula:
 
 ```{r}
 # Unir resultados de todas las iteraciones MCMC
-df_all <- bind_rows(lista_res)
+df_all <- bind_rows(lista_res) %>% mutate(y_bench =gk*yk)
 
 # Resumen final por dominio: media, sd, IC95% y CVE
 resumen <- df_all %>%
-  group_by(dam2) %>%
+   group_by(dam2) %>%
   summarise(
     mean = mean(y_bench, na.rm = TRUE),                 # posterior mean
     sd   = sd(y_bench, na.rm = TRUE),                   # posterior sd
@@ -511,7 +611,7 @@ res_logit <- Benchmarking_area(
   X_dam          = X_dam,
   totales        = totales,
   estimacionesPre = estimacionesPre,
-  n_iter         = 2000,
+  n_iter         = 200,
   calib_method   = "linear",
   parallel       = FALSE,
   n_cores        = 4
@@ -532,11 +632,10 @@ head(res_logit$resumen, 10) %>% inner_join(estimacionesPre) %>% arrange(mean) %>
 ## Validación de resultados 
 
 ```{r, echo=FALSE}
-tab_resul <- inner_join(res_logit$resumen , estimacionesPre, by = "dam2") %>%
-  mutate(dam = str_sub(dam2, 1, 2), wi = mean / estimacion_normal) %>%
+tab_resul <- inner_join(resumen , estimacionesPre, by = "dam2") %>%
   group_by(dam) %>%
   summarise(
-    estimacion_normal_bench = weighted.mean(estimacion_normal, total_pp * wi),
+    estimacion_normal_bench = weighted.mean(mean, total_pp),
     estimacion_normal = weighted.mean(estimacion_normal, total_pp)
   ) %>%
   inner_join(directoDam, by = "dam") %>% data.frame()

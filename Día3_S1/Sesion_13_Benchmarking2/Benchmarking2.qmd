@@ -584,32 +584,49 @@ res_bench <- benchmark_mcmc_multinomial(
 
 
 ```{r}
-theta_resumen_pred <- resumir_bench_multinomial(
-  res_bench   = res_bench,
-  group_vars  =  c("dam", "dam2"),
-  vars        = c(
-    "Ocupado_pred", "Desocupado_pred", "Inactivo_pred"),
-  ci_level    = 0.95
-) %>% 
-separate(col = categoria, into = c("categoria", "tipo")) %>% 
-  transmute(
- dam, dam2,  categoria,  Pred = estimate
-) 
 
-theta_resumen_bench <- resumir_bench_multinomial(
+theta_ocupado <- resumir_bench_multinomial(
   res_bench   = res_bench,
-  group_vars  = c("dam", "dam2"),
-  vars        = c(
-    "Ocupado_Bench", "Desocupado_Bench", "Inactivo_Bench"),
+  group_vars  =  "dam",
+  vars        = "Ocupado_pred",
+  n = "N_mpio", 
+  gk = "gk_Ocupado",
   ci_level    = 0.95
-) %>% separate(col = categoria, into = c("categoria", "tipo")) %>% 
-  transmute(
-  dam, dam2,  categoria,        Bench = estimate
 )
 
+theta_desocupado <- resumir_bench_multinomial(
+  res_bench   = res_bench,
+  group_vars  =  "dam",
+  vars        = "Desocupado_pred",
+  n = "N_mpio", 
+  gk = "gk_desocupado",
+  
+  ci_level    = 0.95
+)
 
-theta_resumen  <- inner_join(theta_resumen_pred, theta_resumen_bench) %>% 
-  inner_join(conteo_pp_dam)
+theta_Inactivo <- resumir_bench_multinomial(
+  res_bench   = res_bench,
+  group_vars  =  "dam",
+  vars        = "Inactivo_pred",
+  n = "N_mpio", 
+  gk = "gk_sim",
+  ci_level    = 0.95
+)
+
+theta_resumen_bench <- bind_rows(theta_Inactivo, 
+                                theta_desocupado,
+                                theta_ocupado) %>% 
+separate(col = categoria, into = c("categoria", "tipo")) %>% 
+  transmute(
+ dam,  categoria,  Pred = estimate
+) 
+
+theta_resumen_bench %>% 
+  pivot_wider(
+    names_from  = categoria,
+    values_from = Pred
+  )
+
 ```
 ::: 
 
@@ -641,16 +658,8 @@ indicador_agregado <-
     upr = P_dir_upp
   )
 
-theta_resumen <- theta_resumen %>%
-  mutate(wi = Bench / Pred , N_mpio2 = N_mpio *
-           wi) %>%
-  group_by(dam, categoria) %>%
-  summarise(pred = weighted.mean(Pred, N_mpio),
-            Bench = weighted.mean(Pred, N_mpio2))
 
-  
-
-df_plot <- inner_join(theta_resumen, indicador_agregado)
+df_plot <- inner_join(theta_resumen_bench, indicador_agregado)
 
 df_plot %>% head(10) %>% tba()
 ```
@@ -661,15 +670,14 @@ df_plot %>% head(10) %>% tba()
 ```{r, echo=FALSE}
 df_long_plot <- df_plot %>%   # usa el nombre real de tu tabla
   pivot_longer(
-    cols = c(pred, Bench, estimate),   # estimate = Directo
+    cols = c(Pred , estimate),   # estimate = Directo
     names_to = "tipo",
     values_to = "valor"
   ) %>%
   mutate(
     tipo = recode(tipo,
                   "estimate" = "Directo",
-                  "pred"     = "Pred",
-                  "Bench"    = "Bench")
+                  "Bench"    = "Pred")
   )
 
 ggplot(df_long_plot, 
@@ -719,24 +727,43 @@ ggplot(df_long_plot,
 
 
 ```{r}
-Tasa_resumen_pred <- resumir_bench_multinomial(
+theta_TP <- resumir_bench_multinomial(
   res_bench   = res_bench,
-  group_vars  = c("dam", "dam2"),
-  vars        = c("TP_pred", "TD_pred", "TO_pred"),
+  group_vars  =  "dam2",
+  vars        = "TP_Bench",
+  n = "N_mpio", 
+  gk = "gk",
   ci_level    = 0.95
-) %>% separate(col = categoria, into = c("categoria", "tipo")) %>%
-  transmute(dam, dam2, categoria, pred = estimate)
+)
 
-Tasa_resumen_bench <- resumir_bench_multinomial(
+theta_TD <- resumir_bench_multinomial(
   res_bench   = res_bench,
-  group_vars  = c("dam", "dam2"),
-  vars        = c("TP_Bench", "TD_Bench", "TO_Bench"),
+  group_vars  =  "dam2",
+  vars        = "TD_Bench",
+  n = "N_mpio", 
+  gk = "gk",
+  
   ci_level    = 0.95
-) %>% separate(col = categoria, into = c("categoria", "tipo")) %>%
-  transmute(dam, dam2, categoria, Bench = estimate)
+)
 
-Tasa_resumen  <- inner_join(Tasa_resumen_pred, Tasa_resumen_bench) %>% 
-  inner_join(conteo_pp_dam)
+theta_TO <- resumir_bench_multinomial(
+  res_bench   = res_bench,
+  group_vars  =  "dam2",
+  vars        = "TO_Bench",
+  n = "N_mpio", 
+  gk = "gk",
+  ci_level    = 0.95
+)
+
+theta_resumen_bench <- bind_rows(theta_TP, theta_TD, theta_TO) %>%
+  separate(col = categoria, into = c("categoria", "tipo")) %>%
+  transmute(dam, categoria, Pred = estimate) 
+
+theta_resumen_bench %>% 
+  pivot_wider(
+    names_from  = categoria,
+    values_from = Pred
+  )
 
 ```
 ::: 
@@ -794,16 +821,7 @@ tasas_long <- tasas_dam %>%
   transmute(dam, categoria   =  tasa,estimate, lwr, upr) 
 
 
-
-Tasa_resumen <- Tasa_resumen %>%
-  mutate(wi = Bench / pred , N_mpio2 = N_mpio *  wi) %>%
-  group_by(dam, categoria) %>%
-  summarise(Pred = weighted.mean(pred, N_mpio),
-            Bench = weighted.mean(pred, N_mpio2))
-
-  
-
-df_plot <- inner_join(Tasa_resumen, tasas_long)
+df_plot <- inner_join(theta_resumen_bench, tasas_long)
 
 df_plot %>% head(10) %>% tba()
 ```
@@ -814,7 +832,7 @@ df_plot %>% head(10) %>% tba()
 ```{r, echo=FALSE}
 df_long_plot <- df_plot %>%   # usa el nombre real de tu tabla
   pivot_longer(
-    cols = c(Pred, Bench, estimate),   # estimate = Directo
+    cols = c(Pred,  estimate),   # estimate = Directo
     names_to = "tipo",
     values_to = "valor"
   ) %>%
@@ -822,7 +840,7 @@ df_long_plot <- df_plot %>%   # usa el nombre real de tu tabla
     tipo = recode(tipo,
                   "estimate" = "Directo",
                   "Pred"     = "Pred",
-                  "Bench"    = "Bench")
+                  "Bench"    = "Pred")
   )
 
 ggplot(df_long_plot, 

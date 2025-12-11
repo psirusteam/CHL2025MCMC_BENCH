@@ -451,7 +451,7 @@ tba(poststrat_df_iter %>% head(5))
 ### Código en R
 
 ```{r, eval=FALSE}
-poststrat_df_iter2 <- map(1:500,
+poststrat_df_iter2 <- map(1:50,
   ~{
 temp_post <- poststrat_df %>%
   mutate(yk = epred_mat[.x,]) %>% 
@@ -472,6 +472,28 @@ saveRDS(poststrat_df_iter2, "../Recursos/Modelo_unidad/poststrat_df_iter_pobreza
 ```
 :::
 
+## Validacion 
+
+
+```{r}
+poststrat_df_iter2 <- readRDS("../Recursos/Modelo_unidad/poststrat_df_iter_pobreza.rds")
+
+theta_encuesta <- encuesta_mrp %>% group_by(dam) %>% 
+  summarise(theta_dir = weighted.mean(pobreza,fep))
+
+temp <- poststrat_df_iter2 %>% map(~.x %>%  
+  group_by(dam) %>% 
+  summarise(bench = weighted.mean(yk, n2)) %>% 
+  inner_join(theta_encuesta , by = "dam") %>% 
+    mutate(diff =  theta_dir - bench) ) 
+  
+temp %>% bind_rows() %>% group_by(dam) %>% 
+  summarise(bench_sd = round(sd(bench), 5), 
+            diff = round(mean(diff), 5))  
+
+```
+
+
 
 ## Estimación nacional 
 
@@ -481,6 +503,7 @@ saveRDS(poststrat_df_iter2, "../Recursos/Modelo_unidad/poststrat_df_iter_pobreza
 ### Código en R
 
 ```{r, eval=FALSE}
+source("../Recursos/Modelo_unidad/funciones/calc_theta.R")
 theta_modelo_sin <- calc_theta(
   result_list = poststrat_df_iter2,
   var_n     = "n",
@@ -500,6 +523,7 @@ saveRDS(theta_modelo_sin,
 ### Código en R
 
 ```{r, eval=FALSE}
+source("../Recursos/Modelo_unidad/funciones/calc_theta.R")
 theta_modelo_con <- calc_theta(
   result_list = poststrat_df_iter2,
   var_n     = "n2",
