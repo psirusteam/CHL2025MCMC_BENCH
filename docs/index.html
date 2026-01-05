@@ -3,58 +3,103 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHL 2025 – Benchmarking MCMC</title>
+  <title>CHL 2025 · Benchmarking MCMC Multinomial</title>
 
   <style>
+    :root {
+      --primary: #1F78B4;
+      --secondary: #E6EEF6;
+      --text: #1f2933;
+      --muted: #6b7280;
+      --border: #d1d5db;
+      --bg: #ffffff;
+    }
+
     body {
-      font-family: Arial, Helvetica, sans-serif;
-      background: #fafafa;
-      color: #222;
       margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: #f9fafb;
+      color: var(--text);
+      line-height: 1.55;
     }
+
     header {
-      background: #1F78B4;
+      background: linear-gradient(120deg, #1F78B4, #155A8A);
       color: white;
-      padding: 1.6rem 1rem;
+      padding: 2.5rem 1.5rem;
     }
+
     header h1 {
       margin: 0;
-      font-size: 1.8rem;
+      font-size: 2rem;
+      font-weight: 700;
     }
+
+    header p {
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+      opacity: 0.95;
+      max-width: 900px;
+    }
+
     main {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 2rem 1rem;
+      padding: 2.5rem 1.5rem;
     }
+
+    section {
+      margin-bottom: 3rem;
+    }
+
+    .intro {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-left: 6px solid var(--primary);
+      padding: 1.5rem 1.8rem;
+      border-radius: 6px;
+    }
+
     h2 {
-      color: #1F78B4;
-      border-bottom: 2px solid #e0e0e0;
+      color: var(--primary);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid var(--border);
       padding-bottom: 0.3rem;
     }
+
     h3 {
-      color: #333;
       margin-top: 2rem;
+      font-size: 1.15rem;
+      color: #111827;
     }
+
     ul {
       padding-left: 1.2rem;
+      margin-top: 0.5rem;
     }
+
     li {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.45rem;
     }
+
     a {
-      color: #1F78B4;
+      color: var(--primary);
       text-decoration: none;
+      font-weight: 500;
     }
+
     a:hover {
       text-decoration: underline;
     }
+
     footer {
-      background: #f0f0f0;
+      background: #f3f4f6;
+      border-top: 1px solid var(--border);
+      padding: 1.2rem;
       text-align: center;
-      padding: 1rem;
       font-size: 0.9rem;
-      color: #555;
-      margin-top: 3rem;
+      color: var(--muted);
     }
   </style>
 </head>
@@ -62,119 +107,83 @@
 <body>
 
 <header>
-  <h1>Benchmarking MCMC Multinomial – CHL 2025</h1>
-  <p>Índice automático por secciones</p>
+  <h1>Benchmarking MCMC Multinomial · CHL 2025</h1>
+  <p>
+    Material del curso sobre estimación en áreas pequeñas, inferencia bayesiana y
+    benchmarking de indicadores laborales y sociales mediante cadenas MCMC.
+  </p>
 </header>
 
 <main>
 
+  <!-- ================= INTRODUCCIÓN ================= -->
+  <section class="intro">
+    <h2>Descripción del proyecto</h2>
+    <p>
+      Este repositorio contiene el material del curso <strong>CHL 2025</strong>, enfocado en la
+      estimación de indicadores socioeconómicos mediante modelos bayesianos y técnicas
+      de <em>benchmarking</em> aplicadas a cadenas MCMC.
+    </p>
+    <p>
+      A lo largo de las sesiones se desarrollan modelos de área y de unidad,
+      estimaciones multinomiales (ocupado, desocupado e inactivo),
+      y procedimientos de calibración que garantizan coherencia con totales
+      provenientes de diseños muestrales complejos.
+    </p>
+    <p>
+      El sitio presenta el material organizado por días y sesiones, incluyendo
+      fundamentos conceptuales, desarrollo metodológico y aplicaciones prácticas.
+    </p>
+  </section>
+
+  <!-- ================= CONTENIDOS ================= -->
   <section>
-    <h2>Documentos disponibles</h2>
-    <h3>S1 ODS</h3>
-<ul>
-        <li><a href="00_Introducción/S1_ODS/SAE_ODS_0.html">SAE ODS 0.html</a></li>
-      </ul>
+    <h2>Contenidos del curso</h2>
 
-    <h3>S2 Bayesiana</h3>
-<ul>
-        <li><a href="00_Introducción/S2_Bayesiana/Introduccion_estadisitica_bayes.html">Introduccion estadisitica bayes.html</a></li>
-      </ul>
+    <h3>Introducción</h3>
+    <ul>
+      <li><a href="00_Introducción/S1_ODS/SAE_ODS_0.html">SAE y Agenda ODS</a></li>
+      <li><a href="00_Introducción/S2_Bayesiana/Introduccion_estadisitica_bayes.html">Introducción a la estadística bayesiana</a></li>
+    </ul>
 
-    <h3>Sesion 11 modelo area</h3>
-<ul>
-        <li><a href="Día1_S1/Sesion_11_modelo_area/Modelos_ingreso.html">Modelos ingreso.html</a></li>
-      </ul>
+    <h3>Día 1 · Sesión 1 · Modelos de área</h3>
+    <ul>
+      <li><a href="Día1_S1/Sesion_11_modelo_area/Modelos_ingreso.html">Modelo de ingreso medio</a></li>
+    </ul>
 
-    <h3>Sesion 12 Benchmarking1</h3>
-<ul>
-        <li><a href="Día1_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking.html</a></li>
-      </ul>
+    <h3>Día 1 · Sesión 1 · Benchmarking</h3>
+    <ul>
+      <li><a href="Día1_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking MCMC – Parte 1</a></li>
+      <li><a href="Día1_S1/Sesion_13_Benchmarking2/Benchmarking2.html">Benchmarking MCMC – Parte 2</a></li>
+    </ul>
 
-    <h3>Sesion 13 Benchmarking2</h3>
-<ul>
-        <li><a href="Día1_S1/Sesion_13_Benchmarking2/Benchmarking2.html">Benchmarking2.html</a></li>
-      </ul>
+    <h3>Día 1 · Sesión 2 · Modelos de unidad</h3>
+    <ul>
+      <li><a href="Día1_S2/Sesion_21_modelo_unidad/Modelo_ingreso_medio.html">Modelo de unidad: ingreso medio</a></li>
+      <li><a href="Día1_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
+      <li><a href="Día1_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
+    </ul>
 
-    <h3>Sesion 21 modelo unidad</h3>
-<ul>
-        <li><a href="Día1_S2/Sesion_21_modelo_unidad/Modelo_ingreso_medio.html">Modelo ingreso medio.html</a></li>
-      </ul>
+    <h3>Día 2 · Modelos y aplicaciones</h3>
+    <ul>
+      <li><a href="Día2_S2/Sesion_21_modelo_unidad/Estimacion_pobreza_desempleo.html">Pobreza y desempleo</a></li>
+      <li><a href="Día2_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
+      <li><a href="Día2_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
+    </ul>
 
-    <h3>Sesion 22 Benchmarking1</h3>
-<ul>
-        <li><a href="Día1_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking1.html</a></li>
-      </ul>
+    <h3>Día 3 · Extensiones</h3>
+    <ul>
+      <li><a href="Día3_S2/Sesion_21_modelo_unidad/Modelo_unidad_desempleo.html">Modelo de unidad: desempleo</a></li>
+      <li><a href="Día3_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
+      <li><a href="Día3_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
+    </ul>
 
-    <h3>Sesion 23 Benchmarking2</h3>
-<ul>
-        <li><a href="Día1_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking2.html</a></li>
-      </ul>
-
-    <h3>Sesion 11 modelo area</h3>
-<ul>
-        <li><a href="Día2_S1/Sesion_11_modelo_area/Modelos_area.html">Modelos area.html</a></li>
-      </ul>
-
-    <h3>Sesion 12 Benchmarking1</h3>
-<ul>
-        <li><a href="Día2_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking.html</a></li>
-      </ul>
-
-    <h3>Sesion 13 Benchmarking2</h3>
-<ul>
-        <li><a href="Día2_S1/Sesion_13_Benchmarking2/Benchmarking2.html">Benchmarking2.html</a></li>
-      </ul>
-
-    <h3>Sesion 21 modelo unidad</h3>
-<ul>
-        <li><a href="Día2_S2/Sesion_21_modelo_unidad/Estimacion_pobreza_desempleo.html">Estimacion pobreza desempleo.html</a></li>
-      </ul>
-
-    <h3>Sesion 22 Benchmarking1</h3>
-<ul>
-        <li><a href="Día2_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking1.html</a></li>
-      </ul>
-
-    <h3>Sesion 23 Benchmarking2</h3>
-<ul>
-        <li><a href="Día2_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking2.html</a></li>
-      </ul>
-
-    <h3>Sesion 11 modelo area</h3>
-<ul>
-        <li><a href="Día3_S1/Sesion_11_modelo_area/Modelos_area.html">Modelos area.html</a></li>
-      </ul>
-
-    <h3>Sesion 12 Benchmarking1</h3>
-<ul>
-        <li><a href="Día3_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking.html</a></li>
-      </ul>
-
-    <h3>Sesion 13 Benchmarking2</h3>
-<ul>
-        <li><a href="Día3_S1/Sesion_13_Benchmarking2/Benchmarking2_v02.html">Benchmarking2 v02.html</a></li>
-      </ul>
-
-    <h3>Sesion 21 modelo unidad</h3>
-<ul>
-        <li><a href="Día3_S2/Sesion_21_modelo_unidad/Modelo_unidad_desempleo.html">Modelo unidad desempleo.html</a></li>
-      </ul>
-
-    <h3>Sesion 22 Benchmarking1</h3>
-<ul>
-        <li><a href="Día3_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking1.html</a></li>
-      </ul>
-
-    <h3>Sesion 23 Benchmarking2</h3>
-<ul>
-        <li><a href="Día3_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking2.html</a></li>
-      </ul>
   </section>
 
 </main>
 
 <footer>
-  <p>Proyecto CHL 2025 · Sitio estático generado automáticamente</p>
+  <p>CHL 2025 · Estimación Bayesiana y Benchmarking · Sitio estático</p>
 </footer>
 
 </body>
