@@ -337,7 +337,7 @@ result_iter_calib <- benchmarking_empleo_all(
   multi_fit = model,
   list_bench = list_bench,
   pars = "tasa_pred",
-  n_iter = 500
+  n_iter = 5
 )
 
 saveRDS(result_iter_calib, "../Recurso/Modelo_unidad/result_iter_calib.rds")  
@@ -385,12 +385,9 @@ tab_dam <-  map_df(
   result_iter_calib,
   ~ Indicadores_censo(.x, var_by = "dam") %>%
     mutate(value = value * 100) %>%
-    pivot_wider(names_from = Metodo ,
-                values_from = value)
-) %>% group_by(variable, dam)  %>% 
-  summarise(
-    Bench.  = mean(Bench),
-    Bench_se = sd(Bench))
+    pivot_wider(names_from = Metodo , values_from = value)
+) %>% group_by(variable, dam)  %>%
+  summarise(Bench.  = mean(Bench), Bench_se = sd(Bench))
 
 saveRDS(tab_dam, "../Recurso/Modelo_unidad/002_tab_dam.rds")
 ```

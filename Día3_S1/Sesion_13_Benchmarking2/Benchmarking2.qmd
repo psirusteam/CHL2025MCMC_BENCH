@@ -621,11 +621,6 @@ separate(col = categoria, into = c("categoria", "tipo")) %>%
  dam,  categoria,  Pred = estimate
 ) 
 
-theta_resumen_bench %>% 
-  pivot_wider(
-    names_from  = categoria,
-    values_from = Pred
-  )
 
 ```
 ::: 
@@ -633,6 +628,12 @@ theta_resumen_bench %>%
 ## Resultados  
 
 ```{r, echo=FALSE}
+theta_resumen <- theta_resumen_bench %>% 
+  pivot_wider(
+    names_from  = categoria,
+    values_from = Pred
+  )
+
 theta_resumen %>% head(10) %>% tba()
 
 ```
