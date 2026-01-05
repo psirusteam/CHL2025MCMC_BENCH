@@ -24,39 +24,46 @@
     }
 
     /* ---------- HEADER ---------- */
-    header {
-      background: linear-gradient(120deg, #1F78B4, #155A8A);
-      color: white;
-      padding: 2.2rem 1.5rem;
-    }
+  header {
+  background: linear-gradient(120deg, #1F78B4, #155A8A);
+  color: white;
+  padding: 2.2rem 1.5rem;
+}
 
-    .header-inner {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5rem;
-      flex-wrap: wrap;
-    }
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto; /* texto | logo */
+  align-items: center;
+  gap: 1.5rem;
+}
 
-    .header-text h1 {
-      margin: 0;
-      font-size: 2rem;
-      font-weight: 700;
-    }
+.header-center {
+  text-align: center;
+}
 
-    .header-text p {
-      margin-top: 0.5rem;
-      font-size: 1.05rem;
-      opacity: 0.95;
-      max-width: 900px;
-    }
+.header-text h1 {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
 
-    .header-logos img {
-      height: 110px;
-      max-width: 100%;
-    }
+.header-text p {
+  margin-top: 0.7rem;
+  font-size: 1.05rem;
+  opacity: 0.95;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.header-logos img {
+  height: 110px;
+  max-width: 100%;
+}
+
 
     /* ---------- MAIN ---------- */
     main {
@@ -135,10 +142,7 @@
         Curso de Benchmarking para Modelos Bayesianos de Estimación en 
         Áreas Pequeñas con Métodos MCMC
         </h1>
-      <p>
-        Material del curso sobre estimación en áreas pequeñas, inferencia bayesiana
-        y benchmarking de indicadores laborales y sociales mediante cadenas MCMC.
-      </p>
+      
     </div>
 
     <div class="header-logos">
@@ -149,19 +153,146 @@
 
 <main>
 
-  <section class="intro">
-    <h2>Descripción del proyecto</h2>
-    <p>
-      Este repositorio contiene el material del curso <strong>CHL 2025</strong>, enfocado en la
-      estimación de indicadores socioeconómicos mediante modelos bayesianos y técnicas
-      de <em>benchmarking</em> aplicadas a cadenas MCMC.
-    </p>
-    <p>
-      Se desarrollan modelos de área y de unidad, estimaciones multinomiales
-      (ocupado, desocupado e inactivo), y procedimientos de calibración que garantizan
-      coherencia con totales provenientes de diseños muestrales complejos.
-    </p>
-  </section>
+<section class="intro">
+  <h2>Presentación de la capacitación</h2>
+
+  <p>
+    Este proyecto contiene los materiales, códigos y ejercicios utilizados durante la
+    <strong>capacitación en Métodos de Estimación de Áreas Pequeñas (SAE)</strong>,
+    desarrollada en el marco del fortalecimiento de las capacidades estadísticas para la
+    medición de indicadores sociales y económicos en coherencia con la
+    <strong>Agenda 2030</strong> y los <strong>Objetivos de Desarrollo Sostenible (ODS)</strong>.
+  </p>
+
+  <p>
+    La capacitación aborda los fundamentos teóricos y prácticos de los
+    <strong>modelos de área</strong> y <strong>modelos de unidad</strong>,
+    así como su aplicación a la estimación de indicadores de pobreza, desempleo
+    y mercado laboral. Asimismo, se introducen los métodos de inferencia bayesiana
+    mediante <strong>MCMC</strong> y las técnicas de <strong>benchmarking</strong>
+    orientadas a garantizar la coherencia con estimaciones agregadas provenientes
+    de diseños muestrales complejos.
+  </p>
+
+  <h3>Objetivos de la capacitación</h3>
+  <ul>
+    <li>Comprender los conceptos fundamentales de la estimación de áreas pequeñas.</li>
+    <li>Aplicar modelos de área y de unidad a indicadores de pobreza y desempleo.</li>
+    <li>Introducir métodos de inferencia bayesiana (MCMC) en el contexto de SAE.</li>
+    <li>Implementar procedimientos de benchmarking para garantizar coherencia con totales agregados.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Agenda de trabajo</h2>
+
+  <table style="
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+    border: 1px solid #d1d5db;
+  ">
+    <thead>
+      <tr style="background: #E6EEF6;">
+        <th style="border: 1px solid #d1d5db; padding: 0.75rem; text-align: left;">
+          Día
+        </th>
+        <th style="border: 1px solid #d1d5db; padding: 0.75rem; text-align: left;">
+          Temas principales
+        </th>
+        <th style="border: 1px solid #d1d5db; padding: 0.75rem; text-align: left;">
+          Actividades
+        </th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          <strong>Día 1</strong><br>
+          Ingreso
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem;">
+          <ul>
+            <li><strong>Ingreso – Modelo de área</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+            <li><strong>Ingreso – Modelo de unidad</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          Exposición teórica y ejercicios introductorios
+        </td>
+      </tr>
+
+      <tr style="background: #fafafa;">
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          <strong>Día 2</strong><br>
+          Pobreza
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem;">
+          <ul>
+            <li><strong>Pobreza – Modelo de área</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+            <li><strong>Pobreza – Modelo de unidad</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          Ejercicios aplicados en R
+        </td>
+      </tr>
+
+      <tr>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          <strong>Día 3</strong><br>
+          Mercado laboral
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem;">
+          <ul>
+            <li><strong>Mercado laboral – Modelo de área</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+            <li><strong>Mercado laboral – Modelo de unidad</strong>
+              <ul>
+                <li>Modelo</li>
+                <li>Benchmarking – Parte 1</li>
+                <li>Benchmarking – Parte 2</li>
+              </ul>
+            </li>
+          </ul>
+        </td>
+        <td style="border: 1px solid #d1d5db; padding: 0.75rem; vertical-align: top;">
+          Ejercicios en R y discusión de resultados
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</section>
 
   <!-- ================= CONTENIDOS ================= -->
   <section>
@@ -222,14 +353,26 @@
 
 <footer>
   <p>
-    <strong>Autor:</strong> Andrés · CEPAL<br>
-    <strong>Contacto:</strong>
-    <a href="mailto:andres.gutierrez@cepal.org ">andres.gutierrez@cepal.org </a>
+    <strong>Autores:</strong>
+    Andrés Gutiérrez · Stalyn Guerrero<br>
+    <strong>División de Estadísticas –</strong>
+    <a href="https://www.cepal.org" target="_blank" rel="noopener noreferrer">
+      Comisión Económica para América Latina y el Caribe (CEPAL)
+    </a>
   </p>
+
   <p>
-    CHL 2025 · Estimación Bayesiana y Benchmarking
+    <strong>Contacto:</strong>
+    <a href="mailto:andres.gutierrez@cepal.org">
+      andres.gutierrez@cepal.org
+    </a>
+  </p>
+
+  <p>
+    Estimación Bayesiana y Benchmarking · CHL 2025
   </p>
 </footer>
+
 
 </body>
 </html>
