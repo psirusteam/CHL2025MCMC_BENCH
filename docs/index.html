@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>CHL 2025 · Benchmarking MCMC Multinomial</title>
+  <title>Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC </title>
 
   <style>
     :root {
@@ -23,25 +23,42 @@
       line-height: 1.55;
     }
 
+    /* ---------- HEADER ---------- */
     header {
       background: linear-gradient(120deg, #1F78B4, #155A8A);
       color: white;
-      padding: 2.5rem 1.5rem;
+      padding: 2.2rem 1.5rem;
     }
 
-    header h1 {
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .header-text h1 {
       margin: 0;
       font-size: 2rem;
       font-weight: 700;
     }
 
-    header p {
+    .header-text p {
       margin-top: 0.5rem;
       font-size: 1.05rem;
       opacity: 0.95;
       max-width: 900px;
     }
 
+    .header-logos img {
+      height: 110px;
+      max-width: 100%;
+    }
+
+    /* ---------- MAIN ---------- */
     main {
       max-width: 1100px;
       margin: 0 auto;
@@ -93,13 +110,18 @@
       text-decoration: underline;
     }
 
+    /* ---------- FOOTER ---------- */
     footer {
       background: #f3f4f6;
       border-top: 1px solid var(--border);
-      padding: 1.2rem;
+      padding: 1.4rem 1rem;
       text-align: center;
       font-size: 0.9rem;
       color: var(--muted);
+    }
+
+    footer strong {
+      color: #111827;
     }
   </style>
 </head>
@@ -107,16 +129,26 @@
 <body>
 
 <header>
-  <h1>Benchmarking MCMC Multinomial · CHL 2025</h1>
-  <p>
-    Material del curso sobre estimación en áreas pequeñas, inferencia bayesiana y
-    benchmarking de indicadores laborales y sociales mediante cadenas MCMC.
-  </p>
+  <div class="header-inner">
+    <div class="header-text">
+      <h1>
+        Curso de Benchmarking para Modelos Bayesianos de Estimación en 
+        Áreas Pequeñas con Métodos MCMC
+        </h1>
+      <p>
+        Material del curso sobre estimación en áreas pequeñas, inferencia bayesiana
+        y benchmarking de indicadores laborales y sociales mediante cadenas MCMC.
+      </p>
+    </div>
+
+    <div class="header-logos">
+      <img src="assets/img/logoCepal.jpg" alt="CEPAL">
+    </div>
+  </div>
 </header>
 
 <main>
 
-  <!-- ================= INTRODUCCIÓN ================= -->
   <section class="intro">
     <h2>Descripción del proyecto</h2>
     <p>
@@ -125,14 +157,9 @@
       de <em>benchmarking</em> aplicadas a cadenas MCMC.
     </p>
     <p>
-      A lo largo de las sesiones se desarrollan modelos de área y de unidad,
-      estimaciones multinomiales (ocupado, desocupado e inactivo),
-      y procedimientos de calibración que garantizan coherencia con totales
-      provenientes de diseños muestrales complejos.
-    </p>
-    <p>
-      El sitio presenta el material organizado por días y sesiones, incluyendo
-      fundamentos conceptuales, desarrollo metodológico y aplicaciones prácticas.
+      Se desarrollan modelos de área y de unidad, estimaciones multinomiales
+      (ocupado, desocupado e inactivo), y procedimientos de calibración que garantizan
+      coherencia con totales provenientes de diseños muestrales complejos.
     </p>
   </section>
 
@@ -146,32 +173,43 @@
       <li><a href="00_Introducción/S2_Bayesiana/Introduccion_estadisitica_bayes.html">Introducción a la estadística bayesiana</a></li>
     </ul>
 
-    <h3>Día 1 · Sesión 1 · Modelos de área</h3>
+    <h3>Día 1 · Sesión 1  Modelos de área</h3>
     <ul>
       <li><a href="Día1_S1/Sesion_11_modelo_area/Modelos_ingreso.html">Modelo de ingreso medio</a></li>
-    </ul>
-
-    <h3>Día 1 · Sesión 1 · Benchmarking</h3>
-    <ul>
       <li><a href="Día1_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking MCMC – Parte 1</a></li>
       <li><a href="Día1_S1/Sesion_13_Benchmarking2/Benchmarking2.html">Benchmarking MCMC – Parte 2</a></li>
     </ul>
 
-    <h3>Día 1 · Sesión 2 · Modelos de unidad</h3>
+
+    <h3>Día 1 · Sesión 2  Modelos de unidad</h3>
     <ul>
       <li><a href="Día1_S2/Sesion_21_modelo_unidad/Modelo_ingreso_medio.html">Modelo de unidad: ingreso medio</a></li>
       <li><a href="Día1_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
       <li><a href="Día1_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
     </ul>
 
-    <h3>Día 2 · Modelos y aplicaciones</h3>
+   <h3>Día 2 · Sesión 1  Modelos de área </h3>
     <ul>
-      <li><a href="Día2_S2/Sesion_21_modelo_unidad/Estimacion_pobreza_desempleo.html">Pobreza y desempleo</a></li>
+      <li><a href="Día2_S1/Sesion_11_modelo_area/Modelos_area.html">Modelo de área: Pobreza</a></li>
+      <li><a href="Día2_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking – Parte 1</a></li>
+      <li><a href="Día2_S1/Sesion_13_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
+    </ul>
+    
+    <h3>Día 2  · Sesión 2  Modelos de unidad</h3>
+    <ul>
+      <li><a href="Día2_S2/Sesion_21_modelo_unidad/Estimacion_pobreza_desempleo.html">Modelo de unidad: Pobreza</a></li>
       <li><a href="Día2_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
       <li><a href="Día2_S2/Sesion_23_Benchmarking2/Benchmarking2.html">Benchmarking – Parte 2</a></li>
     </ul>
 
-    <h3>Día 3 · Extensiones</h3>
+    <h3>Día 3 · Sesión 1  Modelos de área</h3>
+    <ul>
+      <li><a href="Día3_S1/Sesion_11_modelo_area/Modelos_area.html">Modelo de área: desempleo</a></li>
+      <li><a href="Día3_S1/Sesion_12_Benchmarking1/Benchmarking.html">Benchmarking – Parte 1</a></li>
+      <li><a href="Día3_S1/Sesion_13_Benchmarking2/Benchmarking2_v02.html">Benchmarking – Parte 2</a></li>
+    </ul>
+    
+    <h3>Día 3  · Sesión 2  Modelos de unidad</h3>
     <ul>
       <li><a href="Día3_S2/Sesion_21_modelo_unidad/Modelo_unidad_desempleo.html">Modelo de unidad: desempleo</a></li>
       <li><a href="Día3_S2/Sesion_22_Benchmarking1/Benchmarking1.html">Benchmarking – Parte 1</a></li>
@@ -183,7 +221,14 @@
 </main>
 
 <footer>
-  <p>CHL 2025 · Estimación Bayesiana y Benchmarking · Sitio estático</p>
+  <p>
+    <strong>Autor:</strong> Andrés · CEPAL<br>
+    <strong>Contacto:</strong>
+    <a href="mailto:andres.gutierrez@cepal.org ">andres.gutierrez@cepal.org </a>
+  </p>
+  <p>
+    CHL 2025 · Estimación Bayesiana y Benchmarking
+  </p>
 </footer>
 
 </body>
