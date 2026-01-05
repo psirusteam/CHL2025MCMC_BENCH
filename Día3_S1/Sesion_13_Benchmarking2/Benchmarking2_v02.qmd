@@ -1,0 +1,552 @@
+---
+title: "Curso de Benchmarking para Modelos Bayesianos de Estimación en Áreas Pequeñas con Métodos MCMC"
+subtitle: "Benchmarking 2 en Modelos de Área para el mercado del trabajo"
+author: "Andrés Gutierrez - Stalyn Guerrero"
+institute: "División de Estadísticas - CEPAL"
+date: "`r Sys.Date()`"
+format: 
+  revealjs:
+    theme: simple
+    transition: fade
+    slide-number: true
+    toc: false
+    css: styles.css
+    width: 1500
+    height: 1000
+    margin: 0.1
+    center: false
+    navigationMode: linear
+    controlsLayout: edges
+    controlsTutorial: false
+    hash: true
+    logo: "img/logoCepal.jpg"
+title-slide-attributes:
+  data-background-image: "img/logoCepal.jpg"
+  data-background-size: "120px"
+  data-background-position: "center 90%"
+editor: 
+  markdown: 
+    wrap: 72
+---
+```{r setup, include=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(srvyr)
+library(sampling)
+library(haven)
+library(stringr)
+
+tba <- function(dat, cap = NA){
+  kable(dat,
+      format = "html", digits =  4,
+      caption = cap) %>% 
+     kable_styling(bootstrap_options = "striped", full_width = F)%>%
+         kable_classic(full_width = F, html_font = "Arial Narrow")
+}
+library(rstan)
+library(knitr)
+library(kableExtra)
+
+# library(rstan) # activar si vas a correr la parte de extracción MCMC
+```
+
+
+
+## Introducción
+
+Este sección describe paso a paso el procedimiento de *benchmarking* aplicado a cada iteración del modelo bayesiano de área multinomial. El objetivo es garantizar que las estimaciones modeladas sean coherentes con los totales agregados obtenidos directamente de la encuesta, preservando la consistencia interna por dominio.
+
+
+## Objetivo
+
+Se documenta el procedimiento completo para aplicar **benchmarking exacto** a
+probabilidades multinomiales generadas por MCMC, de forma que los agregados por
+**DAM** cierren con los **totales directos de encuesta**.
+
+La actualización metodológica central es la siguiente:
+
+* **Benchmark (modelo/MCMC):** se reporta únicamente la **media posterior** (no se
+  reportan IC del benchmark en la comparación).
+  
+* **Diseño (directo):** se reporta estimación puntual y **IC de diseño**.
+
+Esto evita mezclar incertidumbre de modelo con incertidumbre de diseño en una
+misma gráfica comparativa.
+
+## Notación
+
+* Dominios agregados (DAM): $d \in {1,\dots,D}$.
+
+* Subdominios/post-estratos (por ejemplo `dam2`): $k \in {1,\dots,K}$.
+
+* Categorías empleo: $c \in {O,D,I}$ (ocupado, desocupado, inactivo).
+
+* Conteo poblacional (post-estrato): $N_k$ (en código: `N_mpio`).
+
+* Totales directos por DAM: $T_{d,c}^{DIR}$.
+
+* Probabilidades multinomiales MCMC en iteración $s$: $p_{k,c}^{(s)}$.
+
+## Paso 1. Totales directos por DAM (benchmarks)
+
+### Definición
+
+A partir del diseño muestral, se estiman los totales directos
+
+$$
+T_{d,c}^{DIR} = \sum_{i \in s_d} w_i,\mathbb{1}(y_i=c),\quad c\in{O,D,I}
+$$
+
+y el total poblacional
+
+$$
+T_{d,N}^{DIR} = \sum_{i \in s_d} w_i.
+$$
+
+En tu implementación, para el benchmarking multinomial se fijan explícitamente
+$T_{d,N}^{DIR}$, $T_{d,O}^{DIR}$ y $T_{d,D}^{DIR}$ (y opcionalmente $T_{d,I}^{DIR}$
+si se incluye).
+
+## Lectura de conteos censales 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+conteo_pp_dam <- readRDS("../Recurso/Modelo_area/censo_dam2.rds") %>%
+  filter(edad > 1)  %>% 
+  group_by(dam , dam2) %>% 
+  summarise(N_mpio = sum(n), .groups = "drop") %>% 
+  group_by(dam) %>% 
+  mutate(N_dam = sum(N_mpio))
+```
+:::
+
+## Conteos poblacionales por dominio
+
+```{r, echo=FALSE}
+head(conteo_pp_dam, 10) %>% tba()
+```
+
+## Lectura de la encuesta 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+set_data <- readRDS('../Recurso/encuesta2017CHL.Rds')
+
+length_upm <- max(nchar(set_data[["_upm"]]))
+length_estrato <- max(nchar(set_data[["_estrato"]]))
+id_dominio <- "dam2"
+
+set_data <- set_data %>%
+  transmute(
+    dam = as_factor(dam_ee, levels = "values"),
+    dam = str_pad(string = dam, width = 2, pad = "0"),
+    dam2 = as_factor(comuna, levels = "values"),
+    dam2 = str_pad(string = dam2, width = 5, pad = "0"),
+    nombre_dam = as_factor(dam_ee, levels = "labels"),
+    nombre_dam2 = as_factor(comuna, levels = "labels"),
+    upm = str_pad(`_upm`, width = length_upm, pad = "0"),
+    estrato = str_pad(`_estrato`, width = length_estrato, pad = "0"),
+    fep = `_fep`,
+    empleo = condact3
+  )
+```
+:::
+
+
+## Definir el diseño de muestreo   
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+options(survey.lonely.psu = 'adjust')
+
+diseno <- set_data %>%
+  as_survey_design(
+    strata = estrato,
+    ids = upm,
+    weights = fep,
+    nest = TRUE
+  )
+
+```
+:::
+
+
+## Estimaciones directas 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+indicador_agregado <- diseno %>%
+filter(empleo %in% 1:3) %>%
+group_by(dam) %>%
+summarise(
+N_tot = as.numeric(survey_total(vartype = NULL)),
+O_tot = as.numeric(survey_total(empleo == 1, vartype = NULL)),
+D_tot = as.numeric(survey_total(empleo == 2, vartype = NULL)),
+.groups = "drop"
+)
+
+totales_reales_dam <- indicador_agregado %>%
+mutate(
+check_N   = N_tot > 0,
+check_OD  = O_tot >= 0 & D_tot >= 0,
+check_sum = (O_tot + D_tot) <= N_tot
+)
+
+stopifnot(
+all(totales_reales_dam$check_N),
+all(totales_reales_dam$check_OD),
+all(totales_reales_dam$check_sum)
+)
+
+totales_reales_dam <- totales_reales_dam %>%
+select(dam, N_tot, O_tot, D_tot)
+
+```
+:::
+
+## Estimaciones directas 
+
+```{r, echo=FALSE}
+tba(indicador_agregado)
+```
+
+
+## Paso 2. Probabilidades multinomiales del modelo (MCMC)
+
+### Salida del modelo
+
+Para cada subdominio $k$ y cada iteración MCMC $s$, el modelo entrega
+
+$$
+\mathbf{p}_k^{(s)} = \big(p_{k,O}^{(s)},p_{k,D}^{(s)},p_{k,I}^{(s)}\big),
+\qquad \sum_{c\in{O,D,I}} p_{k,c}^{(s)} = 1.
+$$
+
+> En el script, estas probabilidades provienen de `theta` (observados) y
+`theta_pred` (predichos), y se concatenan respetando el orden de `dam2`.
+
+
+
+## Paso 3. Benchmarking por calibración (iteración a iteración)
+
+
+Se busca un conjunto de factores de calibración $g_k^{(s)}$ tales que los pesos
+ajustados
+
+$$
+w_k^{(s)} = N_k,g_k^{(s)}
+$$
+
+garanticen, para cada DAM $d$, las restricciones de cierre:
+
+$$
+\sum_{k \in d} w_k^{(s)} = T_{d,N}^{DIR},
+\qquad
+\sum_{k \in d} w_k^{(s)}p_{k,O}^{(s)} = T_{d,O}^{DIR},
+\qquad
+\sum_{k \in d} w_k^{(s)}p_{k,D}^{(s)} = T_{d,D}^{DIR}.
+$$
+
+En forma matricial, para cada iteración $s$:
+
+$$
+\mathbf{X}^{(s)\top}\mathbf{w}^{(s)} = \mathbf{t}^{DIR},
+\quad \text{con}\quad \mathbf{w}^{(s)} = \mathbf{d}\odot\mathbf{g}^{(s)},
+$$
+
+donde:
+
+* $\mathbf{d}$ corresponde a `N_mpio` (conteos base por `dam2`).
+* $\mathbf{X}^{(s)}$ es la matriz construida con dummies por DAM y las
+  probabilidades $p_{k,O}^{(s)}$ y $p_{k,D}^{(s)}$.
+* $\mathbf{t}^{DIR}$ apila los totales directos $N$, $O$ y $D$ por DAM.
+
+## Construcción explícita de $\mathbf{X}^{(s)}$
+
+Sea $\mathbb{1}(k\in d)$ el indicador de pertenencia del subdominio $k$ al DAM
+$d$. Entonces para cada DAM se construyen tres columnas conceptuales:
+
+* Columna $N$: $\mathbb{1}(k\in d)$
+
+* Columna $O$: $\mathbb{1}(k\in d),p_{k,O}^{(s)}$
+
+* Columna $D$: $\mathbb{1}(k\in d),p_{k,D}^{(s)}$
+
+Esto es exactamente lo que el script implementa con `model.matrix()` + productos
+por columna.
+
+
+
+
+## Lectura de bases de datos y modelos. 
+
+::: {.callout-tip}
+
+### Código de `R`
+
+
+```{r}
+theta_obs_ordenado <- readRDS("../Recurso/Modelo_area/Predi_obs_theta.rds")
+
+theta_pred_ordenado <- readRDS("../Recurso/Modelo_area/Predi_no_obs_theta.rds")
+
+id_dam <- bind_rows(theta_obs_ordenado, theta_pred_ordenado) %>% pull(dam2)
+
+fit <- readRDS("../Recurso/Modelo_area/fit_multinomial_no_cor.Rds")
+
+```
+:::
+
+## Implementación 
+
+A continuación se presenta la función de benchmarking iteración-a-iteración, en
+la misma lógica del script:
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+
+source("../Recurso/Modelo_area/funciones/benchmark_mcmc_multinomial_bench_dam.R")
+
+reusul_res_bench <- benchmark_mcmc_multinomial_bench_dam(
+  fit,
+  theta_obs_ordenado,
+  theta_pred_ordenado,
+  conteo_pp_dam,        
+  totales_reales_dam,   
+  dam_var = "dam",
+  method = "logit",
+  max_iter = 5000,
+  tol = 1e-6
+)
+```
+:::
+
+## Paso 4. Resumen posterior por DAM
+
+Una vez se obtienen iteraciones válidas, se agregan contribuciones por DAM y se
+derivan indicadores:
+
+$$
+\hat{O}_d^{(s)} = \sum_{k\in d} w_k^{(s)}p_{k,O}^{(s)},\quad
+\hat{D}_d^{(s)} = \sum_{k\in d} w_k^{(s)}p_{k,D}^{(s)},\quad
+\hat{I}_d^{(s)} = \sum_{k\in d} w_k^{(s)}p_{k,I}^{(s)}.
+$$
+
+Con $\hat{N}_d^{(s)} = \sum_{k\in d} w_k^{(s)}$, las tasas:
+
+$$
+\widehat{TO}_d^{(s)} = \hat{O}_d^{(s)}/\hat{N}_d^{(s)},\qquad
+\widehat{TP}_d^{(s)} = (\hat{O}_d^{(s)}+\hat{D}_d^{(s)})/\hat{N}_d^{(s)},
+\qquad
+\widehat{TD}_d^{(s)} = \hat{D}_d^{(s)}/(\hat{O}_d^{(s)}+\hat{D}_d^{(s)}).
+$$
+
+## Resumen posterior
+
+$$
+\bar{\theta}_d = \frac{1}{S^*}\sum_{s=1}^{S^*} \theta_d^{(s)}
+$$
+
+donde $S^*$ es el número de iteraciones válidas, y opcionalmente cuantiles
+para intervalos creíbles.
+
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+source("../Recurso/Modelo_area/funciones/resumir_bench_empleo_dam.R")
+resumen_bench <- resumir_bench_empleo_dam(reusul_res_bench)
+
+bench_long <- resumen_bench$resumen %>%
+  select(dam, variable, mean, lci, uci)
+```
+:::
+
+
+
+## Estimaciones bench agregadas 
+
+```{r, echo=FALSE}
+tba(bench_long %>% head(10))
+```
+
+
+## Paso 5. Estimación directa con IC de diseño (totales y tasas)
+
+La estimación directa con IC se obtiene con `srvyr` mediante:
+
+* Totales: `survey_total(vartype = "ci")`
+* Tasas:   `survey_mean(vartype = "ci")`
+
+Incluyendo el caso condicional de TD sobre la PEA.
+
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+source("../Recurso/Modelo_area/funciones/make_agregados_empleo_dam.R")
+agregados_dam <- make_agregados_empleo_dam(diseno)
+```
+:::
+
+
+## Estimaciones directas con IC 
+
+```{r, echo=FALSE}
+tba(agregados_dam %>% head(10))
+```
+
+
+## Paso 6. Construcción de tablas long para comparación
+
+Se construye una tabla long con:
+
+* `design`: estimación puntual
+* `lci/uci`: IC de diseño
+
+::: {.callout-tip}
+
+### Código de `R`
+
+```{r}
+design_long <- agregados_dam %>%
+pivot_longer(
+cols = -dam,
+names_to = "name",
+values_to = "value"
+) %>%
+mutate(
+variable = sub("_(lci|uci)$", "", name),
+tipo = case_when(
+grepl("_lci$", name) ~ "design_lci",
+grepl("_uci$", name) ~ "design_uci",
+TRUE                 ~ "design"
+)
+) %>%
+select(dam, variable, tipo, value) %>%
+pivot_wider(names_from = tipo, values_from = value)
+```
+:::
+
+## Benchmark 
+
+::: {.callout-tip}
+
+### Tabla final
+
+```{r}
+bench_mean <- bench_long %>%
+select(dam, variable, mean) %>%
+rename(bench_mean = mean)
+
+comp <- bench_mean %>%
+left_join(design_long, by = c("dam", "variable"))
+```
+
+:::
+
+
+## Tabla final
+
+```{r, echo=FALSE}
+tba(comp %>% head(10))
+```
+
+
+## Paso 7. Visualización
+
+El gráfico de comparación utiliza:
+
+* Errorbars: IC de diseño (`design_lci`, `design_uci`)
+* Punto: estimador puntual directo (`design`)
+* Punto: media posterior benchmark (`bench_mean`)
+
+::: {.callout-tip}
+
+### Código de `R`
+```{r}
+source("../Recurso/Modelo_area/funciones/plot_compare_indicator.R")
+
+indicadores <- unique(comp$variable)
+
+plots <- lapply(indicadores, function(v){
+  plot_compare_indicator(comp, v)
+})
+
+names(plots) <- indicadores
+```
+:::
+
+## Plot Tasa de participación
+
+```{r, echo=FALSE}
+plots$TP
+```
+
+## Plot Tasa de Desocupación 
+```{r, echo=FALSE}
+plots$TD
+```
+
+## Plot Tasa de Ocupación
+
+```{r, echo=FALSE}
+plots$TO
+```
+
+## Plot Ocupados
+```{r, echo=FALSE}
+plots$O
+```
+
+## Plot Desocupados
+```{r, echo=FALSE}
+plots$D
+```
+
+## Plot Inactivos 
+```{r, echo=FALSE}
+plots$I
+```
+
+
+
+## Checklist operacional (para depuración)
+
+1. Verificar que `conteo_pp_dam` tenga: `dam2`, `dam`, `N_mpio`.
+2. Verificar que `theta_obs_ordenado` y `theta_pred_ordenado` estén en el mismo
+   orden que las matrices Stan (`theta`, `theta_pred`).
+3. Confirmar coherencia de totales directos por DAM:
+
+   * $O+ D \le N$.
+   
+4. Si hay muchas iteraciones descartadas:
+
+   * revisar variabilidad dentro de DAM;
+   * revisar dominancia de un subdominio (N_mpio muy grande);
+   * revisar singularidad de `Xs`.
+
+
+# Gracias
