@@ -6,7 +6,6 @@ styles_temp.css
 Benchmarking en Cadenas MCMC_files
 Benchmarking-en-Cadenas-MCMC_cache
 Introduccion_estadisitica_bayes_cache
-Introduccion_estadisitica_bayes_files
 Presentacion/recursos/epred_mat.rds
 Presentacion/recursos/Multinivel_multinomial_model.rds
 Presentacion/recursos/Multinivel_multinomial_model_no_cor.rds
@@ -16,24 +15,15 @@ Presentacion/recursos/poststrat_df_iter_ingreso.rds
 Presentacion/recursos/poststrat_df_iter_ingreso_logit.rds
 Presentacion/recursos/resul_validar_modelo.rds
 Presentacion/recursos/resul_validar_modelo_no_cor.rds
+Thumbs.db
 Recursos_00
 Presentacion
-SAE_ODS_0_files
-Introduccion_estadisitica_bayes_files
-Modelos_ingreso_files
-Benchmarking_files
-Benchmarking1_files
-Benchmarking2_files
-Modelo_ingreso_medio_files
-Benchmarking2_files
-Benchmarking_files
-Modelos_area_files
 Estimacion_pobreza_desempleo_files
 Benchmarking2_cache
 Estimacion_pobreza_desempleo_files
-Modelo_unidad_desempleo_files
 Multinivel_multinomial_model_no_cor_dam2.rds
 resul_validar_modelo_no_cor.rds
 resul_validar_modelo_no_cor2.rds
 result_iter_calib.rds
 Multinivel_multinomial_model_no_cor.rds
+generar_site_estatico_docs.R
